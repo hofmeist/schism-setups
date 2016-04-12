@@ -302,11 +302,11 @@
 ! If iupwind_t>0, the interpolation method below ('inter_st') does not affect T or S.
 ! New: iupwind_t=3, implicit TVD (under dev)
 !-----------------------------------------------------------------------
-  iupwind_t = 1 !not used for 2D model
-!  h_tvd = 5. !used only if iupwind_t=2; cut-off depth (m) 
+  iupwind_t = 2 !not used for 2D model
+  h_tvd = 1. !used only if iupwind_t=2; cut-off depth (m) 
   !The following 2 parameters should only be changed if cpp flag CHOOSE_TVD is turned on
-!  tvd_mid = AA !AA (default) or CC (Casulli's formulation); needed only if iupwind_t=2
-!  flimiter = SB !flux limiter option if iupwind_t=2
+  tvd_mid = AA !AA (default) or CC (Casulli's formulation); needed only if iupwind_t=2
+  flimiter = SB !flux limiter option if iupwind_t=2
               !revert to upwind; used in conjunction with the flags in tvd.prop
 
 !-----------------------------------------------------------------------
