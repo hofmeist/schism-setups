@@ -1,0 +1,12 @@
+#!/bin/bash
+
+name=$1
+dx=$2
+
+
+mkdir -p $name
+(cd $name; python ../Scripts/create_grid.py $dx)
+cp param.in $name
+cp vgrid.in $name
+
+
