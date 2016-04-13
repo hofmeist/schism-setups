@@ -14,10 +14,10 @@ runs[500] = name+'_500m'
 runs[200] = name+'_200m'
 runs[100] = name+'_100m'
 runs[50] = name+'_50m'
-#runs[20] = name+'_20m'
+runs[20] = name+'_20m'
 
 lss = ['-','--',':','-.','-..']
-tidx = 479
+tidx = 477
 
 fig = figure(figsize=(8,5))
 
@@ -38,7 +38,7 @@ for dx in keys:
   x = ncv['x'][yidx]/1000.
 
   
-  if label=='50 m':
+  if label=='20 m':
     col = 'r'
     ls = '-'
     s0 = ncv['salt'][0,-1][yidx]-35.
