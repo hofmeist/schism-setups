@@ -18,9 +18,12 @@ runs[100] = name+'_100s'
 runs[200] = name+'_200s'
 
 lss = ['-','--',':','-.','-..']
-tidx = 479
+tidx = 477
 
 fig = figure(figsize=(8,5))
+tax=axes()
+vf = figure(figsize=(8,5))
+vax=axes()
 
 keys = sorted(runs)
 
@@ -37,25 +40,41 @@ for dt in keys:
   s = ncv['salt'][tidx,-1][yidx]-35.
   x = ncv['x'][yidx]/1000.
 
+  vnc = netCDF4.Dataset('%s/outputs/1_hvel.nc'%folder)
+  vncv = vnc.variables
+  xidx=21+11
+  v = vncv['u'][-25:,-1,xidx]
+  vt = vncv['time'][-25:]
+  hours = (vt-vt[0])/3600.
   
-  if label=='20 s':
+  if label=='50 s':
     col = 'r'
     ls = '-'
     s0 = ncv['salt'][0,-1][yidx]-35.
-    plot(x,s0,'-',lw=3.0,color='orange',label='initial condition')
+    tax.plot(x,s0,'-',lw=3.0,color='orange',label='initial condition')
   else:
     col = (log(int(label[:-2]))/log(5)/3.-0.3)*ones((3))
     ls = '-'#lss.pop()
     
 
-  plot(x,s,ls=ls,color=col,lw=2.0,label=label)
+  tax.plot(x,s,ls=ls,color=col,lw=2.0,label=label)
+  vax.plot(hours,v,ls=ls,color=col,lw=2.0,label=label)
 
   nc.close()
+  vnc.close()
 
-ylim(-0.1,1.1)
-ylabel('Tracer [1/1]')
-xlabel('km')
-legend(loc='upper left',frameon=False)
+tax.set_ylim(-0.1,1.1)
+tax.set_ylabel('Tracer [1/1]')
+tax.set_xlabel('km')
+tax.legend(loc='upper left',frameon=False)
 
-savefig('transport_comparison_%s.pdf'%name)
-show()
+vax.set_ylim(-0.2,0.2)
+vax.set_ylabel('surface current [m/s]')
+vax.set_xlabel('time [h]')
+vax.legend(loc='upper left',frameon=False)
+
+fig.savefig('transport_comparison_%s.pdf'%name)
+show(fig)
+
+vf.savefig('velocity_comparison_%s.pdf'%name)
+show(vf)
