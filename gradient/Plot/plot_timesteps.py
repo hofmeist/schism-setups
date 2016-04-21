@@ -8,14 +8,22 @@ if len(sys.argv)>1:
 else:
   name='test'
 
-
-runs[5] = name+'_5s'
-runs[10] = name+'_10s'
-runs[25] = name+'_25s'
-runs[37] = name+'_37s'
-runs[50] = name+'_50s'
-runs[100] = name+'_100s'
-runs[200] = name+'_200s'
+if False:
+ runs[5] = name+'_5s'
+ runs[10] = name+'_10s'
+ runs[25] = name+'_25s'
+ runs[37] = name+'_37s'
+ runs[50] = name+'_50s'
+ runs[100] = name+'_100s'
+ runs[200] = name+'_200s'
+else:
+ runs[5] = name+'_5s'
+ runs[10] = name+'_10s'
+ runs[15] = name+'_15s'
+ runs[20] = name+'_20s'
+ runs[40] = name+'_40s'
+ runs[80] = name+'_80s'
+ runs[160] = name+'_160s'
 
 lss = ['-','--',':','-.','-..']
 tidx = 477
@@ -30,7 +38,7 @@ keys = sorted(runs)
 for dt in keys:
   folder = runs[dt]
   label = '%d s'%dt
-
+  print(folder)
   nc = netCDF4.Dataset('%s/outputs/1_salt.nc'%folder)
   ncv=nc.variables
 
