@@ -118,3 +118,36 @@ class schism_setup(object):
       xlabel('longitude [degE]')
       ylabel('latitude [degN]')
       show()
+
+  def bdy_array(self,fname):
+      """
+      read boundary *.th files into a numpy array
+      """
+      import numpy as np
+
+      if fname == 'elev2D.th':
+        f = open(fname,'rb')
+        times = []
+        data = []
+        while f.read(1):
+          f.seek(-1,1)
+          times.append(np.fromfile(f,dtype='float32',count=1))
+          data.append(np.fromfile(f,dtype='float32',count=self.num_bdy_nodes))
+        times = np.asarray(times)
+        data = np.asarray(data)
+        return times,data
+      else:
+        print('  no support for file type %s'%fname)
+
+        
+if __name__ == '__main__':
+
+    from pylab import *
+    setup = schism_setup('hgrid.gr3')
+    # plot domain
+    setup.plot_domain_boundaries()
+
+    # read elevation boundaries
+    t,e = setup.bdy_array('elev2D.th')
+    plot(t[:],e[:,0])
+    show()
