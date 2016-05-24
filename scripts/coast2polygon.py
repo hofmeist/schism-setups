@@ -215,8 +215,8 @@ surface.append(s)
 
 #dump data into .poly file:
 f=open('coast.geo','w')
-f.write('bres = %0.2f;\n'%2000.)
-f.write('cres = %0.2f;\n'%500.)
+f.write('bres = %0.2f;\n'%5000.)
+f.write('cres = %0.2f;\n'%5000.)
 insurface=[]
 
 # set resolution at boundaries
@@ -259,6 +259,21 @@ for item in openbdy[:-1]:
   f.write('%d, '%item)
 f.write('%d };\n'%openbdy[-1])
 
+# write land bdy list for zooming
+coast=landbdy
+coast.extend(islandbdy)
+coastlist = str(coast)[1:-1]
+
+f.write("""
+Field[1] = MathEval;
+Field[1].F = "2000.";
+
+Field[2] = Restrict;
+Field[2].IField = 1;
+Field[2].EdgesList = {%s};
+
+Background Field = 2;
+"""%(coastlist))
 
 f.close()
 
