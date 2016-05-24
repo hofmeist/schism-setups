@@ -66,7 +66,6 @@ class gr3():
         f.write('%d\n'%node)
 
     # island nodes
-    f.write('%d\n'%self.num_island_nodes)
     for i,sublist in enumerate(self.island_nodes):
       f.write('%d 1 = Number of nodes for island boundary %d\n'%(len(sublist),i+1))
       for node in sublist:
