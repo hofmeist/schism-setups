@@ -94,7 +94,7 @@ class schism_setup(object):
     f.write('%d %d\n'%(self.nelements,self.nnodes))
     # write nodes
     for n,x,y,d in zip(self.inodes,self.lon,self.lat,self.depths):
-      f.write('%d %0.2f %0.2f %0.2f\n'%(n,x,y,d))
+      f.write('%d %0.6f %0.6f %0.2f\n'%(n,x,y,d))
 
     # write elements
     for n,nv in zip(self.ielement,self.nv):
