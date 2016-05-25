@@ -15,14 +15,17 @@ class schism_setup(object):
       n=[]
       x=[]
       y=[]
+      d=[]
       for nn in range(self.nnodes):
         dat=f.readline().split()
         n.append(int(dat[0]))
         x.append(float(dat[1]))
         y.append(float(dat[2]))
+        d.append(float(dat[3]))
       self.inodes = n
       self.x = x
       self.y = y
+      self.depths = d
       
       n=[]
       nv = []
@@ -30,7 +33,7 @@ class schism_setup(object):
         dat=f.readline().split()
         n.append(int(dat[0]))
         nvnum = int(dat[1])
-        nv.append([ int(ii) for ii in dat[2:nvnum]])
+        nv.append([ int(ii) for ii in dat[2:2+nvnum]])
       self.ielement = n
       self.nv = nv
       
@@ -63,24 +66,44 @@ class schism_setup(object):
       f.close()
 
       # parse hgrid.ll file
-      f = open(ll_file)
-      line = f.readline().rstrip()
-      dat = f.readline().split()
-      ll_nelements = int(dat[0])
-      ll_nnodes = int(dat[1])
+      try:
+        f = open(ll_file)
+        line = f.readline().rstrip()
+        dat = f.readline().split()
+        ll_nelements = int(dat[0])
+        ll_nnodes = int(dat[1])
       
-      nll = []
-      lon=[]
-      lat=[]
-      for nn in range(self.nnodes):
-        dat=f.readline().split()
-        nll.append(int(dat[0]))
-        lon.append(float(dat[1]))
-        lat.append(float(dat[2]))
-      self.ill = n
-      self.lon = lon
-      self.lat = lat
-      f.close()
+        nll = []
+        lon=[]
+        lat=[]
+        for nn in range(self.nnodes):
+          dat=f.readline().split()
+          nll.append(int(dat[0]))
+          lon.append(float(dat[1]))
+          lat.append(float(dat[2]))
+        self.ill = n
+        self.lon = lon
+        self.lat = lat
+        f.close()
+      except:
+        print('  no hgrid.ll available')
+
+  def dump_hgridll(self,filename='hgrid_new.ll'):
+    f = open(filename,'w')
+    f.write('%s\n'%filename)
+    f.write('%d %d\n'%(self.nelements,self.nnodes))
+    # write nodes
+    for n,x,y,d in zip(self.inodes,self.lon,self.lat,self.depths):
+      f.write('%d %0.2f %0.2f %0.2f\n'%(n,x,y,d))
+
+    # write elements
+    for n,nv in zip(self.ielement,self.nv):
+      f.write('%d %d '%(n,len(nv)))
+      for nvi in nv:
+        f.write('%d '%nvi)
+      f.write('\n')
+    # write boundaries
+    f.close()
 
   def get_bdy_latlon(self):
       bdylon = [ self.lon[ii-1] for ii in self.bdy_nodes ]
