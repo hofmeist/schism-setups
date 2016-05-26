@@ -160,14 +160,18 @@ class msh():
         self.linelengths[labelid] += len(self.sublist[subkey])
       
 if __name__ == '__main__':
-
+  import sys
   if False:
     # read projection:
     pf = open('coast_proj.pickle','rb')
     m, = pickle.load(f)
     pf.close()
 
-  mesh=msh('coast.msh')
+  if len(sys.argv)>1:
+    filename=sys.argv[1]
+  else:
+    filename='coast.msh'
+  mesh=msh(filename)
   hgrid=gr3()
   hgrid.import_mesh(mesh)
   hgrid.dump('hgrid.gr3')
