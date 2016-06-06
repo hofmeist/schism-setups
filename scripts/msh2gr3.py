@@ -34,9 +34,13 @@ class gr3():
     self.num_openboundary_nodes=mesh.linelengths[id]
     self.openboundary_nodes=mesh.lines[id]
 
-    id = mesh.labelids['islandbdy']
-    self.num_island_nodes=mesh.linelengths[id]
-    self.island_nodes=mesh.lines[id]
+    if 'islandbdy' in mesh.labelids:
+      id = mesh.labelids['islandbdy']
+      self.num_island_nodes=mesh.linelengths[id]
+      self.island_nodes=mesh.lines[id]
+    else:
+      self.num_island_nodes = 0
+      self.island_nodes=[]
 
   def dump(self,filename='hgrid.gr3'):
     f = open(filename,'w')
