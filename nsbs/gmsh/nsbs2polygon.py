@@ -47,6 +47,20 @@ for (xp,yp),ctype in zip(polys,m.coastpolygontypes):
     land.append(zip(xp,yp))
     sland.append(sg.Polygon(zip(xp,yp)))
 
+
+# add Helgoland islands
+hcoords = [(7.891,54.169),(7.899,54.175),(7.892,54.184),(7.884,54.189),(7.869,54.189)]
+hcoords = [ m(xx,yy) for xx,yy in hcoords ]
+land.append(hcoords)
+sland.append(sg.Polygon(hcoords))
+hcoords1 = hcoords
+
+hcoords = [(7.909,54.180),(7.919,54.181),(7.920,54.190),(7.901,54.188)]
+hcoords = [ m(xx,yy) for xx,yy in hcoords ]
+land.append(hcoords)
+sland.append(sg.Polygon(hcoords))
+
+
 newland=[]
 bdyp = []
 
@@ -69,6 +83,8 @@ problem = sg.Polygon([(1240670.,602230),(1240820.,602391.),(1236570.,607544.),(1
 
 # helgoland point (to increase resolution)
 xhelgoland,yhelgoland = m(7.9,54.185)
+
+
 
 water = domain
 # take out the first 3 land polygons
@@ -278,7 +294,7 @@ surface.append(s)
 #dump data into .poly file:
 f=open('coast.geo','w')
 f.write("""
-Mesh.CharacteristicLengthFromPoints = 0;
+Mesh.CharacteristicLengthFromPoints = 1;
 Mesh.CharacteristicLengthExtendFromBoundary = 0;
 """)
 f.write('bres = %0.2f;\n'%2000.)
