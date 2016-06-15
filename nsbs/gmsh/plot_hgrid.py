@@ -62,7 +62,7 @@ figure()
 
 triplot(xx,yy,asarray(verts.values())-1,'k-',lw=0.1)
 
-savefig('%s_grid.pdf'%(filename.split('.')[0]))
+#savefig('%s_grid.pdf'%(filename.split('.')[0]))
 show()
 
 
