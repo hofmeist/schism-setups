@@ -2,12 +2,18 @@
 import pickle
 import netCDF4
 from pylab import *
+import sys
+
+if len(sys.argv)>1:
+  bathyfile = sys.argv[1]
+else:
+  bathyfile = 'emodnet_bathymetry.nc'
 
 f = open('coast_proj.pickle','rb')
 m, = pickle.load(f)
 f.close()
 
-nc = netCDF4.Dataset('emodnet_bathymetry.nc')
+nc = netCDF4.Dataset(bathyfile)
 ncv = nc.variables
 
 lonv=ncv['lon'][:]
