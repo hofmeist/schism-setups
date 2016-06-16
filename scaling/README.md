@@ -8,3 +8,8 @@ The initial elevation has an east-west-gradient in elev.ic
 The density is set up as north-south log-exchange through salt.ic
 
 bottom roughness and mixing length-scale are horizontally constant in rough.gr3 and xlsc.gr3
+
+first estimate on mistral:
+<6min for 1 hour and 5 layers with 96 processes on 4 nodes
+
+

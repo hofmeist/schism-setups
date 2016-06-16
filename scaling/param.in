@@ -202,7 +202,7 @@
 ! Coriolis is calculated from local latitude, and 'cpp_lat' is not used.
 !-----------------------------------------------------------------------
   ncor = -1 !must be 1 if ics=2
-  latitude = 0.0 !if ncor=-1
+  latitude = 60.0 !if ncor=-1
 !  coriolis = 1.e-4 !if ncor=0
 
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -213,7 +213,7 @@
 ! to specify the initial elevations; otherwise elevation is initialized to 0 everywhere 
 ! (cold start only)
 !-----------------------------------------------------------------------
-  ic_elev = 0
+  ic_elev = 1
 
 !-----------------------------------------------------------------------
 ! Elevation boundary condition ramp-up flag. =0: ramp up from 0; =1: ramp up from
@@ -310,7 +310,7 @@
 !-----------------------------------------------------------------------
 ! Run time and ramp option
 !-----------------------------------------------------------------------
-  rnday = 10 !total run time in days
+  rnday = 0.0417 !total run time in days
   nramp = 0 !ramp-up option (1: on; 0: off)
   dramp = 1. !needed if nramp=1; ramp-up period in days
   dt = 36.0
