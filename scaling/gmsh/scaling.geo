@@ -25,7 +25,7 @@ Point {10} In Surface {10};
 Point {11} In Surface {10};
 Point {12} In Surface {10};
 
-Physical Line("landbdy") = {5,7};
-Physical Line("openbdy") = {6,8};
+Physical Line("landbdy") = {5,6,7,8};
+//Physical Line("openbdy") = {6,8};
 Physical Surface("water") = {10};
 
