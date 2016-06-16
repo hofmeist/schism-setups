@@ -30,9 +30,13 @@ class gr3():
     self.num_land_nodes=mesh.linelengths[id]
     self.land_nodes=mesh.lines[id]
 
-    id = mesh.labelids['openbdy']
-    self.num_openboundary_nodes=mesh.linelengths[id]
-    self.openboundary_nodes=mesh.lines[id]
+    if 'openbdy' in mesh.labelids:
+      id = mesh.labelids['openbdy']
+      self.num_openboundary_nodes=mesh.linelengths[id]
+      self.openboundary_nodes=mesh.lines[id]
+    else:
+      self.num_openboundary_nodes=0
+      self.openboundary_nodes=[]
 
     if 'islandbdy' in mesh.labelids:
       id = mesh.labelids['islandbdy']
