@@ -26,7 +26,7 @@ f = open('elev.ic','w')
 f.write('initial surface elevation\n')
 f.write('%d %d\n'%(s.nelements,s.nnodes))
 for i,x,y in zip(s.inodes,s.x,s.y):
-  elev = interp(x,[0.,100000.],[2.0,-2.0])
+  elev = interp(x,[0.,100000.],[1.0,-1.0])
   f.write('%d %0.2f %0.2f %0.5f\n'%(i,x,y,elev))
 f.close()
 

@@ -25,10 +25,11 @@
 module load intelmpi
 export I_MPI_PMI_LIBRARY=/use/lib64/libmpi.so
 
-id="scaling$1"
+id="$1"
 
 outpath=/scratch/g/g260078/schism-results/$id
 mkdir -p $outpath
+rm -rf $outpath/*
 
 # copy parameter namelists
 cp param.in bctides.in vgrid.in $outdir
@@ -41,7 +42,7 @@ cp param.in bctides.in vgrid.in $outdir
 srun -l --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/v5.3/build/bin/pschism
 
 # move log files
-mv outputs/*.* log*.e log*.o $outpath
+mv outputs/* log*.e log*.o $outpath
 
 # wait until all nodes/file-actions are settled
 wait

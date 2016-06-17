@@ -460,7 +460,7 @@
 ! For 2D model, the only outputs available are: elev.61, dahv.62, wind.62, wist.62 and hvel.64
 !-----------------------------------------------------------------------
   nspool = 10
-  ihfskip = 3600.
+  ihfskip = 100.
 
   elev.61 = 0 !0: off; 1: on - elev. [m]
   pres.61 = 0 !air pressure [Pa]
