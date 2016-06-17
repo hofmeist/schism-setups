@@ -462,7 +462,7 @@
   nspool = 10
   ihfskip = 3600.
 
-  elev.61 = 1 !0: off; 1: on - elev. [m]
+  elev.61 = 0 !0: off; 1: on - elev. [m]
   pres.61 = 0 !air pressure [Pa]
   airt.61 = 0 !air temperature [C]
   shum.61 = 0 !Specific humidity [-]
@@ -478,17 +478,17 @@
   wind.62 = 0 !wind speed [m/s]
   wist.62 = 0 !wind stress [m^2/s/s]
   dahv.62 = 0 !depth-averaged vel. [m/s]
-  vert.63 = 1 !vertical velocity [m/s]
-  temp.63 = 1 !water temperature [C]
-  salt.63 = 1 !water salinity [PSU]
+  vert.63 = 0 !vertical velocity [m/s]
+  temp.63 = 0 !water temperature [C]
+  salt.63 = 0 !water salinity [PSU]
   conc.63 = 0 !water density [kg/m^3]
   tdff.63 = 0 !eddy diffusivity [m^2/s]
   vdff.63 = 0 !eddy viscosity [m^2/s]
   kine.63 = 0 !turbulent kinetic energy
   mixl.63 = 0 !turbulent mixing length [m]
-  zcor.63 = 1 !z-coordinates [m]
+  zcor.63 = 0 !z-coordinates [m]
   qnon.63 = 0 !non-hydrostatic pressure
-  hvel.64 = 1 !horizontal vel. [m/s]
+  hvel.64 = 0 !horizontal vel. [m/s]
 
 !-----------------------------------------------------------------------
 ! Outputs from WWM (USE_WWM must be on in Makefile)
