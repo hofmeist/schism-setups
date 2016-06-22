@@ -1,5 +1,6 @@
 from pylab import *
 import numpy as np
+import pickle
 
 def depth_by_xy(x,y,hland=-10.0,hmudflat=-3.0,hriver=5.0,hcoast=10.,hmouth=15.,hshelf=100.,wriver=1800.,wmouth=9000.,wcoast=20000.,wslope=20000.,lmouth=50000.,lestuary=100000.):
   """
@@ -29,8 +30,10 @@ def depth_by_xy(x,y,hland=-10.0,hmudflat=-3.0,hriver=5.0,hcoast=10.,hmouth=15.,h
   return h
 
 
-xx = linspace(-50000,150000.,600.)
-yy = linspace(-100000.,100000.,600.)
+dx = 600.
+dy = 600.
+xx = arange(-50000,150000.+dx,dx)
+yy = arange(-100000.,100000.+dy,dy)
 x2d,y2d = np.meshgrid(xx,yy)
 
 h = depth_by_xy(x2d.flat,y2d.flat)
@@ -55,3 +58,60 @@ pcolormesh(x2d,y2d,res,cmap=cm.Blues)
 colorbar()
 show()
 
+# write structured_size.dat
+xmin=-50000.
+ymin=-100000.
+ynum,xnum = res.shape
+s = open('structured_size.dat','w')
+s.write('%0.2f %0.2f %0.2f\n'%(xmin,ymin,0.0))
+s.write('%0.2f %0.2f %0.2f\n'%(dx,dy,1.0))
+s.write('%d %d %d\n'%(xnum,ynum,1))
+for size in res.T.flat[:]:
+  s.write('%0.2f\n'%size)
+s.close()
+
+# write xyd
+p = open('xyd_bathymetry.pickle','wb')
+hflat = asarray(h2d.mask.flat[:])
+idx = where(hflat==False)
+obj = (asarray(x2d.flat[idx]),asarray(y2d.flat[idx]),asarray(h2d.flat[idx]))
+pickle.dump(obj,p,protocol=-1)
+p.close()
+
+
+# create gmsh boundaries
+f = open('grid.geo','w')
+f.write("""
+Mesh.CharacteristicLengthFromPoints = 0;
+Mesh.CharacteristicLengthExtendFromBoundary = 0;
+
+res = 3000.;
+""")
+
+points = {1: (-50000.,0.0),2:(-0.5*wmouth,0.0),3:(-0.5*wmouth,-lestuary),4:(0.5*wmouth,-lestuary),5:(0.5*wmouth,0.0),6:(150000.,0.0),7:(150000.,100000.),8:(-50000.,100000.)}
+
+lines = {11: (1,2), 12: (2,3), 13: (3,4), 14: (4,5), 15: (5,6), 16: (6,7), 17: (7,8), 18: (8,1)}
+
+for point in points:
+  f.write('Point(%d) = {%0.2f,%0.2f,0.0,res};\n'%(point,points[point][0], points[point][1]))
+
+l = lines.keys()
+l.sort()
+for line in l:
+  f.write('Line(%d) = {%d, %d};\n'%(line,lines[line][0],lines[line][1]))
+
+f.write("""
+Line Loop(20) = {11,12,13,14,15,16,17,18};
+Plane Surface(30) = {20};
+
+Physical Line("landbdy") = {11,12,13,14,15};
+Physical Line("openbdy") = {16,17,18};
+Physical Surface("water") = {30};
+
+Field[1] = Structured;
+Field[1].FileName = "structured_size.dat";
+Field[1].TextFormat = 1;
+
+Background Field = 1;
+""")
+f.close()
