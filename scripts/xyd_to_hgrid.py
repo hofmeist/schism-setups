@@ -8,9 +8,13 @@ f = open('xyd_bathymetry.pickle','rb')
 x,y,d=pickle.load(f)
 f.close()
 
-f = open('coast_proj.pickle','rb')
-m,=pickle.load(f)
-f.close()
+try:
+  f = open('coast_proj.pickle','rb')
+  m,=pickle.load(f)
+  f.close()
+  use_proj=True
+except:
+  use_proj=False
 
 # build tree
 print('  build tree')
@@ -29,11 +33,20 @@ weights = 1.0 / dist**2
 print('  interpolate')
 setup.depths = np.sum( weights*d[inds],axis=1) / np.sum(weights,axis=1)
 
-# get lon/lat of nodes
-print('  map coordinates and write hgrid_new.ll')
-setup.lon,setup.lat = m(setup.x,setup.y,inverse=True)
+# dump to hgrid_new.gr3
+if not(hasattr(setup,'lon')):
+  setup.lon = setup.x
+if not(hasattr(setup,'lat')):
+  setup.lat = setup.y
 
-# dump hgrid.ll
-setup.dump_hgridll('hgrid_new.ll')
+setup.dump_hgridll(filename='hgrid_new.gr3')
+
+if use_proj:
+  # get lon/lat of nodes
+  print('  map coordinates and write hgrid_new.ll')
+  setup.lon,setup.lat = m(setup.x,setup.y,inverse=True)
+
+  # dump hgrid.ll
+  setup.dump_hgridll('hgrid_new.ll')
 
 
