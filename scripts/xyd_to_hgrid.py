@@ -27,7 +27,11 @@ setup = schism_setup()
 # find weights and distances
 print('  query weights')
 dist,inds = tree.query(zip(setup.x,setup.y), k=4)
+idx = where(dist<0.1)
+dist[idx] = 0.1
 weights = 1.0 / dist**2
+idx = where(np.bitwise_not(isfinite(weights)))
+weights[idx] = 1.0
 
 # do interpolation
 print('  interpolate')
