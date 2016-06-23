@@ -30,8 +30,8 @@ def depth_by_xy(x,y,hland=-10.0,hmudflat=-3.0,hriver=5.0,hcoast=10.,hmouth=15.,h
   return h
 
 
-dx = 600.
-dy = 600.
+dx = 300.
+dy = 300.
 xx = arange(-50000,150000.+dx,dx)
 yy = arange(-100000.,100000.+dy,dy)
 x2d,y2d = np.meshgrid(xx,yy)
