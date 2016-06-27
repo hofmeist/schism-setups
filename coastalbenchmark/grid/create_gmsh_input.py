@@ -88,9 +88,9 @@ Mesh.CharacteristicLengthExtendFromBoundary = 0;
 res = 3000.;
 """)
 
-points = {1: (-50000.,0.0),2:(-0.5*wmouth,0.0),3:(-0.5*wmouth,-lestuary),4:(0.5*wmouth,-lestuary),5:(0.5*wmouth,0.0),6:(150000.,0.0),7:(150000.,100000.),8:(-50000.,100000.)}
+points = {1: (-50000.,0.0),2:(-0.5*wmouth,0.0),3:(-0.5*wmouth,-lestuary),4:(-0.25*wriver,-lestuary),5:(0.25*wriver, -lestuary),6:(0.5*wmouth,-lestuary),7:(0.5*wmouth,0.0),8:(150000.,0.0),9:(150000.,100000.),10:(-50000.,100000.)}
 
-lines = {11: (1,2), 12: (2,3), 13: (3,4), 14: (4,5), 15: (5,6), 16: (6,7), 17: (7,8), 18: (8,1)}
+lines = {11: (1,2), 12: (2,3), 13: (3,4), 14: (4,5), 15: (5,6), 16: (6,7), 17: (7,8), 18: (8,9), 19: (9,10), 20: (10,1)}
 
 for point in points:
   f.write('Point(%d) = {%0.2f,%0.2f,0.0,res};\n'%(point,points[point][0], points[point][1]))
@@ -101,11 +101,11 @@ for line in l:
   f.write('Line(%d) = {%d, %d};\n'%(line,lines[line][0],lines[line][1]))
 
 f.write("""
-Line Loop(20) = {11,12,13,14,15,16,17,18};
-Plane Surface(30) = {20};
+Line Loop(30) = {11,12,13,14,15,16,17,18,19,20};
+Plane Surface(40) = {30};
 
-Physical Line("landbdy") = {11,12,13,14,15};
-Physical Line("openbdy") = {16,17,18};
+Physical Line("landbdy") = {11,12,13,15,16,17};
+Physical Line("openbdy") = {14,18,19,20};
 Physical Surface("water") = {30};
 
 Field[1] = Structured;

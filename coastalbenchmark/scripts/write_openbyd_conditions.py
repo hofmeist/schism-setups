@@ -12,6 +12,34 @@ def get_bdy(time,x,y,depths,theta=50.0,T = 12.0, a=2.0):
   return a*exp(-f*y/c)*cos(k*x - w*time)
 
 s = schism_setup()
+discharge = 10.0 # [m3/s]
+
+bf = open('bctides.in','w')
+bf.write("""01/01/2016 00:00:00 PST
+0 0.0
+0
+4 nope
+""")
+
+bdy_nodes=[]
+for seg in s.bdy_segments[:3]:
+  # write segment into bctides.in
+  bf.write('%d 1 0 2 2\n'%len(seg))
+  bf.write('10.0\n1.0\n30.0\n1.0\n')
+
+  bdy_nodes.extend(seg)
+n = len(bdy_nodes)
+
+river_nodes = s.bdy_segments[3]
+bf.write("""%d 0 2 2 2
+%0.2f
+10.0
+1.0
+0.0
+1.0
+"""%(len(river_nodes),-discharge))
+bf.close()
+
 n = s.num_bdy_nodes
 ddict = dict(zip(s.inodes,s.depths))
 xdict = dict(zip(s.inodes,s.x))
@@ -22,7 +50,7 @@ y = asarray([ ydict[ii] for ii in s.bdy_nodes ])
 
 times = arange(0.0,30.*86400.,900.).astype('float32')
 
-f = open('elev.th','wb')
+f = open('elev2D.th','wb')
 for time in times:
   time.tofile(f)
   elevs = get_bdy(time,x,y,depth).astype('float32')
