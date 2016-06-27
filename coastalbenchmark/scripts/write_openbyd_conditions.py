@@ -40,13 +40,12 @@ bf.write("""%d 0 2 2 2
 """%(len(river_nodes),-discharge))
 bf.close()
 
-n = s.num_bdy_nodes
 ddict = dict(zip(s.inodes,s.depths))
 xdict = dict(zip(s.inodes,s.x))
 ydict = dict(zip(s.inodes,s.y))
-depth = asarray([ ddict[ii] for ii in s.bdy_nodes ])
-x = asarray([ xdict[ii] for ii in s.bdy_nodes ])
-y = asarray([ ydict[ii] for ii in s.bdy_nodes ])
+depth = asarray([ ddict[ii] for ii in bdy_nodes ])
+x = asarray([ xdict[ii] for ii in bdy_nodes ])
+y = asarray([ ydict[ii] for ii in bdy_nodes ])
 
 times = arange(0.0,30.*86400.,900.).astype('float32')
 
