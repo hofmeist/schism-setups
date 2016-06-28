@@ -106,7 +106,7 @@ Plane Surface(40) = {30};
 
 Physical Line("landbdy") = {11,12,13,15,16,17};
 Physical Line("openbdy") = {14,18,19,20};
-Physical Surface("water") = {30};
+Physical Surface("water") = {40};
 
 Field[1] = Structured;
 Field[1].FileName = "structured_size.dat";
