@@ -142,6 +142,20 @@ class schism_setup(object):
       ylabel('latitude [degN]')
       show()
 
+  def dump_gr3(self,filename,const=0.0,comment='gr3 by create_ic.py'):
+      f = open(filename,'w')
+      f.write('%s\n'%comment)
+      f.write('%d %d\n'%(self.nelements,self.nnodes))
+      for i,x,y in zip(self.inodes,self.x,self.y):
+        f.write('%d %0.2f %0.2f %0.5f\n'%(i,x,y,const))
+      f.close()
+
+  def dump_tvd_prop(self):
+      f = open('tvd.prop','w')
+      for i in self.ielement:
+        f.write('%d 1\n'%i)
+      f.close()
+
   def bdy_array(self,fname):
       """
       read boundary *.th files into a numpy array
