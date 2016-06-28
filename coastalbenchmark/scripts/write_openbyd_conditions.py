@@ -24,7 +24,7 @@ bf.write("""01/01/2016 00:00:00 PST
 bdy_nodes=[]
 for seg in s.bdy_segments[:3]:
   # write segment into bctides.in
-  bf.write('%d 1 0 2 2\n'%len(seg))
+  bf.write('%d 4 0 2 2\n'%len(seg))
   bf.write('10.0\n1.0\n30.0\n1.0\n')
 
   bdy_nodes.extend(seg)
@@ -53,6 +53,7 @@ f = open('elev2D.th','wb')
 for time in times:
   time.tofile(f)
   elevs = get_bdy(time,x,y,depth).astype('float32')
+  #print('%0.2f num elev = %d'%(time,len(elevs)))
   elevs.tofile(f)
 f.close()
 

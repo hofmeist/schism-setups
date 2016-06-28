@@ -156,12 +156,14 @@ class schism_setup(object):
         f.write('%d 1\n'%i)
       f.close()
 
-  def bdy_array(self,fname):
+  def bdy_array(self,fname,num=0):
       """
       read boundary *.th files into a numpy array
       """
       import numpy as np
 
+      if num == 0:
+        num = self.num_bdy_nodes
       if fname == 'elev2D.th':
         f = open(fname,'rb')
         times = []
@@ -169,7 +171,7 @@ class schism_setup(object):
         while f.read(1):
           f.seek(-1,1)
           times.append(np.fromfile(f,dtype='float32',count=1))
-          data.append(np.fromfile(f,dtype='float32',count=self.num_bdy_nodes))
+          data.append(np.fromfile(f,dtype='float32',count=num))
         times = np.asarray(times)
         data = np.asarray(data)
         return times,data
@@ -185,6 +187,7 @@ if __name__ == '__main__':
     setup.plot_domain_boundaries()
 
     # read elevation boundaries
-    t,e = setup.bdy_array('elev2D.th')
+    t,e = setup.bdy_array('elev2D.th',num=180)
+    figure()
     plot(t[:],e[:,0])
     show()
