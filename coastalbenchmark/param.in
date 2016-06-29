@@ -202,7 +202,7 @@
 ! Coriolis is calculated from local latitude, and 'cpp_lat' is not used.
 !-----------------------------------------------------------------------
   ncor = -1 !must be 1 if ics=2
-  latitude = 60.0 !if ncor=-1
+  latitude = 50.0 !if ncor=-1
 !  coriolis = 1.e-4 !if ncor=0
 
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -213,7 +213,7 @@
 ! to specify the initial elevations; otherwise elevation is initialized to 0 everywhere 
 ! (cold start only)
 !-----------------------------------------------------------------------
-  ic_elev = 1
+  ic_elev = 0
 
 !-----------------------------------------------------------------------
 ! Elevation boundary condition ramp-up flag. =0: ramp up from 0; =1: ramp up from
@@ -310,7 +310,7 @@
 !-----------------------------------------------------------------------
 ! Run time and ramp option
 !-----------------------------------------------------------------------
-  rnday = 0.0417 !total run time in days
+  rnday = 30.0 !total run time in days
   nramp = 0 !ramp-up option (1: on; 0: off)
   dramp = 1. !needed if nramp=1; ramp-up period in days
   dt = 120.0
@@ -459,10 +459,10 @@
 ! Global output options.
 ! For 2D model, the only outputs available are: elev.61, dahv.62, wind.62, wist.62 and hvel.64
 !-----------------------------------------------------------------------
-  nspool = 10
-  ihfskip = 100.
+  nspool = 30
+  ihfskip = 720.
 
-  elev.61 = 0 !0: off; 1: on - elev. [m]
+  elev.61 = 1 !0: off; 1: on - elev. [m]
   pres.61 = 0 !air pressure [Pa]
   airt.61 = 0 !air temperature [C]
   shum.61 = 0 !Specific humidity [-]
@@ -477,18 +477,18 @@
   bdrc.61 = 0 !Bottom drag coefficient [-]
   wind.62 = 0 !wind speed [m/s]
   wist.62 = 0 !wind stress [m^2/s/s]
-  dahv.62 = 0 !depth-averaged vel. [m/s]
+  dahv.62 = 1 !depth-averaged vel. [m/s]
   vert.63 = 0 !vertical velocity [m/s]
   temp.63 = 0 !water temperature [C]
-  salt.63 = 0 !water salinity [PSU]
-  conc.63 = 0 !water density [kg/m^3]
-  tdff.63 = 0 !eddy diffusivity [m^2/s]
-  vdff.63 = 0 !eddy viscosity [m^2/s]
+  salt.63 = 1 !water salinity [PSU]
+  conc.63 = 1 !water density [kg/m^3]
+  tdff.63 = 1 !eddy diffusivity [m^2/s]
+  vdff.63 = 1 !eddy viscosity [m^2/s]
   kine.63 = 0 !turbulent kinetic energy
-  mixl.63 = 0 !turbulent mixing length [m]
-  zcor.63 = 0 !z-coordinates [m]
+  mixl.63 = 1 !turbulent mixing length [m]
+  zcor.63 = 1 !z-coordinates [m]
   qnon.63 = 0 !non-hydrostatic pressure
-  hvel.64 = 0 !horizontal vel. [m/s]
+  hvel.64 = 1 !horizontal vel. [m/s]
 
 !-----------------------------------------------------------------------
 ! Outputs from WWM (USE_WWM must be on in Makefile)
