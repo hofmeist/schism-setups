@@ -330,8 +330,8 @@
 ! actual step is calculated adaptively based on local gradient.
 !-----------------------------------------------------------------------
   nadv = 1
-  dtb_max = 5.0
-  dtb_min = 1.00
+  dtb_max = 36.0
+  dtb_min = 5.00
 
 !-----------------------------------------------------------------------
 ! If inter_mom=0, linear interpolation is used for velocity at foot of char. line.

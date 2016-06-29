@@ -5,7 +5,7 @@
 #SBATCH --partition=compute    # Specify partition name
 #SBATCH --ntasks=96
 #SBATCH --ntasks-per-node=24
-#SBATCH --time=00:10:00        # Set a limit on the total run time
+#SBATCH --time=00:12:00        # Set a limit on the total run time
 #SBATCH --wait-all-nodes=1     # start job, when all nodes are available
 #SBATCH --mail-type=FAIL       # Notify user by email in case of job failure
 #SBATCH --mail-user=richard.hofmeister@hzg.de  # Set your e−mail address
@@ -32,7 +32,9 @@ mkdir -p $outpath
 rm -rf $outpath/*
 
 # copy parameter namelists
-cp param.in bctides.in vgrid.in $outdir
+cp param.in $outdir
+cp bctides.in $outdir
+cp vgrid.in $outdir
 
 # wait some time to have the files on the nodes
 #sleep 5
@@ -42,7 +44,7 @@ cp param.in bctides.in vgrid.in $outdir
 srun -l --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/v5.3/build/bin/pschism
 
 # move log files
-mv outputs/* log*.e log*.o $outpath
+mv outputs/* log*.e log*.o fort.* $outpath
 
 # wait until all nodes/file-actions are settled
 wait

@@ -3,25 +3,31 @@ import sys
 from pylab import *
 
 opath='/scratch/g/g260078/schism-results'
-numnodes=[4,8,16,32,64,128]
+label="schism 11 layers, 1000k nodes"
+#opath='/work/gg0877/hofmeist/scaling/dt036s/'
+#opath='/work/gg0877/hofmeist/scaling/'
+numnodes=[4,8,16,32,64,128,256]
+#numnodes=[4,8,16,32,64,128]
 
 runtimes = []
+figure()
 
 for num in numnodes:
-  f = open('%s/scaling%04d/log%04d.o'%(opath,num,num))
-  time = float(f.readline().split()[-1])
-  f.close()
-  runtimes.append(time)
+    f = open('%s/scaling_11layers_%04d/log%04d.o'%(opath,num,num))
+    time = float(f.readline().split()[-1])
+    f.close()
+    runtimes.append(time)
 
 runtimes = asarray(runtimes)
 numnodes = asarray(numnodes)
 proc = numnodes*24
 
 speedup = runtimes[0]/runtimes
-ideal_speedup = numnodes/numnodes[0]
+loglog(proc,speedup,'r*--',lw=3.0,ms=15.0,markerfacecolor='r',basey=2,basex=2,label=label)
 
+
+ideal_speedup = numnodes/numnodes[0]
 loglog(proc,ideal_speedup,'k-',lw=2.0,basey=2,basex=2,label='ideal speedup')
-loglog(proc,speedup,'r*--',lw=3.0,ms=15.0,markerfacecolor='r',basey=2,basex=2,label='MISTRAL speedup')
 
 xlim(80,10000)
 ylim(0.5,50)
