@@ -30,6 +30,8 @@ id="$1"
 outpath=/scratch/g/g260078/schism-results/$id
 mkdir -p $outpath
 rm -rf $outpath/*
+mkdir -p $outpath/outputs
+ln -sf $outpath/outputs outputs
 
 # copy parameter namelists
 cp param.in $outdir
@@ -44,7 +46,8 @@ cp vgrid.in $outdir
 srun -l --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/v5.3/build/bin/pschism
 
 # move log files
-mv outputs/* log*.e log*.o fort.* $outpath
+mv log*.e log*.o fort.* $outpath
+rm outputs
 
 # wait until all nodes/file-actions are settled
 wait

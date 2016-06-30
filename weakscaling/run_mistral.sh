@@ -5,7 +5,7 @@
 #SBATCH --partition=compute    # Specify partition name
 #SBATCH --ntasks=96
 #SBATCH --ntasks-per-node=24
-#SBATCH --time=00:10:00        # Set a limit on the total run time
+#SBATCH --time=00:20:00        # Set a limit on the total run time
 #SBATCH --wait-all-nodes=1     # start job, when all nodes are available
 #SBATCH --mail-type=FAIL       # Notify user by email in case of job failure
 #SBATCH --mail-user=richard.hofmeister@hzg.de  # Set your e−mail address
@@ -27,15 +27,16 @@ export I_MPI_PMI_LIBRARY=/use/lib64/libmpi.so
 module load python/2.7-ve0
 
 num="$1"
-id=weakscaling%num
+id=weakscaling$num
 
 outpath=/scratch/g/g260078/schism-results/$id
 mkdir -p $outpath
 rm -rf $outpath/*
 mkdir -p $outpath/outputs
-cp gmsh/hgrid%num.gr3 $outpath
+cp gmsh/hgrid$num.gr3 $outpath/hgrid.gr3
 cp vgrid.in $outpath
 cp param.in $outpath
+cp bctides.in $outpath
 cd $outpath
 python $HOME/schism/setups/weakscaling/create_ic.py
 
@@ -47,7 +48,7 @@ python $HOME/schism/setups/weakscaling/create_ic.py
 srun -l --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/v5.3/build/bin/pschism
 
 # move log files
-#mv log*.e log*.o $outpath
+mv $HOME/schism/setups/weakscaling/log*.* $outpath
 
 # wait until all nodes/file-actions are settled
 wait
