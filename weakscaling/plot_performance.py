@@ -4,7 +4,7 @@ from pylab import *
 
 opath='/scratch/g/g260078/schism-results'
 numnodes=[4,8,16,32,64,128]
-numnodes=[4,8,16,32,64]
+numnodes=[4,8,16,32,64,96]
 
 runtimes = []
 

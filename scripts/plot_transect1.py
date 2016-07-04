@@ -21,8 +21,8 @@ levels = arange(znum)
 
 d2d,l2d =np.meshgrid(d,levels)
 
-plot(d2d.T,z,'k.-',lw=0.4)
-plot(d2d,z.T,'k.-',lw=0.4)
+plot(d2d.T,z,'k.-',lw=0.6)
+plot(d2d,z.T,'k.-',lw=0.6)
 
 z_master = 9000*ones(z.shape)
 for i,bi in enumerate(bidx):
@@ -31,7 +31,9 @@ for i,bi in enumerate(bidx):
     z_master[i,:bi]=z_m[n_z,:bi]
 
 z_master = ma.masked_equal(z_master,9000)
-plot(d2d.T,z_master,'b.-',lw=0.4)
+mcol=(0.4,0.4,1.0)
+plot(d2d.T,z_master,'.-',color=mcol,lw=0.4,alpha=0.8)
+
 
 show()
 
