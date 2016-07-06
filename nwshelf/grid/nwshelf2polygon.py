@@ -157,11 +157,21 @@ if True:
 
 if True:
   xw,yw = water.boundary.xy
+  ratio = (m.ymax-m.ymin)/(m.xmax-m.xmin)
+  dpi=200
+  width=4.0
   #lonw,latw = m(xw,yw,inverse=True)
   #newland.append(zip(xw,yw))
-  figure()
+  f = figure(figsize=(width,width*ratio),dpi=dpi)
+  f.subplots_adjust(left=0.0,bottom=0.0,right=1.0,top=1.0)
   m.drawcoastlines()
   m.plot(xw,yw)
+  savefig('map.png',dpi=dpi)
+  f = open('oxy_dxy_nxy.pickle','wb')
+  dx = (m.xmax-m.xmin)/(width*dpi)
+  dy = (m.ymax-m.ymin)/(width*ratio*dpi)
+  pickle.dump((m.xmin,m.ymin,dx,dy,int(width*dpi),int(width*ratio*dpi)),f)
+  f.close()
   show()
 
 if True:
