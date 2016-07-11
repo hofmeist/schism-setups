@@ -29,7 +29,7 @@ tree = cKDTree(zip(x,y))
 ytrans = linspace(-50000.,30000,1000.)
 xtrans = 0.0*ones(ytrans.shape)
 
-dist,inds = tree.query(zip(xtrans,ytrans),k=3)
+dist,inds = tree.query(zip(xtrans,ytrans),k=10)
 weight = 1.0/dist**2
 
 tidx=3
@@ -52,16 +52,17 @@ for n in range(len(depth)):
   nidx = where(zf[tidx,:,n].squeeze()==-9999.)
   zf[tidx,nidx,n] = zf[tidx,lmin[n]-1,n]
 
-plot_grid=False
+plot_grid=True
 gridcol=(0.5,0.5,0.5)
+cmap=cm.YlGnBu_r
 
-pc = pcolormesh(y2d,ztrans,strans,shading='interp')
+pc = pcolormesh(y2d,ztrans,strans,shading='interp',cmap=cmap)
 
 if plot_grid:
-  for yy,zz in zip(y2d,z[tidx,:,idx].squeeze()):
-    plot(yy,zz,'k-',lw=0.3,color=gridcol)
+  #for yy,zz in zip(y2d,ztrans.squeeze()):
+  #  plot(yy,zz,'k-',lw=0.3,color=gridcol)
 
-  for yy,zz in zip(y2d.T,zf[tidx,:,idx].squeeze().T):
+  for yy,zz in zip(y2d.T,ztrans.squeeze().T):
     plot(yy,zz,'k-',lw=0.3,color=gridcol)
 
 
