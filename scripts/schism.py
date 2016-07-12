@@ -88,6 +88,24 @@ class schism_setup(object):
       except:
         print('  no hgrid.ll available')
 
+      try:
+        self.parse_vgrid()
+      except:
+        print('  no vgrid.in available')
+      
+  def parse_vgrid(self):
+    f = open('vgrid.in')
+    first = int(f.readline())
+    znum = int(f.readline())
+    a = {}
+    for line in f.readlines():
+      sigma1d = -9999.*np.ones((znum,))
+      data = line.split()
+      sigma1d[int(data[1])-1:] = np.asarray([float(ii) for ii in data[2:]])
+      a[int(data[0])] = np.ma.masked_equal(sigma1d,-9999.)
+    f.close()
+    self.vgrid = a
+
   def dump_hgridll(self,filename='hgrid_new.ll'):
     f = open(filename,'w')
     f.write('%s\n'%filename)
