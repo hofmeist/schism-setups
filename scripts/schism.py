@@ -29,14 +29,52 @@ class schism_setup(object):
       
       n=[]
       nv = []
+      nvdict = {}
       for nn in range(self.nelements):
         dat=f.readline().split()
         n.append(int(dat[0]))
         nvnum = int(dat[1])
         nv.append([ int(ii) for ii in dat[2:2+nvnum]])
+        nvdict[n[-1]] = nv[-1]
       self.ielement = n
       self.nv = nv
-      
+      self.nvdict = nvdict
+
+      # compute sides
+      # first get sequence array
+      self.nx = {}
+      self.nx[3] = [[1,2],[2,0],[0,1]]
+      self.nx[4] = [[1,2],[2,3],[3,0],[0,1]]
+
+      # get inverse nv - neighbouring elements
+      self.node_neighbour_elements = { i:[] for i in self.inodes }
+      self.n_node_neighbours = { i:0 for i in self.inodes }
+      for i,nv in zip(self.ielement,self.nv):
+        for nnode in nv:
+          self.n_node_neighbours[nnode] += 1
+          self.node_neighbour_elements[nnode].append(i)
+      # find neighbouring elements around element (ic3)
+      self.isides={}
+      for i,nv in zip(self.ielement,self.nv):
+        isides = []
+        # loop around element for existing sides
+        for iloop,(ind1,ind2) in enumerate(self.nx[len(nv)]):
+          iside = 0
+          nd1,nd2 = nv[ind1],nv[ind2]
+          for checkelement in self.node_neighbour_elements[nd1]:
+            if (checkelement != i) and (nd2 in self.nvdict[checkelement]):
+              iside = checkelement
+              break
+          isides.append(iside)
+        self.isides[i] = isides
+      # count sides
+      self.nsides = 0
+      for i in self.isides:
+        for iside in self.isides[i]:
+          if iside==0 or i<iside:
+            self.nsides += 1
+
+
       self.num_bdy_segments = int(f.readline().split()[0])
       if self.num_bdy_segments > 0:
         self.num_bdy_nodes = int(f.readline().split()[0])
