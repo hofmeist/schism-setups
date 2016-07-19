@@ -16,12 +16,18 @@ class schism_setup(object):
       x=[]
       y=[]
       d=[]
+      self.depthsdict={}
+      self.xdict={}
+      self.ydict={}
       for nn in range(self.nnodes):
         dat=f.readline().split()
         n.append(int(dat[0]))
         x.append(float(dat[1]))
         y.append(float(dat[2]))
         d.append(float(dat[3]))
+        self.depthsdict[n[-1]] = d[-1]
+        self.ydict[n[-1]] = y[-1]
+        self.xdict[n[-1]] = x[-1]
       self.inodes = n
       self.x = x
       self.y = y
@@ -54,7 +60,8 @@ class schism_setup(object):
           self.n_node_neighbours[nnode] += 1
           self.node_neighbour_elements[nnode].append(i)
       # find neighbouring elements around element (ic3)
-      self.isides={}
+      self.element_sides={}
+      self.side_nodes={}
       for i,nv in zip(self.ielement,self.nv):
         isides = []
         # loop around element for existing sides
@@ -66,13 +73,17 @@ class schism_setup(object):
               iside = checkelement
               break
           isides.append(iside)
-        self.isides[i] = isides
+        self.element_sides[i] = isides
       # count sides
       self.nsides = 0
-      for i in self.isides:
-        for iside in self.isides[i]:
+      element_ids = self.element_sides.keys()
+      element_ids.sort()
+      for i in element_ids:
+        for ii,iside in enumerate(self.element_sides[i]):
           if iside==0 or i<iside:
             self.nsides += 1
+            iinds = self.nx[len(self.element_sides[i])][ii]
+            self.side_nodes[self.nsides] = [self.nvdict[i][iinds[0]],self.nvdict[i][iinds[1]]]
 
 
       self.num_bdy_segments = int(f.readline().split()[0])
@@ -132,9 +143,11 @@ class schism_setup(object):
         print('  no vgrid.in available')
       
   def parse_vgrid(self):
+    import numpy as np
     f = open('vgrid.in')
     first = int(f.readline())
     znum = int(f.readline())
+    self.znum = znum
     a = {}
     for line in f.readlines():
       sigma1d = -9999.*np.ones((znum,))
