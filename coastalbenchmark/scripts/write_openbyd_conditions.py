@@ -12,7 +12,9 @@ def get_bdy(time,x,y,depths,theta=50.0,T = 12.0, a=2.0):
   return a*exp(-f*y/c)*cos(k*x - w*time)
 
 s = schism_setup()
-discharge = 10.0 # [m3/s]
+discharge = 2000.0 # [m3/s]
+tempsurf = 20.0 # [degC]
+tempbott = 10.0 # [degC]
 
 bf = open('bctides.in','w')
 bf.write("""01/01/2016 00:00:00 PST
@@ -24,8 +26,8 @@ bf.write("""01/01/2016 00:00:00 PST
 bdy_nodes=[]
 for seg in s.bdy_segments[:3]:
   # write segment into bctides.in
-  bf.write('%d 4 0 2 2\n'%len(seg))
-  bf.write('10.0\n1.0\n30.0\n1.0\n')
+  bf.write('%d 4 0 4 2\n'%len(seg))
+  bf.write('30.0\n1.0\n')
 
   bdy_nodes.extend(seg)
 n = len(bdy_nodes)
@@ -33,11 +35,11 @@ n = len(bdy_nodes)
 river_nodes = s.bdy_segments[3]
 bf.write("""%d 0 2 2 2
 %0.2f
-10.0
+%0.2f
 1.0
 0.0
 1.0
-"""%(len(river_nodes),-discharge))
+"""%(len(river_nodes),-discharge,tempsurf))
 bf.close()
 
 ddict = dict(zip(s.inodes,s.depths))
@@ -46,6 +48,7 @@ ydict = dict(zip(s.inodes,s.y))
 depth = asarray([ ddict[ii] for ii in bdy_nodes ])
 x = asarray([ xdict[ii] for ii in bdy_nodes ])
 y = asarray([ ydict[ii] for ii in bdy_nodes ])
+bdyvgrid = { ii: s.vgrid[ii] for ii in bdy_nodes }
 
 times = arange(0.0,30.*86400.,900.).astype('float32')
 
@@ -56,4 +59,13 @@ for time in times:
   #print('%0.2f num elev = %d'%(time,len(elevs)))
   elevs.tofile(f)
 f.close()
+
+f = open('temp3D.th','wb')
+for time in array([0.0,32*86400.]).astype('float32'):
+  time.tofile(f)
+  for i in bdyvgrid:
+    temp = interp(s.depthsdict[i]*bdyvgrid[i].filled(-1),[-66.,-33.],[tempbott,tempsurf])
+    temp.astype('float32').tofile(f)
+f.close()
+  
 
