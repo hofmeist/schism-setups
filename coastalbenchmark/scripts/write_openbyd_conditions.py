@@ -27,7 +27,7 @@ bdy_nodes=[]
 for seg in s.bdy_segments[:3]:
   # write segment into bctides.in
   bf.write('%d 4 0 4 2\n'%len(seg))
-  bf.write('30.0\n1.0\n')
+  bf.write('1.0\n30.0\n1.0\n')
 
   bdy_nodes.extend(seg)
 n = len(bdy_nodes)
@@ -48,7 +48,7 @@ ydict = dict(zip(s.inodes,s.y))
 depth = asarray([ ddict[ii] for ii in bdy_nodes ])
 x = asarray([ xdict[ii] for ii in bdy_nodes ])
 y = asarray([ ydict[ii] for ii in bdy_nodes ])
-bdyvgrid = { ii: s.vgrid[ii] for ii in bdy_nodes }
+bdyvgrid = asarray([s.vgrid[ii].filled(-1.) for ii in bdy_nodes ])
 
 times = arange(0.0,30.*86400.,900.).astype('float32')
 
@@ -60,11 +60,11 @@ for time in times:
   elevs.tofile(f)
 f.close()
 
-f = open('temp3D.th','wb')
+f = open('TEM_3D.th','wb')
 for time in array([0.0,32*86400.]).astype('float32'):
   time.tofile(f)
-  for i in bdyvgrid:
-    temp = interp(s.depthsdict[i]*bdyvgrid[i].filled(-1),[-66.,-33.],[tempbott,tempsurf])
+  for i in range(len(bdy_nodes)):
+    temp = interp(depth[i]*bdyvgrid[i],[-66.,-33.],[tempbott,tempsurf])
     temp.astype('float32').tofile(f)
 f.close()
   
