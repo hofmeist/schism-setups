@@ -65,7 +65,7 @@
   ntracer_gen = 0 !user defined module
   ntracer_age = 0 !age calculation. Must be =2*N where N is # of age tracers
   sed_class = 0 !SED3D
-  eco_class = 27 !EcoSim: must be between [25,60]
+  eco_class = 0 !EcoSim: must be between [25,60]
 
 !-----------------------------------------------------------------------
 ! Bed deformation option (0: off; 1: vertical deformation only; 2: 3D bed deformation). 
@@ -106,7 +106,7 @@
 ! Hotstart option. 0: cold start; 1: hotstart with time reset to 0; 2: 
 ! continue from the step in hotstart.in
 !-----------------------------------------------------------------------
-  ihot = 0
+  ihot = 1
 
 !-----------------------------------------------------------------------
 ! Hydraulic model option. If ihydraulics/=0, hydraulics.in 
