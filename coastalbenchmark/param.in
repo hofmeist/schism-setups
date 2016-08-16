@@ -479,7 +479,7 @@
   wist.62 = 0 !wind stress [m^2/s/s]
   dahv.62 = 1 !depth-averaged vel. [m/s]
   vert.63 = 0 !vertical velocity [m/s]
-  temp.63 = 0 !water temperature [C]
+  temp.63 = 1 !water temperature [C]
   salt.63 = 1 !water salinity [PSU]
   conc.63 = 1 !water density [kg/m^3]
   tdff.63 = 1 !eddy diffusivity [m^2/s]

@@ -1,5 +1,5 @@
-import sys
-sys.path.append('/home/hofmeist/schism/setups/scripts')
+import sys,os
+sys.path.append(os.environ['HOME']+'/schism/setups/scripts')
 from pylab import *
 from schism import *
 
@@ -9,7 +9,7 @@ s.dump_tvd_prop()
 s.dump_gr3('elev.ic',const=0.0,comment='intial surface elevation')
 s.dump_gr3('temp.ic',const=10.0,comment='intial temperature')
 s.dump_gr3('rough.gr3',const=0.001,comment='bottom roughness')
-s.dump_gr3('xlsc.gr3',const=0.5,comment='turbulent length scale')
+#s.dump_gr3('xlsc.gr3',const=0.5,comment='turbulent length scale')
 s.dump_gr3('diffmin.gr3',const=0.000000001,comment='diffmin')
 s.dump_gr3('diffmax.gr3',const=0.1,comment='diffmax')
 

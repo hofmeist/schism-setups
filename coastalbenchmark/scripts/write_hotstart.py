@@ -20,6 +20,9 @@ f = open('hotstart.in','wb')
 asarray([0.0]).astype('float64').tofile(f)
 asarray([0,1]).astype('int32').tofile(f)
 
+print('elements: %d, nodes: %d, sides: %d'%(len(cbs.nvdict),len(cbs.inodes),len(cbs.side_nodes)))
+print cbs.nsides
+
 # write element data
 for ie in cbs.nvdict:
   asarray([ie,0]).astype('int32').tofile(f)

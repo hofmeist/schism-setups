@@ -51,7 +51,7 @@ x = asarray([ xdict[ii] for ii in bdy_nodes ])
 y = asarray([ ydict[ii] for ii in bdy_nodes ])
 bdyvgrid = asarray([s.vgrid[ii].filled(-1.) for ii in bdy_nodes ])
 
-times = arange(0.0,30.*86400.,900.).astype('float32')
+times = arange(0.0,32.*86400.,900.).astype('float32')
 
 f = open('elev2D.th','wb')
 for time in times:
