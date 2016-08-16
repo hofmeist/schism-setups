@@ -21,6 +21,9 @@ znum = len(nc.dimensions['nSCHISM_vgrid_layers'])
 
 nc.close()
 
+if varn == 'hvel':
+  varn='hvel_v'
+
 nc = netCDF4.Dataset(dfile)
 ncv=nc.variables
 s = ncv[varn][:,:,1:]
@@ -51,7 +54,7 @@ for n in range(znum):
   #ztrans[:,n] = np.sum(weight * z[tidx,n,inds],axis=1)/np.sum(weight,axis=1)
   strans[:,n] = s[tidx,n,inds].mean(axis=1)
   ztrans[:,n] = z[tidx,n,inds].mean(axis=1)
-strans = ma.masked_where(strans<0.0,strans)
+strans = ma.masked_where(strans<-5.0,strans)
 
 l2d,y2d = meshgrid(levels,ytrans)
 
@@ -67,6 +70,17 @@ gridcol=(0.5,0.5,0.5)
 cmap=cm.YlGnBu_r
 cmap=cm.RdYlBu_r
 
+if varn=='tdff':
+  strans = log10(strans)
+  climmin=-7
+  climmax=-0.2
+elif varn=='hvel_v':
+  climmin=-0.5
+  climmax=0.5
+else:
+  climmin=10.
+  climmax=strans.max()
+
 pc = pcolormesh(y2d,ztrans,strans,shading='interp',cmap=cmap)
 
 if plot_grid:
@@ -81,7 +95,7 @@ colorbar(pc)
 
 xlim(-50000.,ymax)
 ylim(-100.,3.0)
-clim(10,strans.max())
+clim(climmin,climmax)
 xlabel('y [m]')
 ylabel('z [m]')
 
