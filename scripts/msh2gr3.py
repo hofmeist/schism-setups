@@ -46,6 +46,63 @@ class gr3():
       self.num_island_nodes = 0
       self.island_nodes=[]
 
+    # remove island boundaries with length=2
+    island_nodes = self.island_nodes
+    self.island_nodes=[]
+    self.num_island_nodes=0
+    for nlist in island_nodes:
+      if len(nlist)>2:
+        self.island_nodes.append(nlist)
+        self.num_island_nodes+=len(nlist)
+      else:
+        for nidx in nlist:
+          try:
+            del self.nodesxy[nidx]
+            del self.depths[nidx]
+            print "remove hanging node %d"%nidx
+          except:
+            print "could not find node %d"%nidx
+          
+    # remove hanging nodes
+    #nodesxy=dict(self.nodesxy)
+    #for idx in nodesxy:
+    #  found=False
+    #  for elidx in self.elements:
+    #    if idx in self.elements[elidx]:
+    #      found=True
+    #      break
+    #  if not(found):
+    #    print "remove hanging node %d"%idx
+    #    try:
+    #      del self.nodesxy[idx]
+    #    except:
+    #      pass
+
+  def renumber_nodes(self):
+    newids = {}
+    for newid,oldid in enumerate(self.nodesxy):
+      newids[oldid]=newid+1
+    
+    oldxy=dict(self.nodesxy)
+    self.nodesxy={}
+    for elid in oldxy:
+      self.nodesxy[newids[elid]] = oldxy[elid]
+
+    olddepths=dict(self.depths)
+    self.depths={}
+    for elid in olddepths:
+      self.depths[newids[elid]] = olddepths[elid]
+
+    for elid in self.elements:
+      self.elements[elid] = [newids[oldid] for oldid in self.elements[elid][::-1]]
+    for elid in range(len(self.land_nodes)):
+      self.land_nodes[elid] = [newids[oldid] for oldid in self.land_nodes[elid]]
+    for elid in range(len(self.openboundary_nodes)):
+      self.openboundary_nodes[elid] = [newids[oldid] for oldid in self.openboundary_nodes[elid]]
+    for elid in range(len(self.island_nodes)):
+      self.island_nodes[elid] = [newids[oldid] for oldid in self.island_nodes[elid]]
+
+
   def dump(self,filename='hgrid.gr3'):
     f = open(filename,'w')
     f.write('%s\n'%filename)
@@ -67,7 +124,7 @@ class gr3():
     
     # land nodes
     f.write('%d = Number of land boundaries\n'%(len(self.land_nodes) + len(self.island_nodes)))
-    f.write('%d = Total number of land boundary nodes\n'%self.num_land_nodes)
+    f.write('%d = Total number of land boundary nodes\n'%(self.num_land_nodes+self.num_island_nodes))
     for i,sublist in enumerate(self.land_nodes):
       f.write('%d 0 = Number of nodes for land boundary %d\n'%(len(sublist),i+1))
       for node in sublist:
@@ -182,6 +239,8 @@ if __name__ == '__main__':
   mesh=msh(filename)
   hgrid=gr3()
   hgrid.import_mesh(mesh)
+  print '  renumber nodes'
+  hgrid.renumber_nodes()
   hgrid.dump('hgrid.gr3')
 
 
