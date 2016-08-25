@@ -256,7 +256,7 @@ if __name__ == '__main__':
     setup.plot_domain_boundaries()
 
     # read elevation boundaries
-    t,e = setup.bdy_array('elev2D.th',num=180)
+    t,e = setup.bdy_array('elev2D.th')
     figure()
-    plot(t[:],e[:,0])
+    plot(t[:],e[:,50])
     show()
