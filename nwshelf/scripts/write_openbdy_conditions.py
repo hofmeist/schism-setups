@@ -1,7 +1,7 @@
 import os
 from pylab import *
 import sys
-sys.path.append(os.environ['HOME']+'/SCHISM/setups/scripts')
+sys.path.append(os.environ['HOME']+'/schism/setups/scripts')
 from schism import *
 import numpy as np
 import netCDF4
