@@ -46,6 +46,17 @@ class schism_setup(object):
       self.nv = nv
       self.nvdict = nvdict
 
+
+      # get resolution of elements
+      res = {}
+      import numpy as np
+      for el in self.nvdict:
+        inodes = self.nvdict[el]
+        x = [self.xdict[ii] for ii in inodes]
+        y = [self.ydict[ii] for ii in inodes]
+        res[el] = (np.sqrt((x[1]-x[0])**2 + (y[1]-y[0])**2) + np.sqrt((x[2]-x[1])**2 + (y[2]-y[1])**2) + np.sqrt((x[0]-x[2])**2 + (y[0]-y[2])**2))/3.0
+      self.resolution_by_element = dict(res)
+
       # compute sides
       # first get sequence array
       self.nx = {}
@@ -85,6 +96,11 @@ class schism_setup(object):
             iinds = self.nx[len(self.element_sides[i])][ii]
             self.side_nodes[self.nsides] = [self.nvdict[i][iinds[0]],self.nvdict[i][iinds[1]]]
 
+      # average resolution_by_element on nodes
+      self.resolution_by_nodes = {}
+      for inode in self.node_neighbour_elements:
+        elids = self.node_neighbour_elements[inode]
+        self.resolution_by_nodes[inode] = np.asarray([self.resolution_by_element[ii] for ii in self.node_neighbour_elements[inode]]).mean()
 
       self.num_bdy_segments = int(f.readline().split()[0])
       if self.num_bdy_segments > 0:
