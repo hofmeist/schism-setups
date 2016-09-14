@@ -165,9 +165,11 @@ class schism_setup(object):
     znum = int(f.readline())
     self.znum = znum
     a = {}
+    self.bidx = {}
     for line in f.readlines():
       sigma1d = -9999.*np.ones((znum,))
       data = line.split()
+      self.bidx[int(data[0])] = int(data[1])
       sigma1d[int(data[1])-1:] = np.asarray([float(ii) for ii in data[2:]])
       a[int(data[0])] = np.ma.masked_equal(sigma1d,-9999.)
     f.close()
