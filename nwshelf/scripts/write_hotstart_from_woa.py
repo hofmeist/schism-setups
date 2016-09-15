@@ -25,6 +25,40 @@ class woa():
     self.t = tv['t_mn'][:,:,latslice,lonslice]
     self.lon2,self.lat2 = meshgrid(self.lon,self.lat)
 
+    self.use_depth_slices=False
+
+    if not(self.use_depth_slices):
+      self.d3,self.lat3,self.lon3 = meshgrid(self.d,self.lat*100.,self.lon*100.,indexing='ij')
+      vlon3 = self.lon3[where(self.s.mask[self.tidx]==False)]
+      vlat3 = self.lat3[where(self.s.mask[self.tidx]==False)]
+      vd3 = self.d3[where(self.s.mask[self.tidx]==False)]
+      self.s_tree=cKDTree(zip(vlon3,vlat3,vd3))
+
+      vlon3 = self.lon3[where(self.t.mask[self.tidx]==False)]
+      vlat3 = self.lat3[where(self.t.mask[self.tidx]==False)]
+      vd3 = self.d3[where(self.t.mask[self.tidx]==False)]
+      self.t_tree=cKDTree(zip(vlon3,vlat3,vd3))
+
+      self.s_var = self.s[self.tidx][where(self.s.mask[self.tidx]==False)].flatten()
+      self.t_var = self.t[self.tidx][where(self.t.mask[self.tidx]==False)].flatten()
+
+    else:
+      #build trees
+      self.s_tree={}
+      self.t_tree={}
+      self.svar={}
+      self.tvar={}
+      for ik,d in enumerate(self.d):
+        print('  build trees for depth %0.2f'%d)
+        vlon = self.lon2[where(self.s.mask[self.tidx,ik]==False)]
+        vlat = self.lat2[where(self.s.mask[self.tidx,ik]==False)]
+        self.s_tree[ik] = cKDTree(zip(vlon,vlat))
+        vlon = self.lon2[where(self.t.mask[self.tidx,ik]==False)]
+        vlat = self.lat2[where(self.t.mask[self.tidx,ik]==False)]
+        self.t_tree[ik] = cKDTree(zip(vlon,vlat))
+        self.svar[ik] = self.s[self.tidx,ik][where(self.s.mask[self.tidx,ik]==False)].flatten()
+        self.tvar[ik] = self.t[self.tidx,ik][where(self.t.mask[self.tidx,ik]==False)].flatten()
+
   def interpolate(self,depths,nodelon,nodelat,bidx=1):
     # start
     t = zeros((len(depths),))
@@ -33,19 +67,32 @@ class woa():
 
     for ik,ndepth in enumerate(depths[bidx-1:]):
       # find vertical layer in climatology
-      ddiff = abs(self.d - ndepth)
-      didx = int(where(ddiff==ddiff.min())[0][0])
-      vlon = self.lon2[where(self.s.mask[self.tidx,didx]==False)]
-      vlat = self.lat2[where(self.s.mask[self.tidx,didx]==False)]
-      tree = cKDTree(zip(vlon,vlat))
-    
-      svar = self.s[self.tidx,didx][where(self.s.mask[self.tidx,didx]==False)].flatten()
-      tvar = self.t[self.tidx,didx][where(self.t.mask[self.tidx,didx]==False)].flatten()
+      if self.use_depth_slices:
+        didx = np.abs(self.d - ndepth).argmin()
 
-      dist,inds = tree.query((nodelon,nodelat),k=4)
-      w = 1 / dist
-      s[bidx-1+ik] = np.sum(w*svar[inds],axis=0) / np.sum(w,axis=0)
-      t[bidx-1+ik] = np.sum(w*tvar[inds],axis=0) / np.sum(w,axis=0)
+      #didx = int(where(ddiff==ddiff.min())[0][0])
+      #vlon = self.lon2[where(self.s.mask[self.tidx,didx]==False)]
+      #vlat = self.lat2[where(self.s.mask[self.tidx,didx]==False)]
+      #tree = cKDTree(zip(vlon,vlat))
+    
+      #svar = self.s[self.tidx,didx][where(self.s.mask[self.tidx,didx]==False)].flatten()
+      #tvar = self.t[self.tidx,didx][where(self.t.mask[self.tidx,didx]==False)].flatten()
+
+        dist,inds = self.s_tree[didx].query((nodelon,nodelat),k=4)
+        w = 1 / dist
+        s[bidx-1+ik] = np.sum(w*self.svar[didx][inds],axis=0) / np.sum(w,axis=0)
+
+        dist,inds = self.t_tree[didx].query((nodelon,nodelat),k=4)
+        w = 1 / dist
+        t[bidx-1+ik] = np.sum(w*self.tvar[didx][inds],axis=0) / np.sum(w,axis=0)
+      else:
+        dist,inds = self.s_tree.query((nodelon*100.,nodelat*100.,ndepth))
+        w = 1 / dist
+        s[bidx-1+ik] = np.sum(w*self.s_var[inds],axis=0) / np.sum(w,axis=0)
+
+        dist,inds = self.t_tree.query((nodelon*100.,nodelat*100.,ndepth))
+        w = 1 / dist
+        t[bidx-1+ik] = np.sum(w*self.t_var[inds],axis=0) / np.sum(w,axis=0)
 
     return (t,s)
 
@@ -53,15 +100,31 @@ class woa():
 nws = schism_setup()
 oa = woa()
 
-# write t,s on nodes
-s = {}
-t = {}
+import os.path
+import pickle
 
-# create t,s fields:
-for i,nodelon,nodelat,d in zip(nws.inodes,nws.lon,nws.lat,nws.depths):
-  depths = nws.vgrid[i].filled(-1)*d
-  bidx = nws.bidx[i]
-  t[i],s[i] = oa.interpolate(depths,nodelon,nodelat,bidx)
+if os.path.isfile('ts.pickle'):
+  t,s = pickle.load(open('ts.pickle','rb'))
+
+else:
+  # write t,s on nodes
+  s = {}
+  t = {}
+
+  # create t,s fields:
+  for i,nodelon,nodelat,d in zip(nws.inodes,nws.lon,nws.lat,nws.depths):
+    if (i%10000) == 0:
+      print('  interpolate i = %d'%i)
+    #if i == 5000:
+    #  break 
+    depths = nws.vgrid[i].filled(-1)*d
+    bidx = nws.bidx[i]
+    t[i],s[i] = oa.interpolate(depths,nodelon,nodelat,bidx)
+
+  #write pickle
+  f = open('ts.pickle','wb')
+  pickle.dump((t,s),f)
+  f.close()
 
 
 # finally write hotstart file:
