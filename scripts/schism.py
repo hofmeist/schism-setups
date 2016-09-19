@@ -141,12 +141,16 @@ class schism_setup(object):
         nll = []
         lon=[]
         lat=[]
+        self.londict={}
+        self.latdict={}
         for nn in range(self.nnodes):
           dat=f.readline().split()
           nll.append(int(dat[0]))
           lon.append(float(dat[1]))
           lat.append(float(dat[2]))
-        self.ill = n
+          self.londict[nll[-1]]=lon[-1]
+          self.latdict[nll[-1]]=lat[-1]
+        self.ill = nll
         self.lon = lon
         self.lat = lat
         f.close()

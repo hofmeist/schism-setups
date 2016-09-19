@@ -20,6 +20,7 @@ class woa():
     self.lat = sv['lat'][latslice]
     self.d = -sv['depth'][:]
     self.time = sv['time'][:]
+    self.timeunits = sv['time'].units
     self.tidx = 0
     self.s = sv['s_mn'][:,:,latslice,lonslice]
     self.t = tv['t_mn'][:,:,latslice,lonslice]
@@ -100,65 +101,48 @@ class woa():
 nws = schism_setup()
 oa = woa()
 
-import os.path
-import pickle
+bdyvgrid = asarray([nws.vgrid[ii].filled(-1.) for ii in nws.bdy_nodes ])
 
-if os.path.isfile('ts.pickle'):
-  t,s = pickle.load(open('ts.pickle','rb'))
+tbdy=[]
+sbdy=[]
+dbdy=[]
+ibdy=[]
 
-else:
-  # write t,s on nodes
-  s = {}
-  t = {}
+f_temp = open('TEM_3D.th','wb')
+f_salt = open('SAL_3D.th','wb')
+for time in array([0.0,32*86400.]).astype('float32'):
+#from netcdftime import utime
+#years = [2010,2011,2012]
+#years = [2010]
+#ut = utime('seconds since $d-01-01 00:00:00'%years[0])
+#climut = utime(oa.timeunits)
+#for yy in years:
+#  if yy == years[0]:
+#    climtimes = [0.0].append(oa.time)
+#  for climtime in oa.time:
+#    clim_dt = climut.num2date()-climut.num2date(climut.origin)
+#    time = ut.date2num(datetime(yy,1,1,0,0,0)+clim_dt).astype('float32')
+    time.tofile(f_temp)
+    time.tofile(f_salt)
+    for i,inode in enumerate(nws.bdy_nodes):
+      if (i%100) == 0:
+        print('  interpolate i = %d'%i)
+      bdylon = nws.londict[inode]
+      bdylat = nws.latdict[inode]
+      depths = nws.vgrid[inode].filled(-1)*nws.depthsdict[inode]
+      t,s = oa.interpolate(depths,bdylon,bdylat,bidx=1)
+      tbdy.append(t)
+      sbdy.append(s)
+      dbdy.append(depths)
+      ibdy.append(i*ones(depths.shape))
+      t.astype('float32').tofile(f_temp)
+      s.astype('float32').tofile(f_salt)
 
-  # create t,s fields:
-  for i,nodelon,nodelat,d in zip(nws.inodes,nws.lon,nws.lat,nws.depths):
-    if (i%10000) == 0:
-      print('  interpolate i = %d'%i)
-    #if i == 5000:
-    #  break 
-    depths = nws.vgrid[i].filled(-1)*d
-    bidx = nws.bidx[i]
-    t[i],s[i] = oa.interpolate(depths,nodelon,nodelat,bidx)
+f_temp.close()
+f_salt.close()
 
-  #write pickle
-  f = open('ts.pickle','wb')
-  pickle.dump((t,s),f)
-  f.close()
-
-
-# finally write hotstart file:
-f = open('hotstart.in','wb')
-asarray([0.0]).astype('float64').tofile(f)
-asarray([0,1]).astype('int32').tofile(f)
-
-# write element data
-for ie in nws.nvdict:
-  asarray([ie,0]).astype('int32').tofile(f)
-  inds = nws.nvdict[ie]
-  scoll = [s[ind] for ind in inds]
-  tcoll = [t[ind] for ind in inds]
-  se = np.mean(scoll,axis=0)
-  te = np.mean(tcoll,axis=0)
-  for k in range(nws.znum):
-    asarray([0.0,te[k],se[k]]).astype('float64').tofile(f)
-
-for i in nws.side_nodes:
-  asarray([i,0]).astype('int32').tofile(f)
-  inds = nws.side_nodes[i]
-  scoll = [s[ind] for ind in inds]
-  tcoll = [t[ind] for ind in inds]
-  se = np.mean(scoll,axis=0)
-  te = np.mean(tcoll,axis=0)
-  for k in range(nws.znum):
-    asarray([0.0,0.0,te[k],se[k]]).astype('float64').tofile(f)
-
-for i in nws.inodes:
-  asarray([i]).astype('int32').tofile(f)
-  asarray([0.0]).astype('float64').tofile(f)
-  asarray([0]).astype('int32').tofile(f)
-  for k in range(nws.znum):
-    asarray([t[i][k],s[i][k],t[i][k],s[i][k],0.0,0.0,0.0,0.0,0.0,0.0,0.0]).astype('float64').tofile(f)
-
-f.close()
+tbdy=asarray(tbdy)
+sbdy=asarray(sbdy)
+dbdy=asarray(dbdy)
+ibdy=asarray(ibdy)
 
