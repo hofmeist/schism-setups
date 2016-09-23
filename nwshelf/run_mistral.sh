@@ -6,7 +6,7 @@
 ### --ntasks=192
 #SBATCH --ntasks=1080
 #SBATCH --ntasks-per-node=36
-#SBATCH --time=02:00:00        # Set a limit on the total run time
+#SBATCH --time=01:00:00        # Set a limit on the total run time
 #SBATCH --wait-all-nodes=1     # start job, when all nodes are available
 #SBATCH --mail-type=FAIL       # Notify user by email in case of job failure
 #SBATCH --mail-user=richard.hofmeister@hzg.de  # Set your e−mail address
@@ -14,9 +14,13 @@
 #SBATCH --output=log.o    # File name for standard output
 #SBATCH --error=log.e     # File name for standard error output
 
+# quasi-barotropic
 # 108 cpus -> 12000 s in 60 s -> 1 month in 3.6 h
 # 324 cpus -> 
 # 1080 cpus -> 120000 s in 100 s -> 1 month in 36 min
+# baroclinic 270k nodes:
+# 1080 cpus -> 1 month in 46min (dt=120s)
+# 1080 cpus, dt=240s -> 1 month in 
 
 # Modified Case1: Run MPI parallel program using mvapich2
 #module load mvapich2/2.1-intel14
@@ -48,6 +52,8 @@ cp vgrid.in $outpath
 
 # run the model
 # --distribution=block:cyclic bind tasks to physical cores
+rm -f hotstart.in
+ln -sf /work/gg0877/hofmeist/nwshelf/input/hotstart_january.in hotstart.in
 srun -l --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/v5.3/newbuild/bin/pschism
 
 # move log files

@@ -106,7 +106,7 @@
 ! Hotstart option. 0: cold start; 1: hotstart with time reset to 0; 2: 
 ! continue from the step in hotstart.in
 !-----------------------------------------------------------------------
-  ihot = 0
+  ihot = 1
 
 !-----------------------------------------------------------------------
 ! Hydraulic model option. If ihydraulics/=0, hydraulics.in 
@@ -313,7 +313,7 @@
   rnday = 30.0 !total run time in days
   nramp = 0 !ramp-up option (1: on; 0: off)
   dramp = 1. !needed if nramp=1; ramp-up period in days
-  dt = 120.0
+  dt = 240.0
 
 !-----------------------------------------------------------------------
 ! Solver option. JCG is used presently.
@@ -330,7 +330,7 @@
 ! actual step is calculated adaptively based on local gradient.
 !-----------------------------------------------------------------------
   nadv = 1
-  dtb_max = 120.0
+  dtb_max = 240.0
   dtb_min = 20.0
 
 !-----------------------------------------------------------------------
@@ -460,7 +460,7 @@
 ! For 2D model, the only outputs available are: elev.61, dahv.62, wind.62, wist.62 and hvel.64
 !-----------------------------------------------------------------------
   nspool = 30
-  ihfskip = 720.
+  ihfskip = 360.
 
   elev.61 = 1 !0: off; 1: on - elev. [m]
   pres.61 = 0 !air pressure [Pa]
@@ -479,10 +479,10 @@
   wist.62 = 0 !wind stress [m^2/s/s]
   dahv.62 = 1 !depth-averaged vel. [m/s]
   vert.63 = 0 !vertical velocity [m/s]
-  temp.63 = 0 !water temperature [C]
-  salt.63 = 0 !water salinity [PSU]
+  temp.63 = 1 !water temperature [C]
+  salt.63 = 1 !water salinity [PSU]
   conc.63 = 0 !water density [kg/m^3]
-  tdff.63 = 0 !eddy diffusivity [m^2/s]
+  tdff.63 = 1 !eddy diffusivity [m^2/s]
   vdff.63 = 0 !eddy viscosity [m^2/s]
   kine.63 = 0 !turbulent kinetic energy
   mixl.63 = 0 !turbulent mixing length [m]
@@ -661,7 +661,7 @@
 ! Option for hotstart outputs
 !-----------------------------------------------------------------------
   hotout = 0 !1: output *_hotstart every 'hotout_write' steps
-  hotout_write = 432
+  hotout_write = 720
 
 !-----------------------------------------------------------------------
 ! Conservation check option. If consv_check=1, some fluxes are computed

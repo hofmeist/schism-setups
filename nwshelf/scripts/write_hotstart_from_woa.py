@@ -119,7 +119,7 @@ else:
     #  break 
     depths = nws.vgrid[i].filled(-1)*d
     bidx = nws.bidx[i]
-    t[i],s[i] = oa.interpolate(depths,nodelon,nodelat,bidx)
+    t[i],s[i] = oa.interpolate(depths,nodelon,nodelat,bidx=1)
 
   #write pickle
   f = open('ts.pickle','wb')
