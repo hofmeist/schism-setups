@@ -313,7 +313,7 @@
   rnday = 30.0 !total run time in days
   nramp = 0 !ramp-up option (1: on; 0: off)
   dramp = 1. !needed if nramp=1; ramp-up period in days
-  dt = 240.0
+  dt = 120.0
 
 !-----------------------------------------------------------------------
 ! Solver option. JCG is used presently.
@@ -330,7 +330,7 @@
 ! actual step is calculated adaptively based on local gradient.
 !-----------------------------------------------------------------------
   nadv = 1
-  dtb_max = 240.0
+  dtb_max = 120.0
   dtb_min = 20.0
 
 !-----------------------------------------------------------------------
