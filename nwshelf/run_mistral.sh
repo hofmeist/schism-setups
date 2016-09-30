@@ -6,7 +6,7 @@
 ### --ntasks=192
 #SBATCH --ntasks=1080
 #SBATCH --ntasks-per-node=36
-#SBATCH --time=01:00:00        # Set a limit on the total run time
+#SBATCH --time=02:00:00        # Set a limit on the total run time
 #SBATCH --wait-all-nodes=1     # start job, when all nodes are available
 #SBATCH --mail-type=FAIL       # Notify user by email in case of job failure
 #SBATCH --mail-user=richard.hofmeister@hzg.de  # Set your e−mail address

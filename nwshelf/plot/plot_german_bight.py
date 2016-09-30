@@ -47,7 +47,7 @@ x,y = proj(lon,lat)
 var = ncv[varname]
 #time = array([0.0])
 cmap = cm.jet
-#cmap.set_under(color='w')
+cmap.set_under(color='gray')
 
 def mask_triangles(masknodes,nv):
   idx = where(masknodes)[0]
@@ -86,7 +86,7 @@ for tidx,t in enumerate(dates):
     #tripcolor(x,y,nv,vs,cmap=cmap,mask=mask,rasterized=True)
     tripcolor(x,y,nv,vs,cmap=cmap,rasterized=True)
     if varname=='salt':
-      clim(15,35)
+      clim(20,35)
       cbtitle='surface salinity'
     elif varname=='temp':
       clim(1,6)

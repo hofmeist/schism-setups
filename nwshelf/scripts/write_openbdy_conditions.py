@@ -76,7 +76,12 @@ y = asarray([ ydict[ii] for ii in bdy_nodes ])
 if write_ts:
     bdyvgrid = asarray([s.vgrid[ii].filled(-1.) for ii in bdy_nodes ])
 
-bdydat = bdy_dataset(filename='/data/hofmeist/myocean/2012-01.amm7.nc')
+if len(sys.argv)>1:
+  filename=sys.argv[1]
+else:
+  filename='/data/hofmeist/myocean/2012-01.amm7.nc'
+
+bdydat = bdy_dataset(filename=filename)
 ut = netcdftime.utime('seconds since 2012-01-01 00:00:00')
 
 times = ut.date2num(bdydat.dates).astype('float32')

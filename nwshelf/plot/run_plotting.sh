@@ -21,7 +21,8 @@ cd $outpath
 
 # plot surface elevation
 #python $HOME/schism/setups/nwshelf/plot/plot_surface_mistral.py 29_elev.nc elev
-python $HOME/schism/setups/nwshelf/plot/plot_surface_mistral.py 30_elev.nc elev
+#python $HOME/schism/setups/nwshelf/plot/plot_surface_mistral.py 30_elev.nc elev
+python $HOME/schism/setups/nwshelf/plot/plot_bott_surf.py 30_elev.nc elev
 python $HOME/schism/setups/nwshelf/plot/plot_bott_surf.py 29_elev.nc elev
 
 # plot initial S,T

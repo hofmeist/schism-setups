@@ -34,11 +34,11 @@ dates = ut.num2date(time)
 lonb=[-18., 32.]
 latb=[46., 67.]
 
-if os.path.isfile('proj.pickle'):
-    (proj,)=np.load('proj.pickle')
+if os.path.isfile('proj_bottsurf.pickle'):
+    (proj,)=np.load('proj_bottsurf.pickle')
 else:
-    proj=Basemap(projection="merc", lat_ts=0.5*(latb[1]+latb[0]), resolution="h",llcrnrlon=lonb[0], urcrnrlon=lonb[1], llcrnrlat=latb[0], urcrnrlat=latb[1])
-    f=open('proj.pickle','wb')
+    proj=Basemap(projection="merc", lat_ts=0.5*(latb[1]+latb[0]), resolution="i",llcrnrlon=lonb[0], urcrnrlon=lonb[1], llcrnrlat=latb[0], urcrnrlat=latb[1])
+    f=open('proj_bottsurf.pickle','wb')
     pickle.dump((proj,),f)
     f.close()
 
@@ -63,7 +63,7 @@ bidx = ncv['node_bottom_index'][:]
 nbidx = len(bidx)
 
 if tidx >= 0:
-  dates = dates[tidx]
+  dates = [dates[tidx],]
   tidx_offset=tidx
 else:
   tidx_offset=0
@@ -71,12 +71,22 @@ else:
 os.system('mkdir -p jpgs')
 for tidx,t in enumerate(dates):
   v = var[tidx+tidx_offset,:].squeeze()
-  vb = v[bidx,arange(nbidx)]
-  vs = v[-1,:].squeeze()
+  if varname=='elev':
+    vs = v
+    plot_surface=True
+    plot_bottom=False
+  else:
+    vs = v[-1,:].squeeze()
+    vb = v[bidx,arange(nbidx)]
+    plot_surface=True
+    plot_bottom=True
   #mask = v == -99.
   #mask = mask_triangles(mask,nv)
-  if True:
+  if plot_surface:
     figure()
+    if varname=='elev':
+      cmap=cm.RdYlGn
+      cmap.set_under('gray')
     tripcolor(x,y,nv,vs,cmap=cmap,rasterized=True)
     if varname=='salt':
       clim(5,35)
@@ -84,6 +94,9 @@ for tidx,t in enumerate(dates):
     elif varname=='temp':
       clim(1,6)
       cbtitle=u'surface temperature\n[\u00b0C]'
+    elif varname=='elev':
+      clim(-2,2)
+      cbtitle='ssh [m]'
     proj.drawcoastlines()
     proj.fillcontinents((0.9,0.9,0.8))
     cb=colorbar()
@@ -91,22 +104,23 @@ for tidx,t in enumerate(dates):
     tstring = t.strftime('%Y%m%d-%H%M')
     savefig('jpgs/%s_surface_%s.jpg'%(varname,tstring),dpi=200)
     close()
-  
-  figure()
-  tripcolor(x,y,nv,vb,cmap=cmap,rasterized=True)
-  if varname=='salt':
-    clim(5,35)
-    cbtitle='bottom salinity'
-  elif varname=='temp':
-    clim(1,6)
-    cbtitle='bottom temperature\n[\u00b0C]'
-  proj.drawcoastlines()
-  proj.fillcontinents((0.9,0.9,0.8))
-  cb=colorbar()
-  cb.ax.set_title('%s\n'%(cbtitle),size=10.)
-  tstring = t.strftime('%Y%m%d-%H%M')
-  savefig('jpgs/%s_bottom_%s.jpg'%(varname,tstring),dpi=200)
-  #show()
-  close()
+
+  if plot_bottom:
+    figure()
+    tripcolor(x,y,nv,vb,cmap=cmap,rasterized=True)
+    if varname=='salt':
+      clim(5,35)
+      cbtitle='bottom salinity'
+    elif varname=='temp':
+      clim(1,6)
+      cbtitle='bottom temperature\n[\u00b0C]'
+    proj.drawcoastlines()
+    proj.fillcontinents((0.9,0.9,0.8))
+    cb=colorbar()
+    cb.ax.set_title('%s\n'%(cbtitle),size=10.)
+    tstring = t.strftime('%Y%m%d-%H%M')
+    savefig('jpgs/$s/%s_bottom_%s.jpg'%(varname,varname,tstring),dpi=200)
+    #show()
+    close()
 
 
