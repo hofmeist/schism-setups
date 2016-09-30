@@ -1,11 +1,20 @@
+import matplotlib
+matplotlib.use('Agg')
+
 from pylab import *
 import netCDF4
 from scipy.spatial import cKDTree 
-import sys
+import sys,os
 
 dfile = sys.argv[1]
 varn = dfile.split('_')[1][:-3]
 period = dfile.split('_')[0]
+
+if len(sys.argv)>2:
+  varn=sys.argv[2]
+else:
+  if varn=='hvel':
+    varn='hvel_v'
 
 nc = netCDF4.Dataset('%s_zcor.nc'%period)
 ncv = nc.variables
@@ -21,9 +30,6 @@ znum = len(nc.dimensions['nSCHISM_vgrid_layers'])
 
 nc.close()
 
-if varn == 'hvel':
-  varn='hvel_v'
-
 nc = netCDF4.Dataset(dfile)
 ncv=nc.variables
 s = ncv[varn][:,:,1:]
@@ -37,7 +43,7 @@ tree = cKDTree(zip(x,y))
 x0 = 0.0
 #x0 = 100000.
 ymax=30000.
-#ymax=100000.
+ymax=100000.
 
 ytrans = linspace(-50000.,ymax,1000.)
 xtrans = x0*ones(ytrans.shape)
@@ -49,55 +55,72 @@ tidx=6
 strans=ma.masked_equal(ones((len(dist[:,0]),znum)),0.0)
 ztrans=ma.masked_equal(ones((len(dist[:,0]),znum)),0.0)
 
-for n in range(znum):
-  #strans[:,n] = np.sum(weight * s[tidx,n,inds],axis=1)/np.sum(weight,axis=1)
-  #ztrans[:,n] = np.sum(weight * z[tidx,n,inds],axis=1)/np.sum(weight,axis=1)
-  strans[:,n] = s[tidx,n,inds].mean(axis=1)
-  ztrans[:,n] = z[tidx,n,inds].mean(axis=1)
-strans = ma.masked_where(strans<-5.0,strans)
+os.system('mkdir -p %s'%varn)
+for tidx in range(24):
 
-l2d,y2d = meshgrid(levels,ytrans)
+  print('  tidx %03d'%tidx)
+  for n in range(znum):
+    #strans[:,n] = np.sum(weight * s[tidx,n,inds],axis=1)/np.sum(weight,axis=1)
+    #ztrans[:,n] = np.sum(weight * z[tidx,n,inds],axis=1)/np.sum(weight,axis=1)
+    strans[:,n] = s[tidx,n,inds].mean(axis=1)
+    ztrans[:,n] = z[tidx,n,inds].mean(axis=1)
+  strans = ma.masked_where(strans<-5.0,strans)
 
-figure(figsize=(12,10))
+  l2d,y2d = meshgrid(levels,ytrans)
 
-# fill z-levels
-for n in range(len(depth)):
-  nidx = where(zf[tidx,:,n].squeeze()==-9999.)
-  zf[tidx,nidx,n] = zf[tidx,lmin[n]-1,n]
+  figure(figsize=(12,10))
 
-plot_grid=True
-gridcol=(0.5,0.5,0.5)
-cmap=cm.YlGnBu_r
-cmap=cm.RdYlBu_r
+  # fill z-levels
+  for n in range(len(depth)):
+    nidx = where(zf[tidx,:,n].squeeze()==-9999.)
+    zf[tidx,nidx,n] = zf[tidx,lmin[n]-1,n]
 
-if varn=='tdff':
-  strans = log10(strans)
-  climmin=-7
-  climmax=-0.2
-elif varn=='hvel_v':
-  climmin=-0.5
-  climmax=0.5
-else:
-  climmin=10.
-  climmax=strans.max()
+  plot_grid=True
+  gridcol=(0.5,0.5,0.5)
+  cmap=cm.YlGnBu_r
+  cmap=cm.RdYlBu_r
 
-pc = pcolormesh(y2d,ztrans,strans,shading='interp',cmap=cmap)
+  if varn=='tdff':
+    strans = log10(strans)
+    climmin=-7
+    climmax=-0.2
+    ctitle=u'turb. diffusivity\n[m\u00b2/s\u00b2]'
+  elif varn=='hvel_v':
+    climmin=-0.5
+    climmax=0.5
+    ctitle=u'cross-slope velocity\n[m/s]'
+  elif varn=='hvel_u':
+    climmin=-0.5
+    climmax=0.5
+    ctitle=u'along-slope velocity\n[m/s]'
+  else:
+    climmin=10.
+    climmax=strans.max()
+    if varn=='salt':
+      ctitle='salinity'
+    elif varn=='temp':
+      ctitle='temperature\n[degC]'
 
-if plot_grid:
-  #for yy,zz in zip(y2d,ztrans.squeeze()):
-  #  plot(yy,zz,'k-',lw=0.3,color=gridcol)
+  pc = pcolormesh(y2d,ztrans,strans,shading='interp',cmap=cmap)
 
-  for yy,zz in zip(y2d.T,ztrans.squeeze().T):
-    plot(yy,zz,'k-',lw=0.3,color=gridcol)
+  if plot_grid:
+    #for yy,zz in zip(y2d,ztrans.squeeze()):
+    #  plot(yy,zz,'k-',lw=0.3,color=gridcol)
+
+    for yy,zz in zip(y2d.T,ztrans.squeeze().T):
+      plot(yy,zz,'k-',lw=0.3,color=gridcol)
 
 
-colorbar(pc)
+  cb=colorbar(pc)
+  cb.set_label(ctitle)
 
-xlim(-50000.,ymax)
-ylim(-100.,3.0)
-clim(climmin,climmax)
-xlabel('y [m]')
-ylabel('z [m]')
+  xlim(-50000.,ymax)
+  ylim(-100.,3.0)
+  clim(climmin,climmax)
+  xlabel('y [m]')
+  ylabel('z [m]')
 
-show()
+  savefig('%s/%s_%s_%03d.png'%(varn,period.split('/')[-1],varn,tidx),dpi=300)
+  #show()
+  close()
 
