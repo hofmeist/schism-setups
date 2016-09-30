@@ -5,10 +5,10 @@ sys.path.append(os.environ['HOME']+'/schism/setups/scripts')
 from schism import *
 import numpy as np
 
-def get_bdy(time,x,y,depths,theta=50.0,T = 12.0, a=2.0):
+def get_bdy(time,x,y,depths,theta=50.0,T = 12.0, a=2.0,wavedepth=100.):
   f = 2 * 2*pi/86146.*sin(pi/180.*theta)
   w = 2*pi/(T*3600.)
-  c = sqrt(9.81*depths)
+  c = sqrt(9.81*wavedepth)
   k = w/c
   return a*exp(-f*y/c)*cos(k*x - w*time)
 

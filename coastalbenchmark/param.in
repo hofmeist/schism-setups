@@ -79,7 +79,7 @@
 ! Reference latitude for beta-plane approximation when ncor=1 (not used if ics=2)
 !-----------------------------------------------------------------------
   cpp_lon = -124  !lon - not really used
-  cpp_lat = 0 !lat
+  cpp_lat = 50. !lat
 
 !-----------------------------------------------------------------------
 ! Baroclinic/barotropic option. If ibcc=0 (baroclinic model), itransport is not used.
@@ -648,8 +648,8 @@
 ! a station.in. If ics=2, the cordinates in station.in must be in lon., lat,
 ! and z (positive upward; not used for 2D variables). 
 !-----------------------------------------------------------------------
-  iout_sta = 0
-  nspool_sta = 10 !needed if iout_sta/=0
+  iout_sta = 1
+  nspool_sta = 30 !needed if iout_sta/=0
 
 !-----------------------------------------------------------------------
 ! Flag for harmonic analysis for elevation. If used , need to turn on cpp flags
@@ -661,7 +661,7 @@
 ! Option for hotstart outputs
 !-----------------------------------------------------------------------
   hotout = 0 !1: output *_hotstart every 'hotout_write' steps
-  hotout_write = 432
+  hotout_write = 720
 
 !-----------------------------------------------------------------------
 ! Conservation check option. If consv_check=1, some fluxes are computed
