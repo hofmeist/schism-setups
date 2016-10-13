@@ -6,6 +6,9 @@ from schism import *
 
 f = open('xyd_bathymetry.pickle','rb')
 x,y,d=pickle.load(f)
+d = d.astype('float32')
+x = x.astype('float32')
+y = y.astype('float32')
 f.close()
 
 try:

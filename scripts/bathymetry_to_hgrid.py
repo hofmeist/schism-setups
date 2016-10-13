@@ -18,12 +18,15 @@ ncv = nc.variables
 
 lonv=ncv['lon'][:]
 latv=ncv['lat'][:]
-depth = ncv['depth'][:].flat[:]
+depth = ncv['depth'][:].astype('float32').flat[:]
 
 lo,la = meshgrid(lonv,latv)
+print('done meshgrid')
 
-coords_geo = zip(lo.flat,la.flat)
+#coords_geo = zip(lo.flat,la.flat)
 xc,yc = m(lo.flat[:],la.flat[:])
+del lo,la
+print('done projection')
 
 idx = where(depth.mask==False)
 x = xc[idx]
@@ -31,6 +34,8 @@ y = yc[idx]
 d = -depth.data[idx]
 
 del depth,xc,yc
+print('start pickling')
+
 fo = open('xyd_bathymetry.pickle','wb')
 pickle.dump((x,y,d),fo,protocol=-1)
 fo.close()
