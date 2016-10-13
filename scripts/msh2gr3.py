@@ -19,6 +19,12 @@ class gr3():
     for ielement,element in enumerate(elements):
       self.elements[ielement+1]=element
 
+  def signed_area(self,nodelist):
+    x1,y1 = self.nodesxy[nodelist[0]]
+    x2,y2 = self.nodesxy[nodelist[1]]
+    x3,y3 = self.nodesxy[nodelist[2]]
+    return ((x1-x3)*(y2-y3)-(x2-x3)*(y1-y3))/2.0
+
   def import_mesh(self,mesh,depth=10.):
     self.nodesxy=mesh.nodes
     for id in self.nodesxy:
@@ -95,6 +101,13 @@ class gr3():
 
     for elid in self.elements:
       self.elements[elid] = [newids[oldid] for oldid in self.elements[elid][::-1]]
+      # check for counter-clockwise sequence:
+      area = self.signed_area(self.elements[elid]) 
+      if area < 0.0:
+        print('  negative area for element %d: %0.2f, reversing nodes'%(elid,area))
+        self.elements[elid] = [ nid for nid in self.elements[elid][::-1]]
+      else:
+        print(' area for element %d: %0.2f'%(elid,area))
     for elid in range(len(self.land_nodes)):
       self.land_nodes[elid] = [newids[oldid] for oldid in self.land_nodes[elid]]
     for elid in range(len(self.openboundary_nodes)):
