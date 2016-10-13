@@ -233,6 +233,12 @@ class schism_setup(object):
       ylabel('latitude [degN]')
       show()
 
+  def signed_area(self,nodelist):
+      x1,y1 = (self.xdict[nodelist[0]],self.ydict[nodelist[0]])
+      x2,y2 = (self.xdict[nodelist[1]],self.ydict[nodelist[1]])
+      x3,y3 = (self.xdict[nodelist[2]],self.ydict[nodelist[2]])
+      return ((x1-x3)*(y2-y3)-(x2-x3)*(y1-y3))/2.0
+
   def dump_gr3(self,filename,const=0.0,comment='gr3 by create_ic.py'):
       f = open(filename,'w')
       f.write('%s\n'%comment)
