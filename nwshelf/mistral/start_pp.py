@@ -7,7 +7,7 @@ if len(sys.argv)<2:
 else:
   id = sys.argv[1]
 
-cmd = 'sbatch merge_mistral.sh %s'%(id)
+cmd = 'sbatch mistral/merge_mistral.sh %s'%(id)
 out = commands.getoutput(cmd)
 pid = out.split()[-1]
 print(cmd)

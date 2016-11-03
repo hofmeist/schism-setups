@@ -10,7 +10,7 @@ else:
 out = commands.getoutput('sbatch run_mistral.sh %s'%id)
 pid = out.split()[-1]
 
-out = commands.getoutput('sbatch --dependency=afterok:%s merge_mistral.sh %s'%(pid,id))
+out = commands.getoutput('sbatch --dependency=afterok:%s mistral/merge_mistral.sh %s'%(pid,id))
 pid = out.split()[-1]
 
 out = commands.getoutput('sbatch --dependency=afterok:%s plot/run_plotting.sh nwshelf/nwshelf%s'%(pid,id))
