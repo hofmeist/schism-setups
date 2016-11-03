@@ -382,8 +382,8 @@
 ! If WWM is enabled and icou_elfe_wwm>0 and iwind_form=-2, stress is calculated by WWM;
 ! otherwise the formulations above are used.
 !-----------------------------------------------------------------------
-  nws = 0 !must /=3 for 2D model
-  wtiminc = 200. !time step for atmos. forcing
+  nws = 2 !must /=3 for 2D model
+  wtiminc = 3600. !time step for atmos. forcing
   nrampwind = 1 !ramp-up option for atmos. forcing
   drampwind = 1. !needed of nrampwind/=0; ramp-up period in days
   iwindoff = 0 !needed only if nws/=0; '1': needs windfactor.gr3

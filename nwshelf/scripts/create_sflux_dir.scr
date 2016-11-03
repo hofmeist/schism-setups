@@ -14,7 +14,7 @@ i=0
 for year in ${years[@]}; do
   for month in ${months[@]}; do
     i=$((i+1))
-    num=`printf %04d $i`
+    num=`printf %03d $i`
     ln -sf ${datadir}/cDII.air.${year}_${month}.nc sflux/sflux_air_1.${num}.nc
     ln -sf ${datadir}/cDII.rad.${year}_${month}.nc sflux/sflux_rad_1.${num}.nc
     ln -sf ${datadir}/cDII.prec.${year}_${month}.nc sflux/sflux_prc_1.${num}.nc
