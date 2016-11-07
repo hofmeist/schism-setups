@@ -161,6 +161,11 @@ class schism_setup(object):
         self.parse_vgrid()
       except:
         print('  no vgrid.in available')
+
+      self.node_tree_xy=None
+      self.node_tree_latlon=None
+      self.element_tree_xy=None
+      self.element_tree_latlon=None
       
   def parse_vgrid(self):
     import numpy as np
@@ -275,6 +280,54 @@ class schism_setup(object):
       else:
         print('  no support for file type %s'%fname)
 
+  def init_node_tree(self,latlon=True):
+    print('  build node tree')
+    if latlon:
+      self.node_tree_latlon = ckDTree(zip(self.lon,self.lat))
+    else:
+      self.node_tree_xy = cKDTree(zip(self.x,self.y))
+
+  def init_element_tree(self,latlon=True):
+    print('  build node tree')
+    if latlon:
+      self.element_lon={}
+      self.element_lat={}
+      for el in self.nvdict:
+        self.element_lon[el]=sum([self.londict[idx] for idx in self.nvdict[el]])/len(self.nvdict[el])
+        self.element_lat[el]=sum([self.londict[idx] for idx in self.nvdict[el]])/len(self.nvdict[el])
+
+      self.element_tree_latlon = ckDTree(zip(self.element_lon.values(),self.element_lat.values))
+      self.element_tree_ids = self.element_lon.keys()
+
+  def find_nearest_node(self,x,y,latlon=True):
+    """
+    find nearest node for given coordinate
+    """
+    ridx=-1
+    if latlon:
+      if self.node_tree_latlon==None:
+        self.init_node_tree(latlon=True)
+      idx,d = self.node_tree_latlon.query((x,y),k=1)
+      ridx = self.ill[idx]
+    else:
+       if self.node_tree_latlon==None:
+        self.init_node_tree(latlon=False)
+      idx,d = self.node_tree_latlon.query((x,y),k=1)
+      ridx = self.inodes[idx]
+
+    return ridx
+
+  def find_nearest_element(self,x,y,latlon=True):
+    """
+    give coordinates and find nearest element
+    """
+    ridx=-1
+    if latlon:
+      if self.element_tree_latlon==None:
+        self.init_element_tree(latlon=True)
+      idx,d = self.element_tree_latlon.query((x,y),k=1)
+      ridx = self.element_tree_ids[idx]
+    return ridx
         
 if __name__ == '__main__':
 
