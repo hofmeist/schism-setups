@@ -7,9 +7,11 @@ SCHISM setup class
 __author__  = "Richard Hofmeister"
 __license__ = "GNU GPL v2.0"
 
+import numpy as np
+
 class schism_setup(object):
   
-  def __init__(self,hgrid_file='hgrid.gr3',ll_file='hgrid.ll',vgrid_file='vgrid.gr3'):
+  def __init__(self,hgrid_file='hgrid.gr3',ll_file='hgrid.ll',vgrid_file='vgrid.in'):
       self.hgrid_file=hgrid_file
       
       # parse hgrid file
@@ -165,7 +167,7 @@ class schism_setup(object):
         print('  no hgrid.ll available')
 
       try:
-        self.parse_vgrid()
+        self.parse_vgrid(vgrid_file=vgrid_file)
       except:
         print('  no vgrid.in available')
 
@@ -175,9 +177,9 @@ class schism_setup(object):
       self.element_tree_latlon = None
       self.element_depth = None
       
-  def parse_vgrid(self):
+  def parse_vgrid(self,vgrid_file='vgrid.in'):
     import numpy as np
-    f = open('vgrid.in')
+    f = open(vgrid_file)
     first = int(f.readline())
     znum = int(f.readline())
     self.znum = znum
@@ -303,7 +305,7 @@ class schism_setup(object):
     """
     from scipy.spatial import cKDTree
     
-    print('  build node tree')
+    print('  schism.py: build element tree')
     if self.element_depth == None:
       self.element_depth={}
       calc_depths = True
@@ -315,7 +317,7 @@ class schism_setup(object):
       self.element_lat={}
       for el in self.nvdict:
         self.element_lon[el] = sum([self.londict[idx] for idx in self.nvdict[el]])/len(self.nvdict[el])
-        self.element_lat[el] = sum([self.londict[idx] for idx in self.nvdict[el]])/len(self.nvdict[el])
+        self.element_lat[el] = sum([self.latdict[idx] for idx in self.nvdict[el]])/len(self.nvdict[el])
         if calc_depths:
           self.element_depth[el] = sum([self.depthsdict[idx] for idx in self.nvdict[el]])/len(self.nvdict[el])
       self.element_tree_latlon = cKDTree(zip(self.element_lon.values(),self.element_lat.values()))
@@ -350,21 +352,33 @@ class schism_setup(object):
       ridx = self.inodes[idx]
     return ridx
 
-  def find_nearest_element(self,x,y,latlon=True):
+  def find_nearest_element(self,x,y,latlon=True,mindepth=3.0):
     """
     give coordinates and find nearest element,
     returns the element id
     """
     ridx=-1
-    if latlon:
-      if self.element_tree_latlon==None:
-        self.init_element_tree(latlon=True)
-      d,idx = self.element_tree_latlon.query((x,y),k=1)
-    else:
-      if self.element_tree_xy==None:
-        self.init_element_tree(latlon=False)
-      d,idx = self.element_tree_xy.query((x,y),k=1)
-    ridx = self.element_tree_ids[idx]
+    numcells=5
+    while ridx<0:
+      if latlon:
+        if self.element_tree_latlon==None:
+          self.init_element_tree(latlon=True)
+        d,idx = self.element_tree_latlon.query((x,y),k=numcells)
+      else:
+        if self.element_tree_xy==None:
+          self.init_element_tree(latlon=False)
+        d,idx = self.element_tree_xy.query((x,y),k=numcells)
+      depths = np.array([self.element_depth[self.element_tree_ids[searchid]] for searchid in idx])
+      maxidx = np.argmax(depths)
+      if depths[maxidx]>mindepth:
+        ridx = self.element_tree_ids[idx[maxidx]]
+        #print('  info: found cell with depth>%0.1fm in %d nearest cells'%(mindepth,numcells))
+      else:
+        # continue iterating:
+        numcells = numcells*2
+        if numcells > 10000:
+          print('  warning: cannot find cell with depth>%0.1fm'%(mindepth))
+          break
     return ridx
 
 
