@@ -291,7 +291,7 @@ class schism_setup(object):
         print('  no support for file type %s'%fname)
 
   def init_node_tree(self,latlon=True):
-    print('  build node tree')
+    #print('  build node tree')
     from scipy.spatial import cKDTree
     if latlon:
       self.node_tree_latlon = cKDTree(zip(self.lon,self.lat))
@@ -305,7 +305,7 @@ class schism_setup(object):
     """
     from scipy.spatial import cKDTree
     
-    print('  schism.py: build element tree')
+    #print('  schism.py: build element tree')
     if self.element_depth == None:
       self.element_depth={}
       calc_depths = True
@@ -352,13 +352,13 @@ class schism_setup(object):
       ridx = self.inodes[idx]
     return ridx
 
-  def find_nearest_element(self,x,y,latlon=True,mindepth=3.0):
+  def find_nearest_element(self,x,y,latlon=True,mindepth=3.0,numcells=5):
     """
     give coordinates and find nearest element,
     returns the element id
     """
     ridx=-1
-    numcells=5
+    numcells=numcells
     while ridx<0:
       if latlon:
         if self.element_tree_latlon==None:
