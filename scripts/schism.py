@@ -1,4 +1,11 @@
+#!/usr/bin/env python
 
+"""
+SCHISM setup class
+"""
+
+__author__  = "Richard Hofmeister"
+__license__ = "GNU GPL v2.0"
 
 class schism_setup(object):
   
@@ -162,10 +169,11 @@ class schism_setup(object):
       except:
         print('  no vgrid.in available')
 
-      self.node_tree_xy=None
-      self.node_tree_latlon=None
-      self.element_tree_xy=None
-      self.element_tree_latlon=None
+      self.node_tree_xy = None
+      self.node_tree_latlon = None
+      self.element_tree_xy = None
+      self.element_tree_latlon = None
+      self.element_depth = None
       
   def parse_vgrid(self):
     import numpy as np
@@ -282,53 +290,84 @@ class schism_setup(object):
 
   def init_node_tree(self,latlon=True):
     print('  build node tree')
+    from scipy.spatial import cKDTree
     if latlon:
-      self.node_tree_latlon = ckDTree(zip(self.lon,self.lat))
+      self.node_tree_latlon = cKDTree(zip(self.lon,self.lat))
     else:
       self.node_tree_xy = cKDTree(zip(self.x,self.y))
 
   def init_element_tree(self,latlon=True):
+    """
+    build element tree for xy or latlon coordinates
+    (default: latlon=True)
+    """
+    from scipy.spatial import cKDTree
+    
     print('  build node tree')
+    if self.element_depth == None:
+      self.element_depth={}
+      calc_depths = True
+    else:
+      calc_depths = False
+
     if latlon:
       self.element_lon={}
       self.element_lat={}
       for el in self.nvdict:
-        self.element_lon[el]=sum([self.londict[idx] for idx in self.nvdict[el]])/len(self.nvdict[el])
-        self.element_lat[el]=sum([self.londict[idx] for idx in self.nvdict[el]])/len(self.nvdict[el])
-
-      self.element_tree_latlon = ckDTree(zip(self.element_lon.values(),self.element_lat.values))
+        self.element_lon[el] = sum([self.londict[idx] for idx in self.nvdict[el]])/len(self.nvdict[el])
+        self.element_lat[el] = sum([self.londict[idx] for idx in self.nvdict[el]])/len(self.nvdict[el])
+        if calc_depths:
+          self.element_depth[el] = sum([self.depthsdict[idx] for idx in self.nvdict[el]])/len(self.nvdict[el])
+      self.element_tree_latlon = cKDTree(zip(self.element_lon.values(),self.element_lat.values()))
       self.element_tree_ids = self.element_lon.keys()
+    else:
+      self.element_x={}
+      self.element_y={}
+      for el in self.nvdict:
+        self.element_x[el] = sum([self.xdict[idx] for idx in self.nvdict[el]])/len(self.nvdict[el])
+        self.element_y[el] = sum([self.ydict[idx] for idx in self.nvdict[el]])/len(self.nvdict[el])
+        if calc_depths:
+          self.element_depth[el] = sum([self.depthsdict[idx] for idx in self.nvdict[el]])/len(self.nvdict[el])
+      self.element_tree_xy = cKDTree(zip(self.element_x.values(),self.element_y.values()))
+      self.element_tree_ids = self.element_x.keys()
+
 
   def find_nearest_node(self,x,y,latlon=True):
     """
-    find nearest node for given coordinate
+    find nearest node for given coordinate,
+    returns the node id
     """
     ridx=-1
     if latlon:
       if self.node_tree_latlon==None:
         self.init_node_tree(latlon=True)
-      idx,d = self.node_tree_latlon.query((x,y),k=1)
+      d,idx = self.node_tree_latlon.query((x,y),k=1)
       ridx = self.ill[idx]
     else:
-       if self.node_tree_latlon==None:
+      if self.node_tree_latlon==None:
         self.init_node_tree(latlon=False)
-      idx,d = self.node_tree_latlon.query((x,y),k=1)
+      d,idx = self.node_tree_latlon.query((x,y),k=1)
       ridx = self.inodes[idx]
-
     return ridx
 
   def find_nearest_element(self,x,y,latlon=True):
     """
-    give coordinates and find nearest element
+    give coordinates and find nearest element,
+    returns the element id
     """
     ridx=-1
     if latlon:
       if self.element_tree_latlon==None:
         self.init_element_tree(latlon=True)
-      idx,d = self.element_tree_latlon.query((x,y),k=1)
-      ridx = self.element_tree_ids[idx]
+      d,idx = self.element_tree_latlon.query((x,y),k=1)
+    else:
+      if self.element_tree_xy==None:
+        self.init_element_tree(latlon=False)
+      d,idx = self.element_tree_xy.query((x,y),k=1)
+    ridx = self.element_tree_ids[idx]
     return ridx
-        
+
+
 if __name__ == '__main__':
 
     from pylab import *
