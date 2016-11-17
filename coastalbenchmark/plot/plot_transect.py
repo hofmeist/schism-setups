@@ -40,7 +40,17 @@ levels=arange(znum)
 
 tree = cKDTree(zip(x,y))
 
-x0 = 0.0
+if len(sys.argv)>3
+    x0 = float(sys.argv[3])
+else:
+    x0 = 0.0
+
+if len(sys.argv)>4
+    climmin,climmax = [float(el) for el in sys.argv[4].split(',')]
+    clim_use_defaults=False
+else:
+    clim_use_defaults=True
+
 #x0 = 100000.
 ymax=30000.
 ymax=100000.
@@ -82,20 +92,24 @@ for tidx in range(24):
 
   if varn=='tdff':
     strans = log10(strans)
-    climmin=-7
-    climmax=-0.2
+    if clim_use_defaults:
+      climmin=-7
+      climmax=-0.2
     ctitle=u'turb. diffusivity\n[m\u00b2/s\u00b2]'
   elif varn=='hvel_v':
-    climmin=-0.5
-    climmax=0.5
+    if clim_use_defaults:
+      climmin=-0.5
+      climmax=0.5
     ctitle=u'cross-slope velocity\n[m/s]'
   elif varn=='hvel_u':
-    climmin=-0.5
-    climmax=0.5
+    if clim_use_defaults:
+      climmin=-0.5
+      climmax=0.5
     ctitle=u'along-slope velocity\n[m/s]'
   else:
-    climmin=10.
-    climmax=strans.max()
+    if clim_use_defaults:
+      climmin=10.
+      climmax=strans.max()
     if varn=='salt':
       ctitle='salinity'
     elif varn=='temp':

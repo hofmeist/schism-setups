@@ -1,0 +1,16 @@
+#!/bin/bash
+
+sname=$1
+scratchdir="/scratch/g/g260078/schism-results"
+workdir="/work/gg0877/hofmeist/cb"
+
+swd=$workdir/$sname
+mkdir -p $swd
+
+cp $scratchdir/$sname/outputs/*.nc $swd
+cp $scratchdir/$sname/outputs/staout* $swd
+
+mkdir -p $swd/log
+cp $scratchdir/$sname/*.* $swd/log
+
+
