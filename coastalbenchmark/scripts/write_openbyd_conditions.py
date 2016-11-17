@@ -53,10 +53,15 @@ bdyvgrid = asarray([s.vgrid[ii].filled(-1.) for ii in bdy_nodes ])
 
 times = arange(0.0,32.*86400.,900.).astype('float32')
 
+if len(sys.argv)>1:
+  amp = float(sys.argv[1])
+else:
+  amp=2.0
+
 f = open('elev2D.th','wb')
 for time in times:
   time.tofile(f)
-  elevs = get_bdy(time,x,y,depth).astype('float32')
+  elevs = get_bdy(time,x,y,depth,a=amp).astype('float32')
   #print('%0.2f num elev = %d'%(time,len(elevs)))
   elevs.tofile(f)
 f.close()
