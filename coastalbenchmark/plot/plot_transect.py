@@ -40,12 +40,12 @@ levels=arange(znum)
 
 tree = cKDTree(zip(x,y))
 
-if len(sys.argv)>3
+if len(sys.argv)>3:
     x0 = float(sys.argv[3])
 else:
     x0 = 0.0
 
-if len(sys.argv)>4
+if len(sys.argv)>4:
     climmin,climmax = [float(el) for el in sys.argv[4].split(',')]
     clim_use_defaults=False
 else:
@@ -134,7 +134,7 @@ for tidx in range(24):
   xlabel('y [m]')
   ylabel('z [m]')
 
-  savefig('%s/%s_%s_%03d.png'%(varn,period.split('/')[-1],varn,tidx),dpi=300)
+  savefig('%s/%s_%s_x%03dkm_%03d.png'%(varn,period.split('/')[-1],varn,int(x0/1000),tidx),dpi=300)
   #show()
   close()
 

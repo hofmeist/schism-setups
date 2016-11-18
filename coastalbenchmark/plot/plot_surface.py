@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')
 from pylab import *
 import netCDF4
 import sys,os
