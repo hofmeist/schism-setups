@@ -463,14 +463,14 @@
   ihfskip = 360
 
   elev.61 = 1 !0: off; 1: on - elev. [m]
-  pres.61 = 0 !air pressure [Pa]
-  airt.61 = 0 !air temperature [C]
+  pres.61 = 1 !air pressure [Pa]
+  airt.61 = 1 !air temperature [C]
   shum.61 = 0 !Specific humidity [-]
-  srad.61 = 0 !solar (shortwave) radiation [W/m/m]
+  srad.61 = 1 !solar (shortwave) radiation [W/m/m]
   flsu.61 = 0 !sensible flux (positive upward) [W/m/m] 
   fllu.61 = 0 !latent heat flux (positive upward) [W/m/m]
-  radu.61 = 0 !upward longwave radiation (positive upward) [W/m/m]
-  radd.61 = 0 !downward longwave radiation (positive downward) [W/m/m]
+  radu.61 = 1 !upward longwave radiation (positive upward) [W/m/m]
+  radd.61 = 1 !downward longwave radiation (positive downward) [W/m/m]
   flux.61 = 0 !total flux=-flsu-fllu-(radu-radd) [W/m/m]
   evap.61 = 0 !evaporation rate [kg/m/m/s]
   prcp.61 = 0 !precipitation rate [kg/m/m/s]
@@ -660,8 +660,8 @@
 !-----------------------------------------------------------------------
 ! Option for hotstart outputs
 !-----------------------------------------------------------------------
-  hotout = 0 !1: output *_hotstart every 'hotout_write' steps
-  hotout_write = 720
+  hotout = 1 !1: output *_hotstart every 'hotout_write' steps
+  hotout_write = 360
 
 !-----------------------------------------------------------------------
 ! Conservation check option. If consv_check=1, some fluxes are computed
