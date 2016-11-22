@@ -14,8 +14,9 @@
 #SBATCH --error=log_newmerge.e     # File name for standard error output
 
 id=nwshelf$1
+yyyymm=$2
 
-outpath=/scratch/g/g260078/schism-results/$id
+outpath=/scratch/g/g260078/schism-results/$id/$yyyymm
 cd $outpath/outputs
 
 iis="1 29 30"
@@ -30,7 +31,7 @@ done
 
 # move results
 echo "  move results..."
-$HOME/schism/setups/nwshelf/scripts/results_to_work.scr $id
+$HOME/schism/setups/nwshelf/mistral/results_to_work.scr $id/$yyyymm
 
 wait
 

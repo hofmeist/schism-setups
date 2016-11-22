@@ -15,6 +15,7 @@
 
 module load python/2.7-ve0
 id=$1
+yyyymm=$2
 
 outpath=/work/gg0877/hofmeist/$1
 cd $outpath
