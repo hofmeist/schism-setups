@@ -19,8 +19,8 @@ mstr=$2
 cd /scratch/g/$USER/schism-results/$id/$mstr/outputs
 
 # get step number:
-days=$(python ~/schism/setups/nwshelf/mistral/get_rnday.py $mstr)
-iteration=$(python -c "print('%d'%int( ($days*86400./240.)-360 ))")
+days=$(python ~/schism/setups/nwshelf/mistral/get_rnday.py $mstr 2012-01)
+iteration=$(python -c "print('%d'%int( ($days*86400./240.) ))")
 
 # combine hotstart
 $HOME/schism/v5.3/newbuild/bin/combine_hotstart6 -p 1080 -t 2 -i $iteration

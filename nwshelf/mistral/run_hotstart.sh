@@ -48,10 +48,10 @@ ln -sf $outpath/outputs outputs
 # wait some time to have the files on the nodes
 
 # set runtime and get prevyear
-prevmonth=`python ~/schism/setups/nwshelf/mistral/get_prevmonth.py $currmonth`
-rnday=`python ~/schism/setups/nwshelf/mistral/get_rnday.py $currmonth`
+prevmonth=$(python ~/schism/setups/nwshelf/mistral/get_prevmonth.py $currmonth)
+rnday=$(python ~/schism/setups/nwshelf/mistral/get_rnday.py $currmonth $initmonth)
 cp param.default param.in
-sed -i -- 's/MY_RNDAY/$rnday' param.in
+sed -i -- "s/MY_RNDAY/$rnday/g" param.in
 
 # run the model
 # --distribution=block:cyclic bind tasks to physical cores
@@ -60,17 +60,17 @@ if [ "$currmonth" == "$initmonth" ] ; then
   ln -sf /work/gg0877/hofmeist/nwshelf/input/hotstart_january.in hotstart.in
   # use ramps here
   sed -i -- 's/MY_NRAMP_SS/1/g' param.in
-  sed -i -- 's/MY_NRAMP/1/g' param.in
   sed -i -- 's/MY_NRAMPWIND/1/g' param.in
   sed -i -- 's/MY_NRAMPBC/1/g' param.in
+  sed -i -- 's/MY_NRAMP_/1/g' param.in
   sed -i -- 's/MY_IHOT/1/g' param.in
 else
   ln -sf /scratch/g/g260078/schism-results/$id/$prevmonth/outputs/hotstart.in hotstart.in
   # disable ramps here
   sed -i -- 's/MY_NRAMP_SS/0/g' param.in
-  sed -i -- 's/MY_NRAMP/0/g' param.in
   sed -i -- 's/MY_NRAMPWIND/0/g' param.in
   sed -i -- 's/MY_NRAMPBC/0/g' param.in
+  sed -i -- 's/MY_NRAMP_/0/g' param.in
   sed -i -- 's/MY_IHOT/2/g' param.in
 fi
 
@@ -82,7 +82,7 @@ cp vgrid.in $outpath
 srun -l --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/v5.3/newbuild/bin/pschism
 
 # move log files
-mv log.e log.o fort.* $outpath
+mv log.e log.o fort.* mirror.out $outpath
 
 # wait until all nodes/file-actions are settled
 wait

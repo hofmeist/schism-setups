@@ -11,13 +11,14 @@ years=[2012,2013,2014,2015]
 years=[2012]
 
 months=range(1,13)
-months=[2]
+months=[1]
 
 rundep=''
 
 for year in years:
   for month in months:
     yyyymm='%04d-%02d'%(year,month)
+    print('hotstart period %s'%yyyymm)
 
     # run the model
     out = commands.getoutput('sbatch %s mistral/run_hotstart.sh %s %s'%(rundep,id,yyyymm))
