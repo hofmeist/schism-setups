@@ -459,8 +459,8 @@
 ! Global output options.
 ! For 2D model, the only outputs available are: elev.61, dahv.62, wind.62, wist.62 and hvel.64
 !-----------------------------------------------------------------------
-  nspool = 15
-  ihfskip = 360
+  nspool = 15 
+  ihfskip = 360 
 
   elev.61 = 1 !0: off; 1: on - elev. [m]
   pres.61 = 1 !air pressure [Pa]

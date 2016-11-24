@@ -15,8 +15,14 @@
 
 id=nwshelf$1
 mstr=$2
+resdir=/scratch/g/$USER/schism-results/$id/$mstr/
 
-cd /scratch/g/$USER/schism-results/$id/$mstr/outputs
+
+# move log-files of output:
+mv $HOME/schism/setups/nwshelf/log.e $resdir
+mv $HOME/schism/setups/nwshelf/log.o $resdir
+
+cd $resdir/outputs
 
 # get step number:
 days=$(python ~/schism/setups/nwshelf/mistral/get_rnday.py $mstr 2012-01)

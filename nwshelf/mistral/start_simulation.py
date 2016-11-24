@@ -11,7 +11,7 @@ years=[2012,2013,2014,2015]
 years=[2012]
 
 months=range(1,13)
-months=[1]
+months=[1,2,3]
 
 rundep=''
 
@@ -34,7 +34,7 @@ for year in years:
     omerge_pid = out.split()[-1]
 
     # do plotting
-    out = commands.getoutput('sbatch --dependency=afterok:%s plot/run_plotting.sh nwshelf/nwshelf%s/%s'%(omerge_pid,id,yyyymm))
-    pid = out.split()[-1]
+    #out = commands.getoutput('sbatch --dependency=afterok:%s plot/run_plotting.sh nwshelf/nwshelf%s/%s'%(omerge_pid,id,yyyymm))
+    #pid = out.split()[-1]
 
 

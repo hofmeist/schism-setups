@@ -30,7 +30,8 @@
 #export I_MPI_DAPL_UD=enable
 
 ## use Intel MPI
-module load intelmpi
+module load intel/17.0.1
+module load intelmpi/5.1.3.223
 export I_MPI_PMI_LIBRARY=/use/lib64/libmpi.so
 module load python
 
@@ -63,6 +64,8 @@ if [ "$currmonth" == "$initmonth" ] ; then
   sed -i -- 's/MY_NRAMPWIND/1/g' param.in
   sed -i -- 's/MY_NRAMPBC/1/g' param.in
   sed -i -- 's/MY_NRAMP_/1/g' param.in
+#  sed -i -- 's/MY_NRAMPBC/0/g' param.in
+#  sed -i -- 's/MY_NRAMP_/0/g' param.in
   sed -i -- 's/MY_IHOT/1/g' param.in
 else
   ln -sf /scratch/g/g260078/schism-results/$id/$prevmonth/outputs/hotstart.in hotstart.in
@@ -79,10 +82,11 @@ cp param.in $outpath
 cp bctides.in $outpath
 cp vgrid.in $outpath
 
-srun -l --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/v5.3/newbuild/bin/pschism
+srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/v5.3/newbuild/bin/pschism
 
 # move log files
-mv log.e log.o fort.* mirror.out $outpath
+cp log.e log.o $outpath
+mv fort.* mirror.out $outpath
 
 # wait until all nodes/file-actions are settled
 wait
