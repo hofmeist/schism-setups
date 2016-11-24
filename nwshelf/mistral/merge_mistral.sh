@@ -15,6 +15,7 @@
 
 id=nwshelf$1
 yyyymm=$2
+module load python/2.7-ve0
 
 outpath=/scratch/g/g260078/schism-results/$id/$yyyymm
 cd $outpath/outputs

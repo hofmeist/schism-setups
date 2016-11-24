@@ -33,7 +33,7 @@
 module load intel/17.0.1
 module load intelmpi/5.1.3.223
 export I_MPI_PMI_LIBRARY=/use/lib64/libmpi.so
-module load python
+module load python/2.7-ve0
 
 id="nwshelf$1"
 currmonth=$2

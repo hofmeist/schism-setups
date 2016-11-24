@@ -16,7 +16,7 @@
 id=nwshelf$1
 mstr=$2
 resdir=/scratch/g/$USER/schism-results/$id/$mstr/
-
+module load python/2.7-ve0
 
 # move log-files of output:
 mv $HOME/schism/setups/nwshelf/log.e $resdir
