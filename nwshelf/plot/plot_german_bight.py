@@ -63,7 +63,7 @@ bidx = ncv['node_bottom_index'][:]
 nbidx = len(bidx)
 
 if tidx >= 0:
-  dates = dates[tidx]
+  dates = [dates[tidx]]
   tidx_offset=tidx
 else:
   tidx_offset=0

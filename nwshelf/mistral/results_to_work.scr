@@ -7,10 +7,21 @@ workdir="/work/gg0877/hofmeist/nwshelf"
 swd=$workdir/$sname
 mkdir -p $swd
 
-cp $scratchdir/$sname/outputs/*.nc $swd
-cp $scratchdir/$sname/outputs/staout* $swd
-
 mkdir -p $swd/log
 cp $scratchdir/$sname/*.* $swd/log
+
+files=$(cd $scratchdir/$sname/outputs;ls *.nc)
+i=0
+for file in $files ; do
+  cp $scratchdir/$sname/outputs/*.nc $swd &
+  ((i++))
+  if [ "$i" == "36" ] ; then
+    wait
+    i=0
+  fi
+done
+
+cp $scratchdir/$sname/outputs/staout* $swd &
+wait
 
 

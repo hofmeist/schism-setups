@@ -68,7 +68,7 @@ if tidx >= 0:
 else:
   tidx_offset=0
 
-os.system('mkdir -p jpgs')
+os.system('mkdir -p jpgs/%s'%varname)
 for tidx,t in enumerate(dates):
   v = var[tidx+tidx_offset,:].squeeze()
   if varname=='elev':
@@ -92,7 +92,7 @@ for tidx,t in enumerate(dates):
       clim(5,35)
       cbtitle='surface salinity'
     elif varname=='temp':
-      clim(1,6)
+      clim(1,vs.max())
       cbtitle=u'surface temperature\n[\u00b0C]'
     elif varname=='elev':
       clim(-2,2)
@@ -100,9 +100,9 @@ for tidx,t in enumerate(dates):
     proj.drawcoastlines()
     proj.fillcontinents((0.9,0.9,0.8))
     cb=colorbar()
-    cb.ax.set_title('%s\n'%(ncv[varname].long_name),size=10.)
+    cb.ax.set_title(u'%s\n'%(cbtitle),size=10.)
     tstring = t.strftime('%Y%m%d-%H%M')
-    savefig('jpgs/%s_surface_%s.jpg'%(varname,tstring),dpi=200)
+    savefig('jpgs/%s/%s_surface_%s.jpg'%(varname,varname,tstring),dpi=200)
     close()
 
   if plot_bottom:
@@ -112,14 +112,14 @@ for tidx,t in enumerate(dates):
       clim(5,35)
       cbtitle='bottom salinity'
     elif varname=='temp':
-      clim(1,6)
-      cbtitle='bottom temperature\n[\u00b0C]'
+      clim(1,vb.max())
+      cbtitle=u'bottom temperature\n[\u00b0C]'
     proj.drawcoastlines()
     proj.fillcontinents((0.9,0.9,0.8))
     cb=colorbar()
-    cb.ax.set_title('%s\n'%(cbtitle),size=10.)
+    cb.ax.set_title(u'%s\n'%(cbtitle),size=10.)
     tstring = t.strftime('%Y%m%d-%H%M')
-    savefig('jpgs/$s/%s_bottom_%s.jpg'%(varname,varname,tstring),dpi=200)
+    savefig('jpgs/%s/%s_bottom_%s.jpg'%(varname,varname,tstring),dpi=200)
     #show()
     close()
 

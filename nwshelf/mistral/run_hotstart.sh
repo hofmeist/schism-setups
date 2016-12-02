@@ -85,7 +85,7 @@ cp vgrid.in $outpath
 srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/v5.3/newbuild/bin/pschism
 
 # move log files
-cp log.e log.o $outpath
+#cp log.e log.o $outpath
 mv fort.* mirror.out $outpath
 
 # wait until all nodes/file-actions are settled
