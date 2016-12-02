@@ -154,7 +154,7 @@
 ! If indvel=1, no hvis is needed. 
 ! (2) Shapiro filter (see below)
 !-----------------------------------------------------------------------
-  ihorcon = 0
+  ihorcon = 2
   hvis_coef0 = 0.025 !const. diffusion # if ihorcon/=0; <=0.025 for ihorcon=2, <=0.125 for ihorcon=1
 !  cdh = 0.01 !needed only if ihorcon/=0; land friction coefficient - not active yet
 
@@ -394,8 +394,8 @@
 ! If isconsv=1, need to compile with precip/evap module turned on.
 ! For 2D model, both must be 0.
 !-----------------------------------------------------------------------
-  ihconsv = 0 !heat exchange option
-  isconsv = 0 !evaporation/precipitation model
+  ihconsv = 1 !heat exchange option
+  isconsv = 1 !evaporation/precipitation model
 
 !-----------------------------------------------------------------------
 ! Turbulence closure.
