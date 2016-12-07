@@ -88,6 +88,8 @@ if __name__ == '__main__':
   sbdy=[]
   dbdy=[]
   ibdy=[]
+  tprev=[]
+  sprev=[]
 
   if UseSetup:
     f_temp = open('TEM_3D.th','wb')
@@ -100,13 +102,14 @@ if __name__ == '__main__':
   ut = netcdftime.utime('seconds since %d-01-01 00:00:00'%years[0])
   for year in years:
     yearoffset = ut.date2num(datetime(year,1,1,0,0,0))
-    times.extend(list(oa.time*365./12.*86400.+yearoffset))
-    months.extend(range(12))
+    times.extend(list(arange(0.5,12.1,0.5)*365./12.*86400.+yearoffset))
+    for m in range(12):
+      months.extend([m,-1])
   # look at times, before proceed
   plot(times)
   show()
   
-
+  prevmonth=11
   for month,time in zip(months,array(times).astype('float32')):
 #from netcdftime import utime
 #years = [2010,2011,2012]
@@ -120,6 +123,14 @@ if __name__ == '__main__':
 #    clim_dt = climut.num2date()-climut.num2date(climut.origin)
 #    time = ut.date2num(datetime(yy,1,1,0,0,0)+clim_dt).astype('float32')
     if UseSetup:
+      if month==-1:
+        imonth=prevmonth+1
+        if imonth==12: imonth=0
+      else:
+        prevmonth=month
+        imonth=month
+        tprev=[]
+        sprev=[]
       time.tofile(f_temp)
       time.tofile(f_salt)
       for i,inode in enumerate(nws.bdy_nodes):
@@ -128,13 +139,21 @@ if __name__ == '__main__':
         bdylon = nws.londict[inode]
         bdylat = nws.latdict[inode]
         depths = nws.vgrid[inode].filled(-1)*nws.depthsdict[inode]
-        t,s = oa.interpolate(depths,bdylon,bdylat,month=month,bidx=1)
-        tbdy.append(t)
-        sbdy.append(s)
+        t,s = oa.interpolate(depths,bdylon,bdylat,month=imonth,bidx=1)
+        if month==-1:
+          tfinal = (t + tprev[i])*0.5
+          sfinal = (s + sprev[i])*0.5
+        else:
+          tfinal = t
+          sfinal = s
+          tprev.append(t)
+          sprev.append(s)
+        tbdy.append(tfinal)
+        sbdy.append(sfinal)
         dbdy.append(depths)
         ibdy.append(i*ones(depths.shape))
-        t.astype('float32').tofile(f_temp)
-        s.astype('float32').tofile(f_salt)
+        tfinal.astype('float32').tofile(f_temp)
+        sfinal.astype('float32').tofile(f_salt)
     else:
       depths=[-3000.,-2000.,-1000,-500,-200.,-100,-50,-25,-12,-6]
       t,s = oa.interpolate(depths,-18.,50.0,month=month,bidx=1)

@@ -118,7 +118,7 @@
 ! Point sources/sinks option (0: no; 1: on). If =1, needs source_sink.in,
 ! vsource,th, vsink.th, and msource.th
 !-----------------------------------------------------------------------
-  if_source = 0
+  if_source = 1
   nramp_ss = MY_NRAMP_SS !needed if if_source=1; ramp-up flag for source/sinks
   dramp_ss = 2 !needed if if_source=1; ramp-up period in days
 
