@@ -50,7 +50,7 @@ for idx,(rrlon,rrlat,rrdis) in enumerate(zip(rlon,rlat,rdis)):
 f = open('source_sink.in','w')
 f.write('%d   ! number of elements with sources\n'%len(elids))
 f.write(slist)
-f.write('0   ! number of elements with sinks\n')
+f.write('\n0   ! number of elements with sinks\n')
 f.close()
 
 vf = open('vsource.th','w')
