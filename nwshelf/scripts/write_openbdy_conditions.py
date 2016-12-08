@@ -32,7 +32,8 @@ class bdy_dataset():
     self.nc.close()
 
 
-write_ts=False
+write_ts=True
+write_const_ts=False
 s = schism_setup()
 
 bf = open('bctides.in','w')
@@ -73,7 +74,7 @@ depth = asarray([ ddict[ii] for ii in bdy_nodes ])
 x = asarray([ xdict[ii] for ii in bdy_nodes ])
 y = asarray([ ydict[ii] for ii in bdy_nodes ])
 
-if write_ts:
+if write_const_ts:
     bdyvgrid = asarray([s.vgrid[ii].filled(-1.) for ii in bdy_nodes ])
 
 if len(sys.argv)>1:
@@ -97,7 +98,7 @@ f.close()
 
 bdydat.close()
 
-if write_ts:
+if write_const_ts:
   f = open('TEM_3D.th','wb')
   for time in array([0.0,32*86400.]).astype('float32'):
     time.tofile(f)

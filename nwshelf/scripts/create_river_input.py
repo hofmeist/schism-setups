@@ -50,7 +50,7 @@ for idx,(rrlon,rrlat,rrdis) in enumerate(zip(rlon,rlat,rdis)):
 f = open('source_sink.in','w')
 f.write('%d   ! number of elements with sources\n'%len(elids))
 f.write(slist)
-f.write('\n0   ! number of elements with sinks\n')
+f.write('0   ! number of elements with sinks\n')
 f.close()
 
 vf = open('vsource.th','w')
@@ -62,9 +62,8 @@ for tidx,jd in enumerate(jds):
   vline='%12.1f'%secs
   tline=''
   sline=''
-  for rrdis in rdis[tidx]:
-    if isnan(rrdis): continue
-    vline+=' %0.2f'%rrdis
+  for idx in idxs:
+    vline+=' %0.2f'%rdis[tidx,idx]
     tline+=' -9999'
     sline+=' 0.0'
   vf.write(vline+'\n')
