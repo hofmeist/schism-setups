@@ -12,7 +12,7 @@ class bdy_dataset():
 
   def __init__(self,filename='2012-01.amm7.nc'):
     self.filename=filename
-    self.nc = netCDF4.Dataset(filename)
+    self.nc = netCDF4.MFDataset(filename)
     self.ncv = self.nc.variables
     self.utime = netcdftime.utime(self.ncv['time'].units)
     self.dates = self.utime.num2date(self.ncv['time'][:])
@@ -89,7 +89,7 @@ times = ut.date2num(bdydat.dates).astype('float32')
 
 f = open('elev2D.th','wb')
 for idx,time in enumerate(times):
-  if float(time) >= 0.0:
+  if float(time) >= 0.0 and (time not in times[:idx]):
     time.tofile(f)
     elevs = bdydat.get_bdy(idx,x,y,depth).astype('float32')
     #print('%0.2f num elev = %d'%(time,len(elevs)))
