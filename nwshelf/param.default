@@ -395,12 +395,12 @@
 ! For 2D model, both must be 0.
 !-----------------------------------------------------------------------
   ihconsv = 1 !heat exchange option
-  isconsv = 1 !evaporation/precipitation model
+  isconsv = 0 !evaporation/precipitation model
 
 !-----------------------------------------------------------------------
 ! Turbulence closure.
 !-----------------------------------------------------------------------
-  itur = 3 
+  itur = 4 
 !  dfv0 = 1.e-6 !needed if itur=0
 !  dfh0 = 1.e-6 !needed if itur=0
   turb_met = KL !needed if itur=3
@@ -459,8 +459,8 @@
 ! Global output options.
 ! For 2D model, the only outputs available are: elev.61, dahv.62, wind.62, wist.62 and hvel.64
 !-----------------------------------------------------------------------
-  nspool = 15 
-  ihfskip = 360 
+  nspool = 360 
+  ihfskip = MY_IHFSKIP 
 
   elev.61 = 1 !0: off; 1: on - elev. [m]
   pres.61 = 1 !air pressure [Pa]
@@ -661,7 +661,7 @@
 ! Option for hotstart outputs
 !-----------------------------------------------------------------------
   hotout = 1 !1: output *_hotstart every 'hotout_write' steps
-  hotout_write = 360
+  hotout_write = MY_HOTOUT_WRITE
 
 !-----------------------------------------------------------------------
 ! Conservation check option. If consv_check=1, some fluxes are computed

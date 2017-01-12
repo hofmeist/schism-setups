@@ -86,7 +86,7 @@
 !-----------------------------------------------------------------------
   ibcc = 0 !Baroclinic option
   itransport = 1 
-  nrampbc = 1 !ramp-up flag for baroclinic force
+  nrampbc = 0 !ramp-up flag for baroclinic force
   drampbc = 7. !not used if nrampbc=0
 
 !-----------------------------------------------------------------------
@@ -106,7 +106,7 @@
 ! Hotstart option. 0: cold start; 1: hotstart with time reset to 0; 2: 
 ! continue from the step in hotstart.in
 !-----------------------------------------------------------------------
-  ihot = 1
+  ihot = 2
 
 !-----------------------------------------------------------------------
 ! Hydraulic model option. If ihydraulics/=0, hydraulics.in 
@@ -118,8 +118,8 @@
 ! Point sources/sinks option (0: no; 1: on). If =1, needs source_sink.in,
 ! vsource,th, vsink.th, and msource.th
 !-----------------------------------------------------------------------
-  if_source = 0
-  nramp_ss = 1 !needed if if_source=1; ramp-up flag for source/sinks
+  if_source = 1
+  nramp_ss = 0 !needed if if_source=1; ramp-up flag for source/sinks
   dramp_ss = 2 !needed if if_source=1; ramp-up period in days
 
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -154,7 +154,7 @@
 ! If indvel=1, no hvis is needed. 
 ! (2) Shapiro filter (see below)
 !-----------------------------------------------------------------------
-  ihorcon = 0
+  ihorcon = 2
   hvis_coef0 = 0.025 !const. diffusion # if ihorcon/=0; <=0.025 for ihorcon=2, <=0.125 for ihorcon=1
 !  cdh = 0.01 !needed only if ihorcon/=0; land friction coefficient - not active yet
 
@@ -310,8 +310,8 @@
 !-----------------------------------------------------------------------
 ! Run time and ramp option
 !-----------------------------------------------------------------------
-  rnday = 31.0 !total run time in days
-  nramp = 1 !ramp-up option (1: on; 0: off)
+  rnday = 821.0 !total run time in days
+  nramp = 0 !ramp-up option (1: on; 0: off)
   dramp = 1. !needed if nramp=1; ramp-up period in days
   dt = 240.0
 
@@ -384,7 +384,7 @@
 !-----------------------------------------------------------------------
   nws = 2 !must /=3 for 2D model
   wtiminc = 3600. !time step for atmos. forcing
-  nrampwind = 1 !ramp-up option for atmos. forcing
+  nrampwind = 0 !ramp-up option for atmos. forcing
   drampwind = 1. !needed of nrampwind/=0; ramp-up period in days
   iwindoff = 0 !needed only if nws/=0; '1': needs windfactor.gr3
   iwind_form = -1 
@@ -394,13 +394,13 @@
 ! If isconsv=1, need to compile with precip/evap module turned on.
 ! For 2D model, both must be 0.
 !-----------------------------------------------------------------------
-  ihconsv = 0 !heat exchange option
+  ihconsv = 1 !heat exchange option
   isconsv = 0 !evaporation/precipitation model
 
 !-----------------------------------------------------------------------
 ! Turbulence closure.
 !-----------------------------------------------------------------------
-  itur = 3 
+  itur = 4 
 !  dfv0 = 1.e-6 !needed if itur=0
 !  dfh0 = 1.e-6 !needed if itur=0
   turb_met = KL !needed if itur=3
@@ -459,8 +459,8 @@
 ! Global output options.
 ! For 2D model, the only outputs available are: elev.61, dahv.62, wind.62, wist.62 and hvel.64
 !-----------------------------------------------------------------------
-  nspool = 15
-  ihfskip = 360
+  nspool = 360 
+  ihfskip = 295560 
 
   elev.61 = 1 !0: off; 1: on - elev. [m]
   pres.61 = 1 !air pressure [Pa]
@@ -661,7 +661,7 @@
 ! Option for hotstart outputs
 !-----------------------------------------------------------------------
   hotout = 1 !1: output *_hotstart every 'hotout_write' steps
-  hotout_write = 360
+  hotout_write = 295560
 
 !-----------------------------------------------------------------------
 ! Conservation check option. If consv_check=1, some fluxes are computed

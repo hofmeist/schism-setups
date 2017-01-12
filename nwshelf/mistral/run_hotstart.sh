@@ -51,8 +51,12 @@ ln -sf $outpath/outputs outputs
 # set runtime and get prevyear
 prevmonth=$(python ~/schism/setups/nwshelf/mistral/get_prevmonth.py $currmonth)
 rnday=$(python ~/schism/setups/nwshelf/mistral/get_rnday.py $currmonth $initmonth)
+#ihfskip=360 # this is for daily files
+ihfskip=$(python ~/schism/setups/nwshelf/mistral/get_ihfskip.py $currmonth $initmonth)
 cp param.default param.in
 sed -i -- "s/MY_RNDAY/$rnday/g" param.in
+sed -i -- "s/MY_IHFSKIP/$ihfskip/g" param.in
+sed -i -- "s/MY_HOTOUT_WRITE/$ihfskip/g" param.in
 
 # run the model
 # --distribution=block:cyclic bind tasks to physical cores
@@ -82,7 +86,8 @@ cp param.in $outpath
 cp bctides.in $outpath
 cp vgrid.in $outpath
 
-srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/v5.3/newbuild/bin/pschism
+#srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/v5.3/newbuild/bin/pschism
+srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/v5.3/gotmbuild/bin/pschism
 
 # move log files
 #cp log.e log.o $outpath

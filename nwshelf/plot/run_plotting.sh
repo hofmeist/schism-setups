@@ -31,6 +31,8 @@ for ifile in ${ifiles[@]} ; do
   # plot first timestep each day for salt & temp
   python $HOME/schism/setups/nwshelf/plot/plot_bott_surf.py $yyyymm/${ifile}_salt.nc salt 0 &
   ((i++))
+  python $HOME/schism/setups/nwshelf/plot/plot_bott_baltic.py $yyyymm/${ifile}_salt.nc salt 0 &
+  ((i++))
   python $HOME/schism/setups/nwshelf/plot/plot_bott_surf.py $yyyymm/${ifile}_temp.nc temp 0 &
   ((i++))
   if [ "$i" == "36" ] ; then
