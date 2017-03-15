@@ -213,7 +213,7 @@
 ! to specify the initial elevations; otherwise elevation is initialized to 0 everywhere 
 ! (cold start only)
 !-----------------------------------------------------------------------
-  ic_elev = 0
+  ic_elev = MY_ICELEV
 
 !-----------------------------------------------------------------------
 ! Elevation boundary condition ramp-up flag. =0: ramp up from 0; =1: ramp up from
@@ -330,8 +330,8 @@
 ! actual step is calculated adaptively based on local gradient.
 !-----------------------------------------------------------------------
   nadv = 1
-  dtb_max = 240.0
-  dtb_min = 20.0
+  dtb_max = 60.0
+  dtb_min = 5.0
 
 !-----------------------------------------------------------------------
 ! If inter_mom=0, linear interpolation is used for velocity at foot of char. line.

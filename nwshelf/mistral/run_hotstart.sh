@@ -6,7 +6,7 @@
 ### --ntasks=192
 #SBATCH --ntasks=1080
 #SBATCH --ntasks-per-node=36
-#SBATCH --time=02:00:00        # Set a limit on the total run time
+#SBATCH --time=02:30:00        # Set a limit on the total run time
 #SBATCH --wait-all-nodes=1     # start job, when all nodes are available
 #SBATCH --mail-type=FAIL       # Notify user by email in case of job failure
 #SBATCH --mail-user=richard.hofmeister@hzg.de  # Set your e−mail address
@@ -68,6 +68,7 @@ if [ "$currmonth" == "$initmonth" ] ; then
   sed -i -- 's/MY_NRAMPWIND/1/g' param.in
   sed -i -- 's/MY_NRAMPBC/1/g' param.in
   sed -i -- 's/MY_NRAMP_/1/g' param.in
+  sed -i -- 's/MY_ICELEV/1/g' param.in
 #  sed -i -- 's/MY_NRAMPBC/0/g' param.in
 #  sed -i -- 's/MY_NRAMP_/0/g' param.in
   sed -i -- 's/MY_IHOT/1/g' param.in
@@ -78,6 +79,7 @@ else
   sed -i -- 's/MY_NRAMPWIND/0/g' param.in
   sed -i -- 's/MY_NRAMPBC/0/g' param.in
   sed -i -- 's/MY_NRAMP_/0/g' param.in
+  sed -i -- 's/MY_ICELEV/0/g' param.in
   sed -i -- 's/MY_IHOT/2/g' param.in
 fi
 
