@@ -71,7 +71,7 @@ else:
 os.system('mkdir -p jpgs/%s'%varname)
 for tidx,t in enumerate(dates):
   v = var[tidx+tidx_offset,:].squeeze()
-  if varname in ['airt','pres','radu','radp','srad']:
+  if varname in ['airt','pres','radu','radd','srad']:
     vs = v
     plot_surface=True
     plot_bottom=False

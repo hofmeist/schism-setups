@@ -18,7 +18,7 @@ if len(sys.argv)>3:
 else:
   tidx=-1
 
-nc = netCDF4.Dataset(sys.argv[1])
+nc = netCDF4.MFDataset(sys.argv[1])
 ncv = nc.variables
 
 lon = ncv['SCHISM_hgrid_node_x'][:]
@@ -78,7 +78,7 @@ for tidx,t in enumerate(dates):
   else:
     vs = v[-1,:].squeeze()
     vb = v[bidx,arange(nbidx)]
-    plot_surface=True
+    plot_surface=False
     plot_bottom=True
   #mask = v == -99.
   #mask = mask_triangles(mask,nv)
@@ -109,7 +109,7 @@ for tidx,t in enumerate(dates):
     figure()
     tripcolor(x,y,nv,vb,cmap=cmap,rasterized=True)
     if varname=='salt':
-      clim(1,20)
+      clim(0,18)
       cbtitle='bottom salinity'
     elif varname=='temp':
       clim(1,vb.max())
