@@ -24,13 +24,28 @@ if plot_it:
 
 s = schism_setup()
 
+tracers=['no3','nh4','pho','sil','oxy','dia','fla','bg','microzoo','mesozoo','det','opa','dom']
+tracer_conc={}
+tracer_ncname={'no3':'no3','nh4':'nh4','pho':'po4','sil':'sio'}
+
 # read rivers:
-nc = netCDF4.Dataset('/work/gg0877/rivers/river_loads_and_discharge_NSBS_orig.nc')
+nc = netCDF4.Dataset('/work/gg0877/KST/new_rivers/river_loads_and_discharge_NSBS_ECOSMO1.nc')
 ncv=nc.variables
 rlon = ncv['lon'][:]
 rlat = ncv['lat'][:]
 rdis = ncv['discharge'][:] # in m^3/s
 jds = ncv['time'][:]
+
+# get tracer concentrations
+for tracer in tracers:
+  if tracer in tracer_ncname:
+    tracername = tracer_ncname[tracer]
+  else:
+    tracername = tracer
+  if tracername in ncv.keys():
+    tracer_conc[tracer]=ncv[tracername][:]
+  else:
+    tracer_conc[tracer] = -9999.*ones(rdis.shape)
 
 slist=''
 idxs=[]
@@ -62,12 +77,23 @@ for tidx,jd in enumerate(jds):
   vline='%12.1f'%secs
   tline=''
   sline=''
+  tracerline={}
+  for tracer in tracers:
+    tracerline[tracer]=''
   for idx in idxs:
     vline+=' %0.2f'%rdis[tidx,idx]
     tline+=' -9999'
     sline+=' 0.0'
+    for tracer in tracers:
+      # silicate data for Ireland is missing: use nitrate values instead:
+      if tracer == 'sil' and isnan(tracer_conc[tracer][tidx,idx]):
+         tracer_conc[tracer][tidx,idx] = tracer_conc['no3'][tidx,idx]
+      tracerline[tracer]+=' %0.3f'%(tracer_conc[tracer][tidx,idx])
   vf.write(vline+'\n')
-  mf.write('%12.1f %s %s\n'%(secs,tline,sline))
+  mf.write('%12.1f %s %s'%(secs,tline,sline))
+  for tracer in tracers:
+    mf.write(' %s'%tracerline[tracer])
+  mf.write('\n')
 vf.close()
 mf.close()
 
