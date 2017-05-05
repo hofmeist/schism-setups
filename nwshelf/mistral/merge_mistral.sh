@@ -25,7 +25,7 @@ files="elev.61 srad.61 radu.61 radd.61 salt.63 temp.63 zcor.63 tdff.63"
 
 for file in $files ; do
   for ii in $iis ; do
-    $HOME/schism/v5.3/gotmbuild/bin/combine_output9 -b $ii -e $ii -n 1 -f $file &
+    $HOME/schism/schism5.3/build/bin/combine_output9 -b $ii -e $ii -n 1 -f $file &
   done
 done
 wait

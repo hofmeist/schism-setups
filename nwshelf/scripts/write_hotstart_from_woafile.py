@@ -124,7 +124,42 @@ else:
   #pickle.dump((t,s),f)
   #f.close()
 
-tracer_conc_element={}
+tracers=[]
+tracers=['no3','nh4','pho','sil','oxy','dia','fla','bg','microzoo','mesozoo','det','opa','dom']
+tracer_conc_const={'no3':5.0, \
+                   'nh4':0.1, \
+                   'pho':0.3, \
+                   'sil':5.0, \
+                   'oxy':85.0, \
+                   'dia':1.0e-6, \
+                   'fla':1.0e-6, \
+                   'bg':1.0e-6, \
+                   'microzoo':1.0e-6, \
+                   'mesozoo':1.0e-6, \
+                   'det':2.0, \
+                   'opa':2.0, \
+                   'dom':3.0}
+
+redf1=6.625
+redf6=12.01
+redf3=6.625
+redf2=106.0
+tracer_factor={'no3': redf1*redf6,\
+               'nh4': redf1*redf6,\
+               'pho': redf2*redf6,\
+               'sil': redf3*redf6,\
+               'oxy': 1.0,\
+               'dia': redf1*redf6,\
+               'fla': redf1*redf6,\
+               'bg': redf1*redf6,\
+               'microzoo': redf1*redf6,\
+               'mesozoo': redf1*redf6,\
+               'det': redf1*redf6,\
+               'opa': redf3*redf6,\
+               'dom': redf1*redf6}
+
+tracer_conc_element={} # to be filled later
+
 
 # finally write hotstart file:
 f = open('hotstart.in','wb')
@@ -139,14 +174,15 @@ for ie in nws.nvdict:
   tcoll = [t[ind] for ind in inds]
   se = np.mean(scoll,axis=0)
   te = np.mean(tcoll,axis=0)
-  # for tracer in tracers:
-  #  trcoll = [tracer_conc[ind] for ind in inds]
-  #  tracer_conc_element[tracer] = np.mean(trcoll,axis=0)
+  for tracer in tracers:
+    #trcoll = [tracer_conc[ind] for ind in inds]
+    #tracer_conc_element[tracer] = np.mean(trcoll,axis=0)
+    tracer_conc_element[tracer] = tracer_factor[tracer]*tracer_conc_const[tracer]*ones(se.shape) 
   for k in range(nws.znum):
     valuelist = [0.0,te[k],se[k]]
     # if tracers are used:
-    # for tracer in tracers:
-    #   valuelist.append(tracer_conc_element[tracer][k])
+    for tracer in tracers:
+      valuelist.append(tracer_conc_element[tracer][k])
     asarray(valuelist).astype('float64').tofile(f)
 
 for i in nws.side_nodes:
@@ -164,16 +200,13 @@ for i in nws.inodes:
   asarray([0.0]).astype('float64').tofile(f)
   asarray([0]).astype('int32').tofile(f)
   for k in range(nws.znum):
-    # if tracers are used
-    # valuelist = [t[i][k],s[i][k]]
-    #for tracer in tracers:
-    #  valuelist.append(tracer_conc[tracer])
-    #valuelist.extend([t[i][k],s[i][k]])
-    #for tracer in tracers:
-    #  valuelist.append(tracer_conc[tracer])
-    #valuelist.extend([0.0,0.0,0.0,0.0,0.0,0.0,0.0])
-
-    valuelist=[t[i][k],s[i][k],t[i][k],s[i][k],0.0,0.0,0.0,0.0,0.0,0.0,0.0]
+    valuelist = [t[i][k],s[i][k]]
+    for tracer in tracers:
+      valuelist.append(tracer_conc_const[tracer])
+    valuelist.extend([t[i][k],s[i][k]])
+    for tracer in tracers:
+      valuelist.append(tracer_conc_const[tracer])
+    valuelist.extend([0.0,0.0,0.0,0.0,0.0,0.0,0.0])
 
     asarray(valuelist).astype('float64').tofile(f)
 

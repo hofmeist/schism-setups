@@ -6,7 +6,7 @@
 ### --ntasks=192
 #SBATCH --ntasks=1080
 #SBATCH --ntasks-per-node=36
-#SBATCH --time=02:30:00        # Set a limit on the total run time
+#SBATCH --time=05:00:00        # Set a limit on the total run time
 #SBATCH --wait-all-nodes=1     # start job, when all nodes are available
 #SBATCH --mail-type=FAIL       # Notify user by email in case of job failure
 #SBATCH --mail-user=richard.hofmeister@hzg.de  # Set your e−mail address
@@ -21,6 +21,7 @@
 # baroclinic 270k nodes:
 # 1080 cpus -> 1 month in 46min (dt=120s)
 # 1080 cpus, dt=240s -> 1 month in 
+# 1080 cpus, dt=240s + ECOSMO -> 1 month in 4h?
 
 # Modified Case1: Run MPI parallel program using mvapich2
 #module load mvapich2/2.1-intel14
@@ -62,7 +63,7 @@ sed -i -- "s/MY_HOTOUT_WRITE/$ihfskip/g" param.in
 # --distribution=block:cyclic bind tasks to physical cores
 rm -f hotstart.in
 if [ "$currmonth" == "$initmonth" ] ; then
-  ln -sf /work/gg0877/hofmeist/nwshelf/input/hotstart_january.in hotstart.in
+  ln -sf /work/gg0877/hofmeist/nwshelf/input/hotstart_january_ecosmo.in hotstart.in
   # use ramps here
   sed -i -- 's/MY_NRAMP_SS/1/g' param.in
   sed -i -- 's/MY_NRAMPWIND/1/g' param.in
@@ -87,9 +88,11 @@ fi
 cp param.in $outpath
 cp bctides.in $outpath
 cp vgrid.in $outpath
+cp fabm.nml $outpath
 
 #srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/v5.3/newbuild/bin/pschism
-srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/v5.3/gotmbuild/bin/pschism
+#srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/v5.3/gotmbuild/bin/pschism
+srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/schism5.3/build/bin/pschism
 
 # move log files
 #cp log.e log.o $outpath

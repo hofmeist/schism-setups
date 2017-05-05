@@ -27,6 +27,25 @@ s = schism_setup()
 tracers=['no3','nh4','pho','sil','oxy','dia','fla','bg','microzoo','mesozoo','det','opa','dom']
 tracer_conc={}
 tracer_ncname={'no3':'no3','nh4':'nh4','pho':'po4','sil':'sio'}
+tracer_const={'det':0.0,'opa':0.0,'dia':0.0,'bg':0.0}
+redf1=6.625
+redf6=12.01
+redf3=6.625
+redf2=106.0
+tracer_factor={'no3': redf1*redf6,\
+               'nh4': redf1*redf6,\
+               'pho': redf2*redf6,\
+               'sil': redf3*redf6,\
+               'oxy': 1.0,\
+               'dia': redf1*redf6,\
+               'fla': redf1*redf6,\
+               'bg': redf1*redf6,\
+               'microzoo': redf1*redf6,\
+               'mesozoo': redf1*redf6,\
+               'det': redf1*redf6,\
+               'opa': redf3*redf6,\
+               'dom': redf1*redf6}
+
 
 # read rivers:
 nc = netCDF4.Dataset('/work/gg0877/KST/new_rivers/river_loads_and_discharge_NSBS_ECOSMO1.nc')
@@ -43,7 +62,9 @@ for tracer in tracers:
   else:
     tracername = tracer
   if tracername in ncv.keys():
-    tracer_conc[tracer]=ncv[tracername][:]
+    tracer_conc[tracer]=tracer_factor[tracer]*ncv[tracername][:]
+  elif tracername in tracer_const:
+    tracer_conc[tracer] = tracer_factor[tracer]*tracer_const[tracer]*ones(rdis.shape)
   else:
     tracer_conc[tracer] = -9999.*ones(rdis.shape)
 
@@ -65,7 +86,7 @@ for idx,(rrlon,rrlat,rrdis) in enumerate(zip(rlon,rlat,rdis)):
 f = open('source_sink.in','w')
 f.write('%d   ! number of elements with sources\n'%len(elids))
 f.write(slist)
-f.write('0   ! number of elements with sinks\n')
+f.write('\n0   ! number of elements with sinks\n')
 f.close()
 
 vf = open('vsource.th','w')

@@ -29,5 +29,5 @@ days=$(python ~/schism/setups/nwshelf/mistral/get_rnday.py $mstr 2012-01)
 iteration=$(python -c "print('%d'%int( ($days*86400./240.) ))")
 
 # combine hotstart
-$HOME/schism/v5.3/gotmbuild/bin/combine_hotstart6 -p 1080 -t 2 -i $iteration
+$HOME/schism/schism5.3/build/bin/combine_hotstart6 -p 1080 -t 2 -i $iteration
  

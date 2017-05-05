@@ -97,6 +97,9 @@ for tidx,t in enumerate(dates):
     elif varname=='elev':
       clim(-2,2)
       cbtitle='ssh [m]'
+    else:
+      clim(0,vs.max())
+      cbtitle=varname
     proj.drawcoastlines()
     proj.fillcontinents((0.9,0.9,0.8))
     cb=colorbar()
@@ -114,6 +117,9 @@ for tidx,t in enumerate(dates):
     elif varname=='temp':
       clim(1,vb.max())
       cbtitle=u'bottom temperature\n[\u00b0C]'
+    else:
+      clim(0,vb.max())
+      cbtitle=varname
     proj.drawcoastlines()
     proj.fillcontinents((0.9,0.9,0.8))
     cb=colorbar()

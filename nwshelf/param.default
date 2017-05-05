@@ -648,8 +648,8 @@
 ! a station.in. If ics=2, the cordinates in station.in must be in lon., lat,
 ! and z (positive upward; not used for 2D variables). 
 !-----------------------------------------------------------------------
-  iout_sta = 0
-  nspool_sta = 10 !needed if iout_sta/=0
+  iout_sta = 1
+  nspool_sta = 15 !needed if iout_sta/=0
 
 !-----------------------------------------------------------------------
 ! Flag for harmonic analysis for elevation. If used , need to turn on cpp flags
@@ -746,6 +746,14 @@
 !           6: Timor/Mud; -1: for users; need to update the part in schism_init and schism_step
 !           - search for "user-defined tracer part")
 !  flag_model = 1
+s
+
+!---------------------------
+! FABM parameters
+!---------------------------
+
+   inu_fab = 0 ! nudging for fabm_tracers
+   ic_fab = 0 ! initial condition
 
 !-----------------------------------------------------------------------
 ! # of passive tracers
