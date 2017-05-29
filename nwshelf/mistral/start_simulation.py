@@ -78,6 +78,13 @@ for year in years:
       out = commands.getoutput(cmd)
     omerge_pid = out.split()[-1]
 
+    cmd = 'sbatch --dependency=afterok:%s %s mistral/merge_ecosmo.sh %s %s'%(pid,logmerge,id,yyyymm)
+    if debug:
+      print(cmd)
+    else:
+      out = commands.getoutput(cmd)
+    omerge_pid = out.split()[-1]
+
     # do plotting
     #out = commands.getoutput('sbatch --dependency=afterok:%s plot/run_plotting.sh nwshelf/nwshelf%s/%s'%(omerge_pid,id,yyyymm))
     #pid = out.split()[-1]

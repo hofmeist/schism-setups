@@ -75,6 +75,9 @@ if [ "$currmonth" == "$initmonth" ] ; then
   sed -i -- 's/MY_IHOT/1/g' param.in
 else
   ln -sf /scratch/g/g260078/schism-results/$id/$prevmonth/outputs/hotstart.in hotstart.in
+  for i in {1..9} ; do
+    touch outputs/staout_${i}
+  done
   # disable ramps here
   sed -i -- 's/MY_NRAMP_SS/0/g' param.in
   sed -i -- 's/MY_NRAMPWIND/0/g' param.in
