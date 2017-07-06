@@ -63,8 +63,8 @@ else:
 
 x,y = proj(lon,lat)
 
-var = ncv['fab_5']
-var2 = ncv2['fab_6']
+var = ncv['fab_6']
+var2 = ncv2['fab_7']
 #time = array([0.0])
 cmap = cm.jet
 cmap = cm.YlGn
@@ -105,7 +105,8 @@ for tidx,t in enumerate(dates):
   #mask = v == -99.
   #mask = mask_triangles(mask,nv)
   if plot_surface:
-    figure()
+    fig=figure()
+    fig.subplots_adjust(left=0.0,right=1.0,bottom=0.0,top=1.0)
     if varname=='elev':
       cmap=cm.RdYlGn
       cmap.set_under('gray')
@@ -127,14 +128,16 @@ for tidx,t in enumerate(dates):
       cbtitle=varname
     proj.drawcoastlines()
     proj.fillcontinents((0.9,0.9,0.8))
-    cb=colorbar()
-    cb.ax.set_title(u'%s\n%s\n'%(cbtitle,u'[mgC/m\u00b3]'),size=10.)
+    cax = axes([0.85,0.05,0.02,0.4])
+    cb=colorbar(cax=cax)
+    cb.set_label(u'phytoplankton [mgC/m\u00b3]')
     tstring = t.strftime('%Y%m%d-%H%M')
     savefig('jpgs/%s/%s_surface_%s.jpg'%(varname,varname,tstring),dpi=200)
     close()
 
   if plot_bottom:
-    figure()
+    fig=figure()
+    fig.subplots_adjust(left=0.0,right=1.0,bottom=0.0,top=1.0)
     tripcolor(x,y,nv,vb,cmap=cmap,rasterized=True)
     if varname=='salt':
       clim(5,35)
@@ -150,8 +153,9 @@ for tidx,t in enumerate(dates):
       cbtitle=varname
     proj.drawcoastlines()
     proj.fillcontinents((0.9,0.9,0.8))
-    cb=colorbar()
-    cb.ax.set_title(u'%s\n%s\n'%(cbtitle,u'[mgC/m\u00b3]'),size=10.)
+    cax = axes([0.85,0.05,0.02,0.4])
+    cb=colorbar(cax=cax)
+    cb.set_label(u'phytoplankton [mgC/m\u00b3]')
     tstring = t.strftime('%Y%m%d-%H%M')
     savefig('jpgs/%s/%s_bottom_%s.jpg'%(varname,varname,tstring),dpi=200)
     #show()

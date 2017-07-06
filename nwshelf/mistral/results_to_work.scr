@@ -8,13 +8,13 @@ swd=$workdir/$sname
 mkdir -p $swd
 
 mkdir -p $swd/log
-cp $scratchdir/$sname/*.* $swd/log
+cp -ua $scratchdir/$sname/*.* $swd/log
 
 files=$(cd $scratchdir/$sname/outputs;ls *.nc)
 i=0
 for file in $files ; do
   echo $i $file
-  cp $scratchdir/$sname/outputs/$file $swd &
+  cp -ua $scratchdir/$sname/outputs/$file $swd &
   ((i++))
   if [ "$i" == "36" ] ; then
     wait
@@ -23,6 +23,6 @@ for file in $files ; do
 done
 wait
 
-cp $scratchdir/$sname/outputs/staout* $swd 
+cp -ua $scratchdir/$sname/outputs/staout* $swd 
 
 

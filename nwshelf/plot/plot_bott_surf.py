@@ -6,20 +6,50 @@ from mpl_toolkits.basemap import Basemap
 from pylab import *
 import pickle,os
 from netcdftime import utime
+import argparse
 
-if len(sys.argv)>2:
-  varname = sys.argv[2]
+def replace_superscripts(s):
+  r = unicode(s.replace('^3',u'\u00b3'))
+  r = unicode(r.replace('^2',u'\u00b2'))
+  return r
+
+parser = argparse.ArgumentParser()
+parser.add_argument('ncfile', help='netcdf file')
+parser.add_argument('varname',help='variable name')
+parser.add_argument('-tidx', help='time index')
+parser.add_argument('-vrange', help='values range [-vrange vmin,vmax]')
+parser.add_argument('-title', help='title of colorbar')
+parser.add_argument('-units', help='unit string')
+args = parser.parse_args()
+
+if args.tidx is not None:
+  tidx=int(args.tidx)
 else:
-  print('  usage: plot_bott_surf.py file.nc variable')
-  sys.exit(1)
+  tidx = -1
 
-if len(sys.argv)>3:
-  tidx=int(sys.argv[3])
+if 'vrange' is not None:
+  try:
+    s1,s2 = args.vrange.split(',')
+    vmin,vmax = float(s1),float(s2)
+    uselim=True
+  except:
+    uselim=False
 else:
-  tidx=-1
+  uselim=False
 
-nc = netCDF4.Dataset(sys.argv[1])
+if args.title is not None:
+  titlestr=unicode(args.title)
+else:
+  titlestr=args.varname
+
+if args.units is not None:
+  unitsstr=replace_superscripts(args.units)
+else:
+  unitsstr=''
+
+nc = netCDF4.Dataset(args.ncfile)
 ncv = nc.variables
+varname = args.varname
 
 lon = ncv['SCHISM_hgrid_node_x'][:]
 lat = ncv['SCHISM_hgrid_node_y'][:]
@@ -83,7 +113,8 @@ for tidx,t in enumerate(dates):
   #mask = v == -99.
   #mask = mask_triangles(mask,nv)
   if plot_surface:
-    figure()
+    fig=figure()
+    fig.subplots_adjust(left=0.0,right=1.0,bottom=0.0,top=1.0)
     if varname=='elev':
       cmap=cm.RdYlGn
       cmap.set_under('gray')
@@ -93,37 +124,46 @@ for tidx,t in enumerate(dates):
       cbtitle='surface salinity'
     elif varname=='temp':
       clim(1,vs.max())
-      cbtitle=u'surface temperature\n[\u00b0C]'
+      cbtitle=u'surface temperature [\u00b0C]'
     elif varname=='elev':
       clim(-2,2)
       cbtitle='ssh [m]'
     else:
-      clim(0,vs.max())
-      cbtitle=varname
+      if uselim:
+        clim(vmin,vmax)
+      else:
+        clim(0,vs.max())
+      cbtitle = titlestr
     proj.drawcoastlines()
     proj.fillcontinents((0.9,0.9,0.8))
-    cb=colorbar()
-    cb.ax.set_title(u'%s\n'%(cbtitle),size=10.)
+    cax = axes([0.85,0.05,0.02,0.4])
+    cb=colorbar(cax=cax)
+    cb.set_label(u'%s %s'%(cbtitle,unitsstr))
     tstring = t.strftime('%Y%m%d-%H%M')
     savefig('jpgs/%s/%s_surface_%s.jpg'%(varname,varname,tstring),dpi=200)
     close()
 
   if plot_bottom:
-    figure()
+    fig=figure()
+    fig.subplots_adjust(left=0.0,right=1.0,bottom=0.0,top=1.0)
     tripcolor(x,y,nv,vb,cmap=cmap,rasterized=True)
     if varname=='salt':
       clim(5,35)
       cbtitle='bottom salinity'
     elif varname=='temp':
       clim(1,vb.max())
-      cbtitle=u'bottom temperature\n[\u00b0C]'
+      cbtitle=u'bottom temperature [\u00b0C]'
     else:
-      clim(0,vb.max())
-      cbtitle=varname
+      if uselim:
+        clim(vmin,vmax)
+      else:
+        clim(0,vb.max())
+      cbtitle=titlestr
     proj.drawcoastlines()
     proj.fillcontinents((0.9,0.9,0.8))
-    cb=colorbar()
-    cb.ax.set_title(u'%s\n'%(cbtitle),size=10.)
+    cax = axes([0.85,0.05,0.02,0.4])
+    cb=colorbar(cax=cax)
+    cb.set_label(u'%s %s'%(cbtitle,unitsstr))
     tstring = t.strftime('%Y%m%d-%H%M')
     savefig('jpgs/%s/%s_bottom_%s.jpg'%(varname,varname,tstring),dpi=200)
     #show()

@@ -52,6 +52,7 @@ for year in years:
     logrun=log_directive(id,yyyymm,logname='log')
     loghot=log_directive(id,yyyymm,logname='log_hmerge')
     logmerge=log_directive(id,yyyymm,logname='log_merge')
+    logecomerge=log_directive(id,yyyymm,logname='log_ecomerge')
 
     # run the model
     cmd = 'sbatch %s %s mistral/run_hotstart.sh %s %s'%(rundep,logrun,id,yyyymm)
@@ -78,7 +79,7 @@ for year in years:
       out = commands.getoutput(cmd)
     omerge_pid = out.split()[-1]
 
-    cmd = 'sbatch --dependency=afterok:%s %s mistral/merge_ecosmo.sh %s %s'%(pid,logmerge,id,yyyymm)
+    cmd = 'sbatch --dependency=afterok:%s %s mistral/merge_ecosmo.sh %s %s'%(pid,logecomerge,id,yyyymm)
     if debug:
       print(cmd)
     else:
