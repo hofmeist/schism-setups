@@ -1,0 +1,16 @@
+#!/bin/bash
+
+id=$1
+years="2012 2013"
+years="2014"
+months="01 02 03 04 05 06 07 08 09 10 11 12"
+
+spath=/scratch/g/g260078/schism-results/nwshelf${id}
+npath=/work/gg0877/hofmeist/nwshelf/nwshelf${id}
+
+for year in $years ; do
+  for month in $months ; do
+    echo ${year}-${month}
+    cp $spath/${year}-${month}/outputs/hotstart.in $npath/${year}-${month}/
+  done
+done
