@@ -62,6 +62,7 @@ sed -i -- "s/MY_HOTOUT_WRITE/$ihfskip/g" param.in
 # run the model
 # --distribution=block:cyclic bind tasks to physical cores
 rm -f hotstart.in
+rm -f fabm_schism_hotstart.nc
 if [ "$currmonth" == "$initmonth" ] ; then
   ln -sf /work/gg0877/hofmeist/nwshelf/input/hotstart_january_ecosmo.in hotstart.in
   # use ramps here
@@ -75,6 +76,7 @@ if [ "$currmonth" == "$initmonth" ] ; then
   sed -i -- 's/MY_IHOT/1/g' param.in
 else
   ln -sf /scratch/g/g260078/schism-results/$id/$prevmonth/outputs/hotstart.in hotstart.in
+  ln -sf /scratch/g/g260078/schism-results/$id/$prevmonth/outputs/fabm_schism_hotstart.nc fabm_schism_hotstart.nc
   for i in {1..9} ; do
     touch outputs/staout_${i}
   done

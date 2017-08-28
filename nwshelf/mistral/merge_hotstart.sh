@@ -5,7 +5,7 @@
 #SBATCH --partition=prepost   # Specify partition name
 #SBATCH --ntasks=6 
 #SBATCH --ntasks-per-node=6
-#SBATCH --time=00:60:00        # Set a limit on the total run time
+#SBATCH --time=00:80:00        # Set a limit on the total run time
 #SBATCH --wait-all-nodes=1     # start job, when all nodes are available
 #SBATCH --mail-type=FAIL       # Notify user by email in case of job failure
 #SBATCH --mail-user=richard.hofmeister@hzg.de  # Set your e−mail address
@@ -31,4 +31,5 @@ iteration=$(python -c "print('%d'%int( ($days*86400./240.) ))")
 
 # combine hotstart
 $HOME/schism/schism5.3/build/bin/combine_hotstart6 -p 1080 -t 15 -i $iteration
- 
+
+python $HOME/schism/schism5.3/hzg/rawcombine_fabm_netcdf.py -n 1080 -t -1 -o fabm_schism_hotstart.nc -v hzg_ecosmo_sed1,hzg_ecosmo_sed2,hzg_ecosmo_sed3
