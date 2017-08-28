@@ -300,7 +300,7 @@
 !-----------------------------------------------------------------------
   ihhat = 1 
   inunfl = 0
-  h0 = 0.01 !min. water depth for wetting/drying
+  h0 = 0.1 !min. water depth for wetting/drying
 
 !-----------------------------------------------------------------------
 ! Implicitness factor (0.5<thetai<=1).
@@ -358,7 +358,7 @@
 ! Also if itr_met>=3 and h_tvd>=1.e5, some parts of the code are bypassed for efficiency
 !-----------------------------------------------------------------------
   itr_met = 3
-  h_tvd = 5. !used only if itr_met>=2; cut-off depth (m) 
+  h_tvd = -5. !used only if itr_met>=2; cut-off depth (m) 
   !If itr_met=3 or 4, need the following 2 tolerances of convergence. The convergence
   !is achieved when sqrt[\sum_i(T_i^s+1-T_i^s)^2]<=eps1_tvd_imp*sqrt[\sum_i(T_i^s)^2]+eps2_tvd_imp
   eps1_tvd_imp = 1.e-4 !suggested value is 1.e-4, but for large suspended load, need to use a smaller value (e.g. 1.e-9)
