@@ -112,8 +112,7 @@ class schism_setup(object):
         self.resolution_by_nodes[inode] = np.asarray([self.resolution_by_element[ii] for ii in self.node_neighbour_elements[inode]]).mean()
 
       self.num_bdy_segments = int(f.readline().split()[0])
-      if self.num_bdy_segments > 0:
-        self.num_bdy_nodes = int(f.readline().split()[0])
+      self.num_bdy_nodes = int(f.readline().split()[0])
       self.bdy_segments=[]
       self.bdy_nodes=[]
       for iseg in range(self.num_bdy_segments):
@@ -122,8 +121,7 @@ class schism_setup(object):
         self.bdy_nodes.extend(self.bdy_segments[-1])
 
       self.num_land_segments = int(f.readline().split()[0])
-      if self.num_land_segments > 0:
-        self.num_land_nodes = int(f.readline().split()[0])
+      self.num_land_nodes = int(f.readline().split()[0])
       self.land_nodes=[]
       self.island_segments=[]
       self.land_segments=[]
@@ -385,12 +383,17 @@ class schism_setup(object):
 if __name__ == '__main__':
 
     from pylab import *
-    setup = schism_setup('hgrid.gr3')
+    setup = schism_setup('hgrid.gr3',ll_file='hgrid.gr3')
     # plot domain
     setup.plot_domain_boundaries()
 
-    # read elevation boundaries
-    t,e = setup.bdy_array('elev2D.th')
-    figure()
-    plot(t[:],e[:,50])
+    #triplot(setup.x,setup.y,asarray(setup.nv)-1)
+
     show()
+
+    if False:
+      # read elevation boundaries
+      t,e = setup.bdy_array('elev2D.th')
+      figure()
+      plot(t[:],e[:,50])
+      show()
