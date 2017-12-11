@@ -55,7 +55,7 @@ for year in years:
     logecomerge=log_directive(id,yyyymm,logname='log_ecomerge')
 
     # run the model
-    cmd = 'sbatch %s %s mistral/run_hotstart.sh %s %s'%(rundep,logrun,id,yyyymm)
+    cmd = 'sbatch %s %s mistral/run_hotstartv5.4_physics.sh %s %s'%(rundep,logrun,id,yyyymm)
     if debug:
       print(cmd)
     else:
@@ -63,7 +63,7 @@ for year in years:
     pid = out.split()[-1]
 
     # merge hotstart files
-    cmd = 'sbatch --dependency=afterok:%s %s mistral/merge_hotstart.sh %s %s'%(pid,loghot,id,yyyymm)
+    cmd = 'sbatch --dependency=afterok:%s %s mistral/merge_hotstartv5.4_physics.sh %s %s'%(pid,loghot,id,yyyymm)
     if debug:
       print(cmd)
     else:
@@ -72,7 +72,7 @@ for year in years:
     rundep = '--dependency=afterok:%s'%hmerge_pid
     
     # merge output
-    cmd = 'sbatch --dependency=afterok:%s %s mistral/merge_schout.sh %s %s'%(pid,logmerge,id,yyyymm)
+    cmd = 'sbatch --dependency=afterok:%s %s mistral/merge_mistralv5.4.sh %s %s'%(pid,logmerge,id,yyyymm)
     if debug:
       print(cmd)
     else:

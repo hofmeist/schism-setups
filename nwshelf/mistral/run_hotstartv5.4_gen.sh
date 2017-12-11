@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#SBATCH --job-name=nwschism     # Specify job name
-#SBATCH --comment="SCHISM compiled with intel16 and intelmpi"
+#SBATCH --job-name=nwschismgen     # Specify job name
+#SBATCH --comment="SCHISM compiled with intel17 and intelmpi"
 #SBATCH --partition=compute2    # Specify partition name
 ### --ntasks=192
 #SBATCH --ntasks=1080
@@ -11,8 +11,8 @@
 #SBATCH --mail-type=FAIL       # Notify user by email in case of job failure
 #SBATCH --mail-user=richard.hofmeister@hzg.de  # Set your e−mail address
 #SBATCH --account=gg0877       # Charge resources on this project account
-#SBATCH --output=log.o    # File name for standard output
-#SBATCH --error=log.e     # File name for standard error output
+#SBATCH --output=log_gen.o    # File name for standard output
+#SBATCH --error=log_gen.e     # File name for standard error output
 
 # quasi-barotropic
 # 108 cpus -> 12000 s in 60 s -> 1 month in 3.6 h
@@ -55,7 +55,7 @@ prevmonth=$(python ~/schism/setups/nwshelf/mistral/get_prevmonth.py $currmonth)
 rnday=$(python ~/schism/setups/nwshelf/mistral/get_rnday.py $currmonth $initmonth)
 #ihfskip=360 # this is for daily files
 ihfskip=$(python ~/schism/setups/nwshelf/mistral/get_ihfskip.py $currmonth $nspool $initmonth)
-cp param.default param.in
+cp param_gen.default param.in
 sed -i -- "s/MY_RNDAY/$rnday/g" param.in
 sed -i -- "s/MY_IHFSKIP/$ihfskip/g" param.in
 sed -i -- "s/MY_NSPOOL/$nspool/g" param.in
@@ -67,7 +67,7 @@ rm -f hotstart.in
 rm -f hotstart.nc
 rm -f fabm_schism_hotstart.nc
 if [ "$currmonth" == "$initmonth" ] ; then
-  ln -sf /work/gg0877/hofmeist/nwshelf/input/hotstart_january_ecosmo.in hotstart.in
+#  ln -sf /work/gg0877/hofmeist/nwshelf/input/hotstart_january_ecosmo.in hotstart.in
   ln -sf /work/gg0877/hofmeist/nwshelf/input/hotstart_january_ecosmo.nc hotstart.nc
   # use ramps here
   sed -i -- 's/MY_NRAMP_SS/1/g' param.in
@@ -80,9 +80,7 @@ if [ "$currmonth" == "$initmonth" ] ; then
 #  sed -i -- 's/MY_NRAMP_/0/g' param.in
   sed -i -- 's/MY_IHOT/1/g' param.in
 else
-  ln -sf /scratch/g/g260078/schism-results/$id/$prevmonth/outputs/hotstart.in hotstart.in
   ln -sf /scratch/g/g260078/schism-results/$id/$prevmonth/outputs/hotstart.nc hotstart.nc
-  ln -sf /scratch/g/g260078/schism-results/$id/$prevmonth/outputs/fabm_schism_hotstart.nc fabm_schism_hotstart.nc
   for i in {1..9} ; do
     touch outputs/staout_${i}
   done
@@ -99,14 +97,9 @@ fi
 cp param.in $outpath
 cp bctides.in $outpath
 cp vgrid.in $outpath
-cp fabm.nml $outpath
 
-#srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/v5.3/newbuild/bin/pschism
-#srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/v5.3/gotmbuild/bin/pschism
-#srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/schism5.3/build/bin/pschism
 #srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/schism-git/build/bin/pschism
-srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/svn-code/netcdf_experiment/build/bin/pschism
-#srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/schism5.3/debugbuild/bin/pschism
+srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/svn-code/trunk/genbuild/bin/pschism
 
 # move log files
 #cp log.e log.o $outpath

@@ -14,6 +14,11 @@
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ! Model configuration parameters 
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  start_year = 2012, ! start year
+  start_month = 01, ! start month
+  start_day = 01, ! start day
+  start_hour = 0.0, ! start hour
+  utc_start = 0.0, ! offset from UTC in hours, with positive numbers for western hemishpere
 !-----------------------------------------------------------------------
 ! Coordinate option: 1: Cartesian; 2: lon/lat (hgrid.gr3=hgrid.ll in this case,
 ! and orientation of element is outward of earth)
@@ -305,7 +310,7 @@
 !-----------------------------------------------------------------------
 ! Implicitness factor (0.5<thetai<=1).
 !-----------------------------------------------------------------------
-  thetai = 0.6 
+  thetai = 1.0 
 
 !-----------------------------------------------------------------------
 ! Run time and ramp option
@@ -330,8 +335,8 @@
 ! actual step is calculated adaptively based on local gradient.
 !-----------------------------------------------------------------------
   nadv = 1
-  dtb_max = 60.0
-  dtb_min = 5.0
+  dtb_max = 240.0
+  dtb_min = 20.0
 
 !-----------------------------------------------------------------------
 ! If inter_mom=0, linear interpolation is used for velocity at foot of char. line.
@@ -400,7 +405,7 @@
 !-----------------------------------------------------------------------
 ! Turbulence closure.
 !-----------------------------------------------------------------------
-  itur = 4 
+  itur = 3 
 !  dfv0 = 1.e-6 !needed if itur=0
 !  dfh0 = 1.e-6 !needed if itur=0
   turb_met = KL !needed if itur=3
@@ -459,7 +464,7 @@
 ! Global output options.
 ! For 2D model, the only outputs available are: elev.61, dahv.62, wind.62, wist.62 and hvel.64
 !-----------------------------------------------------------------------
-  nspool = 360 
+  nspool = MY_NSPOOL 
   ihfskip = MY_IHFSKIP 
 
   elev.61 = 1 !0: off; 1: on - elev. [m]
@@ -649,7 +654,7 @@
 ! and z (positive upward; not used for 2D variables). 
 !-----------------------------------------------------------------------
   iout_sta = 1
-  nspool_sta = 15 !needed if iout_sta/=0
+  nspool_sta = 5 !needed if iout_sta/=0
 
 !-----------------------------------------------------------------------
 ! Flag for harmonic analysis for elevation. If used , need to turn on cpp flags
@@ -754,6 +759,8 @@ s
 
    inu_fab = 0 ! nudging for fabm_tracers
    ic_fab = 0 ! initial condition
+   inu_FBM = 0 ! nudging for fabm_tracers
+   ic_FBM = 0 ! initial condition
 
 !-----------------------------------------------------------------------
 ! # of passive tracers
@@ -776,6 +783,29 @@ s
 ! For non-hydrostatic model, use ihydro_region to indicate if  hydrostatic 
 ! region needs to be specified in hydro_region.gr3 (depth=1 in hydrostatic region)
 !-----------------------------------------------------------------------
-!  nonhydro = 0 !must be 0 if there are 2D prisms or ics=2 (lat/lon)
-!  ihydro_region = 0 !0: no hydro_region.gr3 needed
 
+!----------------------------------------------------------------------
+! Marsh model parameters (only if USE_MARSH is on)
+!----------------------------------------------------------------------
+  slr_rate = 120. !sea-level rise rate in mm/yr, times morphological acceleration if used
+
+!----------------------------------------------------------------------
+! Submerged aquatic vegetation model
+! If isav=1, need 3 extra inputs: (1) sav_D.gr3 (depth is stem diameter in meters);
+! (2) sav_N.gr3 (depth is # of stems per m^2);
+! (3) sav_h.gr3 (height of canopy in meters).
+! If one of these depths=0 at a node, the code will set all to 0.
+!----------------------------------------------------------------------
+
+  isav = 0 !on/off flag
+  sav_cd = 1.13 !only needed if isav=1. Drag coefficient
+
+!-----------------------------------------------------------------------
+! Specific heat of water (C_p) in J/kg/K
+!-----------------------------------------------------------------------
+  shw = 4184.d0
+
+!-----------------------------------------------------------------------
+! Reference water density for Boussinesq approximation
+!-----------------------------------------------------------------------
+  rho0 = 1000.d0 !kg/m^3

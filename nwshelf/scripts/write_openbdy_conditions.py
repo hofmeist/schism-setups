@@ -7,6 +7,7 @@ import numpy as np
 import netCDF4
 import netcdftime
 from mpl_toolkits.basemap import interp as bminterp
+from scipy.spatial import KDTree
 
 class bdy_dataset():
 
@@ -18,14 +19,21 @@ class bdy_dataset():
     self.dates = self.utime.num2date(self.ncv['time'][:])
     self.lon = self.ncv['lon'][:]
     self.lat = self.ncv['lat'][:]
+    sse = self.ncv['sossheig'][0]
+    lon2,lat2 = meshgrid(self.lon,self.lat)
+    llwater = array((lon2[~sse.mask],lat2[~sse.mask])).T
+    llland = array((lon2[sse.mask],lat2[sse.mask])).T
+    self.land = sse.mask
+    self.water = ~sse.mask
+    self.nearest_water = KDTree(llwater).query(llland)[1]
 
   def get_bdy(self,timeidx,lon,lat,depths):
     # bilinear interpolation of sea surface elevation
     sse = self.ncv['sossheig'][timeidx]
     print '  interpolate index %d'%timeidx
+    # fill lans with nearest water value
+    sse[self.land] = sse[self.water][self.nearest_water]
     elevs = bminterp(sse,self.lon,self.lat,lon,lat)
-    elevsnn = bminterp(sse,self.lon,self.lat,lon,lat,order=0)
-    elevs.data[where(elevs.mask)] = elevsnn[where(elevs.mask)]
     return elevs.data
   
   def close(self):

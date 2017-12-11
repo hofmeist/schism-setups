@@ -3,7 +3,11 @@ from datetime import datetime,timedelta
 
 year,month = [int(el) for el in sys.argv[1].split('-')]
 if len(sys.argv)>2:
-  oyear,omonth = [int(el) for el in sys.argv[2].split('-')]
+  nspool = int(sys.argv[2])
+else:
+  nspool = 360
+if len(sys.argv)>3:
+  oyear,omonth = [int(el) for el in sys.argv[3].split('-')]
 else:
   oyear=year
   omonth=month
@@ -16,4 +20,4 @@ else:
   nmonth=month+1
 
 dt = datetime(nyear,nmonth,1,0,0,0)-datetime(oyear,omonth,1,0,0,0)
-print('%d' % (int(dt.days)*360))
+print('%d' % (int(dt.days)*nspool))

@@ -67,8 +67,9 @@ rm -f hotstart.in
 rm -f hotstart.nc
 rm -f fabm_schism_hotstart.nc
 if [ "$currmonth" == "$initmonth" ] ; then
-  ln -sf /work/gg0877/hofmeist/nwshelf/input/hotstart_january_ecosmo.in hotstart.in
-  ln -sf /work/gg0877/hofmeist/nwshelf/input/hotstart_january_ecosmo.nc hotstart.nc
+#  ln -sf /work/gg0877/hofmeist/nwshelf/input/hotstart_january_ecosmo.in hotstart.in
+  #ln -sf /work/gg0877/hofmeist/nwshelf/input/hotstart_january_ecosmo.nc hotstart.nc
+  ln -sf /work/gg0877/hofmeist/nwshelf/input/hotstart_january_ecosmo_reordered.nc hotstart.nc
   # use ramps here
   sed -i -- 's/MY_NRAMP_SS/1/g' param.in
   sed -i -- 's/MY_NRAMPWIND/1/g' param.in
@@ -80,7 +81,7 @@ if [ "$currmonth" == "$initmonth" ] ; then
 #  sed -i -- 's/MY_NRAMP_/0/g' param.in
   sed -i -- 's/MY_IHOT/1/g' param.in
 else
-  ln -sf /scratch/g/g260078/schism-results/$id/$prevmonth/outputs/hotstart.in hotstart.in
+#  ln -sf /scratch/g/g260078/schism-results/$id/$prevmonth/outputs/hotstart.in hotstart.in
   ln -sf /scratch/g/g260078/schism-results/$id/$prevmonth/outputs/hotstart.nc hotstart.nc
   ln -sf /scratch/g/g260078/schism-results/$id/$prevmonth/outputs/fabm_schism_hotstart.nc fabm_schism_hotstart.nc
   for i in {1..9} ; do
@@ -101,12 +102,9 @@ cp bctides.in $outpath
 cp vgrid.in $outpath
 cp fabm.nml $outpath
 
-#srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/v5.3/newbuild/bin/pschism
-#srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/v5.3/gotmbuild/bin/pschism
-#srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/schism5.3/build/bin/pschism
 #srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/schism-git/build/bin/pschism
-srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/svn-code/netcdf_experiment/build/bin/pschism
-#srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/schism5.3/debugbuild/bin/pschism
+srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/svn-code/trunk/build/bin/pschism
+#srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/svn-code/trunk/debugbuild/bin/pschism
 
 # move log files
 #cp log.e log.o $outpath
