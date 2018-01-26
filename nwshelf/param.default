@@ -335,8 +335,8 @@
 ! actual step is calculated adaptively based on local gradient.
 !-----------------------------------------------------------------------
   nadv = 1
-  dtb_max = 240.0
-  dtb_min = 20.0
+  dtb_max = 30.0
+  dtb_min = 10.0
 
 !-----------------------------------------------------------------------
 ! If inter_mom=0, linear interpolation is used for velocity at foot of char. line.
@@ -674,14 +674,6 @@
 !-----------------------------------------------------------------------
   consv_check = 0
 
-! Time
-  sim_year = 2000
-  sim_month = 2
-  sim_day = 1
-  sim_hour = 0
-  sim_minute = 0
-  sim_second = 0
-
 !-----------------------------------------------------------------------
 ! Test flags for debugging. These flags should be turned off normally.
 !-----------------------------------------------------------------------
@@ -716,43 +708,6 @@
 !----------------------------------------------------------------------
   slr_rate = 120. !sea-level rise rate in mm/yr, times morphological acceleration if used
 
-!Obsolete parameters
-!-----------------------------------------------------------------------
-! 2D model flag (0: 3D; 1: 2D) - obsolete
-! For 2D model, the following modules cannot be used:
-! USE_ECO, USE_SED, PREC_EVAP, USE_GOTM, USE_NAPZD
-!-----------------------------------------------------------------------
-!  im2d = 0
-!-----------------------------------------------------------------------
-! Implicitness factor for Coriolis for 2D model (not used in 3D)
-!-----------------------------------------------------------------------
-!  theta2 = 0.5 !between 0 and 1
-
-!-----------------------------------------------------------------------
-! Bottom b.c. for momentum eq.
-! 1: old formulation (solve from surface to bottom level+1);
-! 2: new formulation (solve from surface to bottom level)
-!-----------------------------------------------------------------------
-!  ibottom_bc = 2
-
-!  blend_internal = 0.
-!  blend_bnd = 0.
-!  ishapiro_violation = 0 !used if indvel<=0. 0: no violation check; 1: violation check 
-!-----------------------------------------------------------------------
-! Interpolation methods in ELM for salinity and temperature. Used when iupwind_t=0.
-! If inter_st=1, split linear
-! is used for T,S at foot of char. line. If inter_st=2, quadratic interpolation
-! is used there. If inter_st=0, the interpolation method is specified in lqk.gr3.
-!-----------------------------------------------------------------------
-!  inter_st = 1 !formerly lq 
-
-! Model id (0- tracer age; 1-Sediments Model; 
-!           2-Ecological Model; 3-Oil Spill Model; 4-NAPZD; 5: ICM; 
-!           6: Timor/Mud; -1: for users; need to update the part in schism_init and schism_step
-!           - search for "user-defined tracer part")
-!  flag_model = 1
-s
-
 !---------------------------
 ! FABM parameters
 !---------------------------
@@ -761,28 +716,6 @@ s
    ic_fab = 0 ! initial condition
    inu_FBM = 0 ! nudging for fabm_tracers
    ic_FBM = 0 ! initial condition
-
-!-----------------------------------------------------------------------
-! # of passive tracers
-! Note for age calculation (flag_model=0): ntracers=2*N where N is # of age tracers
-!-----------------------------------------------------------------------
-!  ntracers = 0 
-
-!  icst = 1 
-!  iupwind_t = 1 
-!  inu_st = 0 !nudging option
-!  step_nu = 43200. !in sec; only used if inu_st=2
-!  vnh1 = 400 !vertical nudging depth
-!  vnf1 = 1 !vertical relax
-!  vnh2 = 401 !vertical nudging depth
-!  vnf2 = 1. !vertical relax
-!  inu_tr = 0
-
-!-----------------------------------------------------------------------
-! Non-hydrostatic model switch (0: hydrostatic model; 1: non-hydrostatic model)
-! For non-hydrostatic model, use ihydro_region to indicate if  hydrostatic 
-! region needs to be specified in hydro_region.gr3 (depth=1 in hydrostatic region)
-!-----------------------------------------------------------------------
 
 !----------------------------------------------------------------------
 ! Marsh model parameters (only if USE_MARSH is on)
