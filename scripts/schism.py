@@ -379,6 +379,57 @@ class schism_setup(object):
           break
     return ridx
 
+class schism_output():
+    import netCDF4
+    nc = None
+
+    def __init__(self,filename):
+      """
+      read output filename and initialize grid
+      """
+      import netCDF4
+      from netcdftime import utime
+      self.nc = netCDF4.Dataset(filename)
+      self.ncv = self.nc.variables
+      self.lon = self.ncv['SCHISM_hgrid_node_x'][:]
+      self.lat = self.ncv['SCHISM_hgrid_node_y'][:]
+      self.nodeids = np.arange(len(self.lon))
+      self.nv = self.ncv['SCHISM_hgrid_face_nodes'][:,:3]-1
+      self.time = self.ncv['time'][:] # s
+      self.ut = utime(self.ncv['time'].units)
+      self.dates = self.ut.num2date(self.time)
+      self.node_tree_latlon = None
+
+    def init_node_tree(self,latlon=True):
+      """
+      build a node tree using cKDTree
+      for a quick search for node coordinates
+      """
+      from scipy.spatial import cKDTree
+      if latlon:
+        self.node_tree_latlon = cKDTree(zip(self.lon,self.lat))
+      else:
+        self.node_tree_xy = cKDTree(zip(self.x,self.y))
+
+    def find_nearest_node(self,x,y,latlon=True):
+      """
+      find nearest node for given coordinate,
+      returns the node id
+      """
+      ridx=-1
+      if latlon:
+        if self.node_tree_latlon==None:
+          self.init_node_tree(latlon=True)
+        d,idx = self.node_tree_latlon.query((x,y),k=1)
+        ridx = self.nodeids[idx]
+      else:
+        if self.node_tree_latlon==None:
+           self.init_node_tree(latlon=False)
+        d,idx = self.node_tree_latlon.query((x,y),k=1)
+        ridx = self.inodes[idx]
+      return ridx
+
+
 
 if __name__ == '__main__':
 
