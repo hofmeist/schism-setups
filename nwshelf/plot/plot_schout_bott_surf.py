@@ -20,6 +20,7 @@ parser.add_argument('-tidx', help='time index')
 parser.add_argument('-vrange', help='values range [-vrange vmin,vmax]')
 parser.add_argument('-title', help='title of colorbar')
 parser.add_argument('-units', help='unit string')
+parser.add_argument('-scalefactor', help='linear scaling factor')
 args = parser.parse_args()
 
 if args.tidx is not None:
@@ -46,6 +47,11 @@ if args.units is not None:
   unitsstr=replace_superscripts(args.units)
 else:
   unitsstr=''
+
+if args.scalefactor is not None:
+  fac = float(args.scalefactor)
+else:
+  fac=1.0
 
 nc = netCDF4.Dataset(args.ncfile)
 ncv = nc.variables
@@ -117,8 +123,8 @@ for tidx,t in enumerate(dates):
     plot_surface=True
     plot_bottom=False
   else:
-    vs = v[:,-1].squeeze()
-    vb = v[arange(nbidx),bidx]
+    vs = fac*v[:,-1].squeeze()
+    vb = fac*v[arange(nbidx),bidx]
     plot_surface=True
     plot_bottom=True
   #mask = v == -99.
