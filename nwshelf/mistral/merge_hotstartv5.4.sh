@@ -36,3 +36,10 @@ $HOME/schism/svn-code/trunk/build/bin/combine_hotstart7 -i $iteration
 mv hotstart_it*.nc hotstart.nc
 
 python $HOME/schism/schism5.3/hzg/rawcombine_fabm_netcdf.py -n 1080 -t -1 -o fabm_schism_hotstart.nc -v hzg_ecosmo_sed1,hzg_ecosmo_sed2,hzg_ecosmo_sed3
+
+swd=/work/gg0877/hofmeist/nwshelf/$id/$mstr/
+mkdir -p $swd
+
+# copy hotstart files to work
+cp hotstart.nc $swd
+cp fabm_schism_hotstart.nc $swd

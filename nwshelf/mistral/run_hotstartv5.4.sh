@@ -68,8 +68,8 @@ rm -f hotstart.nc
 rm -f fabm_schism_hotstart.nc
 if [ "$currmonth" == "$initmonth" ] ; then
 #  ln -sf /work/gg0877/hofmeist/nwshelf/input/hotstart_january_ecosmo.in hotstart.in
-  #ln -sf /work/gg0877/hofmeist/nwshelf/input/hotstart_january_ecosmo.nc hotstart.nc
-  ln -sf /work/gg0877/hofmeist/nwshelf/input/hotstart_january_ecosmo_reordered.nc hotstart.nc
+  ln -sf /work/gg0877/hofmeist/nwshelf/input/hotstart_january_ecosmo.nc hotstart.nc
+  #ln -sf /work/gg0877/hofmeist/nwshelf/input/hotstart_january_ecosmo_reordered.nc hotstart.nc
   # use ramps here
   sed -i -- 's/MY_NRAMP_SS/1/g' param.in
   sed -i -- 's/MY_NRAMPWIND/1/g' param.in

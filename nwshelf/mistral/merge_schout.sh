@@ -3,9 +3,9 @@
 #SBATCH --job-name=mergeecosmo     # Specify job name
 #SBATCH --comment="SCHISM postprocessing"
 #SBATCH --partition=shared   # Specify partition name
-#SBATCH --ntasks=13
-#SBATCH --ntasks-per-node=13
-#SBATCH --time=03:00:00        # Set a limit on the total run time
+#SBATCH --ntasks=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --time=07:00:00        # Set a limit on the total run time
 #SBATCH --wait-all-nodes=1     # start job, when all nodes are available
 #SBATCH --mail-type=FAIL       # Notify user by email in case of job failure
 #SBATCH --mail-user=richard.hofmeister@hzg.de  # Set your e−mail address
@@ -23,7 +23,7 @@ iis="1"
 iis=$(python $HOME/schism/setups/nwshelf/mistral/get_ifiles.py $yyyymm 2012-01)
 
 for ii in $iis ; do
-    $HOME/schism/schism-git/build/bin/combine_output10 -b $ii -e $ii &
+    $HOME/schism/svn-code/trunk/debugbuild/bin/combine_output10 -b $ii -e $ii &
   wait
 done
 
