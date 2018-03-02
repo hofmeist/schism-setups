@@ -453,6 +453,54 @@ class schism_setup(object):
     nc.close()
 
 
+  def write_bdy_netcdf(self,filename,time,data):
+      """
+      write boundary data for schism setup
+      """
+      import netCDF4
+
+      if self.num_bdy_nodes==0:
+        print('  setup has no open boundaries')
+        return
+
+      datadims = data.shape
+      if len(datadims)==2:
+        tnum,nbdy = data.shape
+        znum = 1
+        ncom = 1
+      elif len(datadims)==3:
+        tnum,nbdy,ncom = data.shape
+        znum = 1
+      elif len(datadims)==4:
+        tnum,nbdy,znum,ncom = data.shape
+
+      nc = netCDF4.Dataset(filename,'w',format='NETCDF3_CLASSIC')
+      nc.createDimension('time',None)
+      nc.createDimension('nOpenBndNodes',self.num_bdy_nodes)
+      nc.createDimension('nLevels',znum)
+      nc.createDimension('nComponents',ncom)
+      nc.createDimension('one',1)
+      
+      v = nc.createVariable('time_step','f4',('one',))
+      v.long_name = 'time step in seconds'
+      v[:] = time[1]-time[0]
+
+      v = nc.createVariable('time','f8',('time',))
+      v.long_name = 'simulation time in seconds'
+      v[0:tnum] = time
+
+      v = nc.createVariable('time_series','f4',('time','nOpenBndNodes','nLevels','nComponents'))
+      if datadims==2:
+        v[0:tnum,:,0,0] = data
+      elif datadims==3:
+        v[0:tnum,:,0,:] = data
+      elif datadims==4:
+        v[0:tnum,:,:,:] = data
+
+      nc.close()
+      return
+
+
 class schism_output():
     import netCDF4
     nc = None
