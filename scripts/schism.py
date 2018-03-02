@@ -266,27 +266,6 @@ class schism_setup(object):
         f.write('%d 1\n'%i)
       f.close()
 
-  def bdy_array(self,fname,num=0):
-      """
-      read boundary *.th files into a numpy array
-      """
-      import numpy as np
-
-      if num == 0:
-        num = self.num_bdy_nodes
-      if fname == 'elev2D.th':
-        f = open(fname,'rb')
-        times = []
-        data = []
-        while f.read(1):
-          f.seek(-1,1)
-          times.append(np.fromfile(f,dtype='float32',count=1))
-          data.append(np.fromfile(f,dtype='float32',count=num))
-        times = np.asarray(times)
-        data = np.asarray(data)
-        return times,data
-      else:
-        print('  no support for file type %s'%fname)
 
   def init_node_tree(self,latlon=True):
     #print('  build node tree')
