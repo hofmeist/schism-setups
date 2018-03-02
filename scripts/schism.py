@@ -379,6 +379,80 @@ class schism_setup(object):
           break
     return ridx
 
+
+  def write_hotstart(self,tr_nd,filename='hotstart.nc',time=0.0,iths=0,ifile=0,elev=0.0,u=0.0,v=0.0):
+    """
+    write hotstart.nc from given tracer concentrations on nodes
+    tracer concentrations on sides and elements will be interpolated
+    tr_nd.shape has to be (nelements,nvrt,ntracers)
+    """
+    inum,znum,ntracers = tr_nd.shape
+    if ((inum,znum) != (self.nnodes,self.znum)):
+      print('  shape(tr_nd) = (%d,%d) while setup requires (%d,%d)'%(inum,znum,self.nnodes,self.znum))
+
+    import netCDF4
+    nc = netCDF4.Dataset(filename,'w',format='NETCDF4_CLASSIC')
+    nc.createDimension('node',self.nnodes)
+    nc.createDimension('elem',self.nelements)
+    nc.createDimension('side',self.nsides)
+    nc.createDimension('nVert',self.znum)
+    nc.createDimension('ntracers',ntracers)
+    nc.createDimension('one',1)
+    nc.createDimension('three',3)
+
+    v = nc.createVariable('time','f8',('one',))
+    v[:] = time
+    v = nc.createVariable('iths','i',('one',))
+    v[:] = iths 
+    v = nc.createVariable('ifile','i',('one',))
+    v[:] = ifile
+    v = nc.createVariable('idry_e','i',('elem',))
+    v[:] = 0
+    v = nc.createVariable('idry_s','i',('side',))
+    v[:] = 0
+    v = nc.createVariable('idry','i',('node',))
+    v[:] = 0
+    v = nc.createVariable('eta2','f8',('node',))
+    v[:] = elev
+    v = nc.createVariable('we','f8',('elem','nVert'))
+    v[:] = 0.0
+    v = nc.createVariable('su2','f8',('side','nVert'))
+    v[:] = u
+    v = nc.createVariable('sv2','f8',('side','nVert'))
+    v[:] = v
+    v = nc.createVariable('q2','f8',('node','nVert'))
+    v[:] = 0.0
+    v = nc.createVariable('xl','f8',('node','nVert'))
+    v[:] = 0.0
+    v = nc.createVariable('dfv','f8',('node','nVert'))
+    v[:] = 0.0
+    v = nc.createVariable('dfh','f8',('node','nVert'))
+    v[:] = 0.0
+    v = nc.createVariable('dfq1','f8',('node','nVert'))
+    v[:] = 0.0
+    v = nc.createVariable('dfq2','f8',('node','nVert'))
+    v[:] = 0.0
+    nc.sync()
+
+    # write tracer concentrations on nodes
+    v = nc.createVariable('tr_nd','f8',('node','nVert','ntracers'))
+    v[:] = tr_nd
+    nc.sync()
+    v = nc.createVariable('tr_nd0','f8',('node','nVert','ntracers'))
+    v[:] = tr_nd
+    nc.sync()
+
+    # write tracer concentrations on elements
+    v = nc.createVariable('tr_el','f8',('elem','nVert','ntracers'))
+    for ie in self.nvdict:
+      inds = self.nvdict[ie]
+      tr_coll = [tr_nd[ind-1] for ind in inds]
+      tr_el = np.mean(tr_coll,axis=0)
+      v[ie-1] = tr_el
+    nc.sync()
+    nc.close()
+
+
 class schism_output():
     import netCDF4
     nc = None
