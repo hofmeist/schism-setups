@@ -6,6 +6,7 @@ from mpl_toolkits.basemap import Basemap
 from pylab import *
 import pickle,os
 from netcdftime import utime
+import matplotlib.colors as colors
 
 if len(sys.argv)>2:
   varname = sys.argv[2]
@@ -31,7 +32,7 @@ time = ncv['time'][:] # s
 ut = utime(ncv['time'].units)
 dates = ut.num2date(time)
 
-lonb=[6.5, 8.8]
+lonb=[7.5, 9.8]
 latb=[53.5, 54.6]
 
 if os.path.isfile('proj_gb.pickle'):
@@ -44,7 +45,13 @@ else:
 
 x,y = proj(lon,lat)
 
-var = ncv[varname]
+try:
+  var = ncv[varname]
+  aggregated_var=False
+except:
+  aggregated_var=True
+  if varname=='phy':
+    var = ncv['hzg_ecosmo_dia'][:,:,-1]+ncv['hzg_ecosmo_fla'][:,:,-1]
 #time = array([0.0])
 cmap = cm.jet
 cmap.set_under(color='gray')
@@ -59,8 +66,8 @@ def mask_triangles(masknodes,nv):
       nvmask.append(False)
   return asarray(nvmask)
 
-bidx = ncv['node_bottom_index'][:]
-nbidx = len(bidx)
+#bidx = ncv['node_bottom_index'][:]
+#nbidx = len(bidx)
 
 if tidx >= 0:
   dates = [dates[tidx]]
@@ -70,12 +77,16 @@ else:
 
 os.system('mkdir -p jpgs')
 for tidx,t in enumerate(dates):
-  v = var[tidx+tidx_offset,:].squeeze()
-  #vb = v[bidx,arange(nbidx)]
-  if varname=='elev':
-    vs = v
+  mask = nc.variables['wetdry_elem'][tidx+tidx_offset,:].squeeze()
+  if aggregated_var:
+    vs = var[tidx+tidx_offset].squeeze()
   else:
-    vs = v[-1,:].squeeze()
+    v = var[tidx+tidx_offset,:].squeeze()
+    #vb = v[bidx,arange(nbidx)]
+    if varname=='elev':
+      vs = v
+    else:
+      vs = v[:,-1].squeeze()
   #mask = vs == -99.
   #mask = mask_triangles(mask,nv)
   if True:
@@ -83,10 +94,23 @@ for tidx,t in enumerate(dates):
     if varname=='elev':
       cmap=cm.RdYlGn
       cmap.set_under('gray')
-    #tripcolor(x,y,nv,vs,cmap=cmap,mask=mask,rasterized=True)
-    tripcolor(x,y,nv,vs,cmap=cmap,rasterized=True)
+    elif varname=='salt':
+      vmin=10.
+      vs[where(vs<vmin)]=vmin
+    elif varname=='hzg_ecosmo_no3':
+      vs = vs/12.01/6.625
+      norm=colors.PowerNorm(gamma=1./2.)
+      vs[where(vs<0.1)] = 0.1
+    elif varname=='phy':
+      vs = vs/1000.
+      vs[where(vs<0.5)]=0.5
+    try:
+      tripcolor(x,y,nv,vs,cmap=cmap,norm=norm,mask=mask,rasterized=True)
+    except:
+      tripcolor(x,y,nv,vs,cmap=cmap,mask=mask,rasterized=True)
+    #tripcolor(x,y,nv,vs,cmap=cmap,rasterized=True)
     if varname=='salt':
-      clim(20,35)
+      clim(vmin,35)
       cbtitle='surface salinity'
     elif varname=='temp':
       clim(1,6)
@@ -94,6 +118,12 @@ for tidx,t in enumerate(dates):
     elif varname=='elev':
       clim(-2,2)
       cbtitle='ssh [m]'
+    elif varname=='hzg_ecosmo_no3':
+      clim(0,200)
+      cbtitle=u'nitrate\n[mmolN/m\u00b3]'
+    elif varname=='phy':
+      clim(0.5,2.0)
+      cbtitle=u'phytoplankton\n[gC/m\u00b3]'
     proj.drawcoastlines()
     #proj.fillcontinents((0.9,0.9,0.8))
     cb=colorbar()
