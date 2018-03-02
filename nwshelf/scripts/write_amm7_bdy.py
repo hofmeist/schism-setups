@@ -39,11 +39,10 @@ class bdy_dataset():
   def close(self):
     self.nc.close()
 
-
-write_ts=True
-write_const_ts=False
+# read setup
 s = schism_setup()
 
+# write bctides.in and create list of boundary nodes
 bf = open('bctides.in','w')
 bf.write("""01/01/2012 00:00:00 PST
 0 0.0
@@ -54,25 +53,11 @@ bf.write("""01/01/2012 00:00:00 PST
 bdy_nodes=[]
 for seg in s.bdy_segments[:1]:
   # write segment into bctides.in
-  if write_ts:
-    bf.write('%d 4 0 4 4\n'%len(seg))
-    bf.write('1.0\n1.0\n')
-  else:
-    # use constant salt and temperature
-    bf.write('%d 4 0 2 2\n'%len(seg))
-    bf.write('5.0\n1.0\n35.0\n1.0\n')
+  bf.write('%d 4 0 4 4\n'%len(seg))
+  bf.write('1.0\n1.0\n')
 
   bdy_nodes.extend(seg)
 n = len(bdy_nodes)
-
-#river_nodes = s.bdy_segments[3]
-#bf.write("""%d 0 2 2 2
-#%0.2f
-#%0.2f
-#1.0
-#0.0
-#1.0
-#"""%(len(river_nodes),-discharge,tempsurf))
 bf.close()
 
 ddict = dict(zip(s.inodes,s.depths))
@@ -82,9 +67,7 @@ depth = asarray([ ddict[ii] for ii in bdy_nodes ])
 x = asarray([ xdict[ii] for ii in bdy_nodes ])
 y = asarray([ ydict[ii] for ii in bdy_nodes ])
 
-if write_const_ts:
-    bdyvgrid = asarray([s.vgrid[ii].filled(-1.) for ii in bdy_nodes ])
-
+# open amm7 file
 if len(sys.argv)>1:
   filename=sys.argv[1]
 else:
@@ -93,26 +76,18 @@ else:
 bdydat = bdy_dataset(filename=filename)
 ut = netcdftime.utime('seconds since 2012-01-01 00:00:00')
 
-times = ut.date2num(bdydat.dates).astype('float32')
+all_times = ut.date2num(bdydat.dates).astype('float32')
+times = []
+elevs = []
 
-f = open('elev2D.th','wb')
-for idx,time in enumerate(times):
-  if float(time) >= 0.0 and (time not in times[:idx]):
-    time.tofile(f)
-    elevs = bdydat.get_bdy(idx,x,y,depth).astype('float32')
-    #print('%0.2f num elev = %d'%(time,len(elevs)))
-    elevs.tofile(f)
-f.close()
+# interpolate elevation data at x,y
+for idx,time in enumerate(all_times):
+  if float(time) >= 0.0 and (time not in all_times[:idx]):
+    times.append(all_times[idx])
+    elevs.append(bdydat.get_bdy(idx,x,y,depth).astype('float32'))
 
-bdydat.close()
+# write data into netcdf
+s.write_bdy_netcdf('amm7_elev2D.th.nc',asarray(times),asarray(elevs))
 
-if write_const_ts:
-  f = open('TEM_3D.th','wb')
-  for time in array([0.0,32*86400.]).astype('float32'):
-    time.tofile(f)
-    for i in range(len(bdy_nodes)):
-      temp = interp(depth[i]*bdyvgrid[i],[-66.,-33.],[tempbott,tempsurf])
-      temp.astype('float32').tofile(f)
-  f.close()
-  
-
+# close amm7 file
+#bdydat.close()
