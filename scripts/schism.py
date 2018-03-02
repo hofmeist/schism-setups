@@ -463,15 +463,15 @@ class schism_setup(object):
         print('  setup has no open boundaries')
         return
 
-      datadims = data.shape
-      if len(datadims)==2:
+      datadims = len(data.shape)
+      if datadims==2:
         tnum,nbdy = data.shape
         znum = 1
         ncom = 1
-      elif len(datadims)==3:
+      elif datadims==3:
         tnum,nbdy,ncom = data.shape
         znum = 1
-      elif len(datadims)==4:
+      elif datadims==4:
         tnum,nbdy,znum,ncom = data.shape
 
       nc = netCDF4.Dataset(filename,'w',format='NETCDF3_CLASSIC')
@@ -491,11 +491,11 @@ class schism_setup(object):
 
       v = nc.createVariable('time_series','f4',('time','nOpenBndNodes','nLevels','nComponents'))
       if datadims==2:
-        v[0:tnum,:,0,0] = data
+        v[0:tnum,0:nbdy,0,0] = data
       elif datadims==3:
-        v[0:tnum,:,0,:] = data
+        v[0:tnum,0:nbdy,0,0:ncom] = data
       elif datadims==4:
-        v[0:tnum,:,:,:] = data
+        v[0:tnum] = data
 
       nc.close()
       return
