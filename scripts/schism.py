@@ -359,15 +359,10 @@ class schism_setup(object):
     return ridx
 
 
-  def write_hotstart(self,tr_nd,filename='hotstart.nc',time=0.0,iths=0,ifile=0,elev=0.0,u=0.0,v=0.0):
+  def create_hotstart(self,ntracers=2,filename='hotstart.nc',tr_nd=0.0,time=0.0,iths=0,ifile=0,elev=0.0,u=0.0,v=0.0):
     """
-    write hotstart.nc from given tracer concentrations on nodes
-    tracer concentrations on sides and elements will be interpolated
-    tr_nd.shape has to be (nelements,nvrt,ntracers)
+    write hotstart.nc with empty tracer concentrations on nodes
     """
-    inum,znum,ntracers = tr_nd.shape
-    if ((inum,znum) != (self.nnodes,self.znum)):
-      print('  shape(tr_nd) = (%d,%d) while setup requires (%d,%d)'%(inum,znum,self.nnodes,self.znum))
 
     import netCDF4
     nc = netCDF4.Dataset(filename,'w',format='NETCDF4_CLASSIC')
@@ -420,16 +415,38 @@ class schism_setup(object):
     v = nc.createVariable('tr_nd0','f8',('node','nVert','ntracers'))
     v[:] = tr_nd
     nc.sync()
-
-    # write tracer concentrations on elements
     v = nc.createVariable('tr_el','f8',('elem','nVert','ntracers'))
+    nc.sync()
+
+    self.hotstart_nc = nc
+
+  def write_hostart_tracers_on_nodes(self,nodeids,tr_nd):
+    '''write tracer concentrations on nodes'''
+
+    v = self.hotstart_nc.variables['tr_nd']
+    v0 = self.hotstart_nc.variables['tr_nd0']
+    
+    v[nodeids,:,:] = tr_nd
+    v0[nodeids,:,:] = tr_nd
+    self.hotstart_nc.sync()
+    
+
+  def fill_hotstart_tracers_from_nodes(self):
+    '''write tracer concentrations on elements from 
+       values on nodes'''
+   
+    v = self.hotstart_nc.variables['tr_el']
+    tr_nd = self.hotstart_nc.variables['tr_nd']
     for ie in self.nvdict:
       inds = self.nvdict[ie]
       tr_coll = [tr_nd[ind-1] for ind in inds]
       tr_el = np.mean(tr_coll,axis=0)
       v[ie-1] = tr_el
-    nc.sync()
-    nc.close()
+    self.hotstart_nc.sync()
+
+
+  def close_hotstart(self):
+    self.hotstart_nc.close()
 
 
   def write_bdy_netcdf(self,filename,time,data):
