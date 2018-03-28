@@ -23,7 +23,7 @@ class woa():
     self.t = sv['t_mn'][:,:,latslice,lonslice]
     self.lon2,self.lat2 = meshgrid(self.lon,self.lat)
 
-    self.use_depth_slices=False
+    self.use_depth_slices=True
 
     if not(self.use_depth_slices):
       self.d3,self.lat3,self.lon3 = meshgrid(self.d,self.lat*100.,self.lon*100.,indexing='ij')
@@ -93,10 +93,77 @@ class woa():
         t[bidx-1+ik] = np.sum(w*self.t_var[inds],axis=0) / np.sum(w,axis=0)
 
     return (t.astype(np.float32),s.astype(np.float32))
+class ecosmo():
+
+  def __init__(self,ncfile='ecosmoII.2012-01-01.nc'):
+    nc = netCDF4.Dataset(ncfile)
+    sv = nc.variables
+    self.sv = sv
+    latslice=slice(None)
+    lonslice=slice(None)
+    self.lon = sv['lon'][lonslice]
+    self.lat = sv['lat'][latslice]
+    self.no3 = sv['no3'][:,:,latslice,lonslice]
+    dz = sv['ddzz'][:,83,77] # deepest point off Norway
+    dz[-1] = dz[-2] # set last layer to same height as prelast for interpolation
+    self.d = -dz.cumsum(axis=0)+0.5*dz
+    self.time = sv['time'][:]
+    self.tidx = 0
+    self.lat2,self.lon2 = meshgrid(self.lat,self.lon)
+
+    self.use_depth_slices=True
+
+    if not(self.use_depth_slices):
+      self.d3,self.lat3,self.lon3 = meshgrid(self.d,self.lat*100.,self.lon*100.,indexing='ij')
+      vlon3 = self.lon3[where(self.s.mask[self.tidx]==False)]
+      vlat3 = self.lat3[where(self.s.mask[self.tidx]==False)]
+      vd3 = self.d3[where(self.s.mask[self.tidx]==False)]
+      self.s_tree=cKDTree(zip(vlon3,vlat3,vd3))
+
+      vlon3 = self.lon3[where(self.t.mask[self.tidx]==False)]
+      vlat3 = self.lat3[where(self.t.mask[self.tidx]==False)]
+      vd3 = self.d3[where(self.t.mask[self.tidx]==False)]
+      self.t_tree=cKDTree(zip(vlon3,vlat3,vd3))
+
+      self.s_var = self.s[self.tidx][where(self.s.mask[self.tidx]==False)].flatten()
+      self.t_var = self.t[self.tidx][where(self.t.mask[self.tidx]==False)].flatten()
+
+    else:
+      #build trees
+      self.tree={}
+      self.valmask={}
+      for ik,d in enumerate(self.d):
+        print('  build tree for depth %0.2f'%d)
+        self.valmask[ik] = where(self.no3.mask[self.tidx,ik]==False)
+        vlon = self.lon2[self.valmask[ik]]
+        vlat = self.lat2[self.valmask[ik]]
+        self.tree[ik] = cKDTree(zip(vlon,vlat))
+
+  def interpolate(self,varname,depths,nodelon,nodelat,bidx=1):
+    # start
+    val = zeros((len(depths),))
+
+    for ik,ndepth in enumerate(depths[bidx-1:]):
+      # find vertical layer in climatology
+      if self.use_depth_slices:
+        didx = np.abs(self.d - ndepth).argmin()
+
+        dist,inds = self.tree[didx].query((nodelon,nodelat),k=4)
+        sdist,sinds = self.tree[0].query((nodelon,nodelat),k=4)
+        newdidx=didx
+        while sum(dist)>2.0*sum(sdist):
+          newdidx=newdidx-1
+          #print('  sum(dist) ratio: %0.2f, going one layer upwards to %d'%(sum(dist)/sum(sdist),newdidx))
+          dist,inds = self.tree[newdidx].query((nodelon,nodelat),k=4)
+        w = 1 / dist
+        val[bidx-1+ik] = np.sum(w*self.sv[varname][self.tidx,newdidx][self.valmask[newdidx]][inds],axis=0) / np.sum(w,axis=0)
+
+    return (val)
 
 
 nws = schism_setup()
 oa = woa(ncfile=sys.argv[1])
+e  = ecosmo(ncfile='/work/gg0877/hofmeist/nwshelf/input/ecosmoII.2012-01-01.nc')
 
 import os.path
 import pickle
@@ -110,6 +177,7 @@ else:
   t = {}
 
   tracers=['no3','nh4','pho','sil','oxy','dia','fla','bg','microzoo','mesozoo','det','opa','dom']
+  ecosmo_tracers=['no3','nh4','po4','sio','o2','diat','flags','cyan','zoos','zool','det','det','dom'] #'opa'?
   tracer_conc_const={'no3':5.0, \
                    'nh4':0.1, \
                    'pho':0.3, \
@@ -142,8 +210,22 @@ else:
                'opa': redf3*redf6,\
                'dom': redf1*redf6}
 
-  tr_nd = zeros((nws.znum,2+len(tracers)))
-  nws.create_hotstart(ntracers=2+len(tracers))
+  ecosmo_factors={'no3': redf1*redf6,\
+               'nh4': redf1*redf6,\
+               'pho': redf2*redf6,\
+               'sio': redf3*redf6,\
+               'o2': 1.0,\
+               'diat': 1.0,\
+               'flags': 1.0,\
+               'cyan': 1.0,\
+               'zoos': 1.0,\
+               'zool': 1.0,\
+               'det': 1.0,\
+               'opa': 1.0,\
+               'dom': 1.0}
+
+  tr_nd = zeros((nws.znum,2+len(ecosmo_tracers)))
+  nws.create_hotstart(ntracers=2+len(ecosmo_tracers))
 
   # create t,s fields:
   for i,nodelon,nodelat,d in zip(nws.inodes,nws.lon,nws.lat,nws.depths):
@@ -154,9 +236,10 @@ else:
     depths = nws.vgrid[i].filled(-1)*d
     bidx = nws.bidx[i]
     t[i],s[i] = oa.interpolate(depths,nodelon,nodelat,bidx=1)
-    tr_nd[0] = t[i]
-    tr_nd[1] = s[i]
-    tr_nd[:,2:] = ecosmo.interpolate((depths,nodelon,nodelat,bidx=1)
+    tr_nd[:,0] = t[i]
+    tr_nd[:,1] = s[i]
+    for i,tr in enumerate(ecosmo_tracers):
+      tr_nd[:,2+i] = ecosmo_factors[tr]*e.interpolate(tr,depths,nodelon,nodelat,bidx=1)
 
     nws.write_hotstart_tracers_on_nodes(nodeid,tr_nd)
 
