@@ -212,7 +212,7 @@ else:
 
   ecosmo_factors={'no3': redf1*redf6,\
                'nh4': redf1*redf6,\
-               'pho': redf2*redf6,\
+               'po4': redf2*redf6,\
                'sio': redf3*redf6,\
                'o2': 1.0,\
                'diat': 1.0,\
@@ -228,18 +228,18 @@ else:
   nws.create_hotstart(ntracers=2+len(ecosmo_tracers))
 
   # create t,s fields:
-  for i,nodelon,nodelat,d in zip(nws.inodes,nws.lon,nws.lat,nws.depths):
-    if (i%10000) == 0:
+  for nodeid,nodelon,nodelat,d in zip(nws.inodes,nws.lon,nws.lat,nws.depths):
+    if (nodeid%10000) == 0:
       print('  interpolate i = %d'%i)
     #if i == 5000:
     #  break 
-    depths = nws.vgrid[i].filled(-1)*d
-    bidx = nws.bidx[i]
-    t[i],s[i] = oa.interpolate(depths,nodelon,nodelat,bidx=1)
-    tr_nd[:,0] = t[i]
-    tr_nd[:,1] = s[i]
-    for i,tr in enumerate(ecosmo_tracers):
-      tr_nd[:,2+i] = ecosmo_factors[tr]*e.interpolate(tr,depths,nodelon,nodelat,bidx=1)
+    depths = nws.vgrid[nodeid].filled(-1)*d
+    bidx = nws.bidx[nodeid]
+    t,s = oa.interpolate(depths,nodelon,nodelat,bidx=1)
+    tr_nd[:,0] = t
+    tr_nd[:,1] = s
+    for itr,tr in enumerate(ecosmo_tracers):
+      tr_nd[:,2+itr] = ecosmo_factors[tr]*e.interpolate(tr,depths,nodelon,nodelat,bidx=1)
 
     nws.write_hotstart_tracers_on_nodes(nodeid,tr_nd)
 

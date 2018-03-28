@@ -420,7 +420,7 @@ class schism_setup(object):
 
     self.hotstart_nc = nc
 
-  def write_hostart_tracers_on_nodes(self,nodeids,tr_nd):
+  def write_hotstart_tracers_on_nodes(self,nodeids,tr_nd):
     '''write tracer concentrations on nodes'''
 
     v = self.hotstart_nc.variables['tr_nd']
