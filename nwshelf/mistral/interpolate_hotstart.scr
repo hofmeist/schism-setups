@@ -11,8 +11,8 @@
 #SBATCH --mail-type=FAIL       # Notify user by email in case of job failure
 #SBATCH --mail-user=richard.hofmeister@hzg.de  # Set your e−mail address
 #SBATCH --account=gg0877       # Charge resources on this project account
-#SBATCH --output=log_writehotstart.o    # File name for standard output
-#SBATCH --error=log_writehotstart.e     # File name for standard error output
+#SBATCH --output=log_writehotstart2.o    # File name for standard output
+#SBATCH --error=log_writehotstart2.e     # File name for standard error output
 
 module load python/2.7-ve0
 
@@ -20,5 +20,5 @@ cd ~/schism/setups/nwshelf
 . ~/schism/schismvars.sh
 #python scripts/write_hotstart_from_woafile.py /work/gg0877/hofmeist/woa/woa13_decav_04v2.nc
 
-python scripts/write_hotstart_woa_ecosmo.py
+python scripts/write_hotstart_woa_ecosmo.py /work/gg0877/hofmeist/nwshelf/input/hotstart_profile.nc
 

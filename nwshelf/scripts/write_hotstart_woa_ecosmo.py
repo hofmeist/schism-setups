@@ -139,7 +139,7 @@ class ecosmo():
         # get the first index inside the bottom
         mask = where(self.no3[self.tidx,:,j,i].mask)[0]
         if len(mask)==0:
-          self.bidx[j,i]=0
+          self.bidx[j,i]=knum
         else:
           self.bidx[j,i] = min(mask)
 
@@ -189,7 +189,7 @@ class ecosmo():
           for trnum,trname in enumerate(tracers):
             #next
             if trname in skip:
-              next
+              continue
             masked_data = self.tv[trname][newdidx]
             nvalues = w*masked_data[inds]
             val[bidx-1+ik,trnum] = factors[trname]*scaling*np.sum(nvalues)#,axis=0)
@@ -198,7 +198,7 @@ class ecosmo():
           masked_inds = self.valmask[newdidx]
           for trnum,trname in enumerate(tracers):
             #if trname in skip:
-            #  next
+            #  continue
             val[bidx-1+ik,trnum] = factors[trname]*scaling*np.sum(w*self.sv[trname][self.tidx,newdidx][masked_inds][inds],axis=0)
 
     return (val)
@@ -218,13 +218,14 @@ class ecosmo():
     xind = self.masked_latidx[int(ind)]
     yind = self.masked_lonidx[int(ind)]
     ebidx = self.bidx[yind,xind]
-    #print('  ind = %d'%int(ind))
+    newdepths = -asarray(depths[bidx-1:])
+    olddepths = -self.d[:ebidx]
  
     # interpolate from ecosmo depths to given depths
     for trnum,trname in enumerate(tracers):
       if trname in skip:
-        next
-      val[bidx-1:,trnum] = factors[trname]*np.interp(-asarray(depths[bidx-1:]),-self.d[:ebidx],self.sv[trname][self.tidx,:ebidx,yind,xind])
+        continue
+      val[bidx-1:,trnum] = factors[trname]*np.interp(newdepths,olddepths,self.sv[trname][self.tidx,:ebidx,yind,xind])
 
     return (val)
 
@@ -351,16 +352,12 @@ else:
     hotstart_filename='/work/gg0877/hofmeist/nwshelf/input/hotstart_auto.nc'
 
   nws.create_hotstart(ntracers=2+len(ecosmo_tracers),filename=hotstart_filename)
-  e.prefetch_for_interpolation(tracers=ecosmo_tracers)
-  #print('  prefetched tracers:')
-  #print(e.prefetched_tracers)
-  #print(e.tv.keys())
-  #print(e.tv['no3'].keys())
+  #e.prefetch_for_interpolation(tracers=ecosmo_tracers)
 
   # create t,s fields:
   for nodeid,nodelon,nodelat,d in zip(nws.inodes,nws.lon,nws.lat,nws.depths):
     tr_nd[:,:] = 0.0
-    if (nodeid%10000) == 0:
+    if (nodeid%1000) == 0:
       print('  interpolate i = %d'%nodeid)
       nws.hotstart_nc.sync()
 
