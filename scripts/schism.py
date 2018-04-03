@@ -428,7 +428,7 @@ class schism_setup(object):
     
     v[nodeids,:,:] = tr_nd
     v0[nodeids,:,:] = tr_nd
-    self.hotstart_nc.sync()
+    #self.hotstart_nc.sync()
     
 
   def fill_hotstart_tracers_from_nodes(self):
@@ -438,6 +438,9 @@ class schism_setup(object):
     v = self.hotstart_nc.variables['tr_el']
     tr_nd = self.hotstart_nc.variables['tr_nd']
     for ie in self.nvdict:
+      if (ie%10000 == 0):
+        print('  filled %d'%ie)
+        print(tr_el.shape)
       inds = self.nvdict[ie]
       tr_coll = [tr_nd[ind-1] for ind in inds]
       tr_el = np.mean(tr_coll,axis=0)

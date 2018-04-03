@@ -5,7 +5,8 @@
 #SBATCH --partition=prepost   # Specify partition name
 #SBATCH --ntasks=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --time=02:00:00        # Set a limit on the total run time
+#SBATCH --cpus-per-task=8
+#SBATCH --time=08:00:00        # Set a limit on the total run time
 #SBATCH --wait-all-nodes=1     # start job, when all nodes are available
 #SBATCH --mail-type=FAIL       # Notify user by email in case of job failure
 #SBATCH --mail-user=richard.hofmeister@hzg.de  # Set your e−mail address
@@ -17,5 +18,7 @@ module load python/2.7-ve0
 
 cd ~/schism/setups/nwshelf
 . ~/schism/schismvars.sh
-python scripts/write_hotstart_from_woafile.py /work/gg0877/hofmeist/woa/woa13_decav_04v2.nc
+#python scripts/write_hotstart_from_woafile.py /work/gg0877/hofmeist/woa/woa13_decav_04v2.nc
+
+python scripts/write_hotstart_woa_ecosmo.py
 

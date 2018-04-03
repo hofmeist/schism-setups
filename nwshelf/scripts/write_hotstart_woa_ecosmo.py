@@ -47,7 +47,7 @@ class woa():
       self.svar={}
       self.tvar={}
       for ik,d in enumerate(self.d):
-        print('  build trees for depth %0.2f'%d)
+        #print('  build trees for depth %0.2f'%d)
         vlon = self.lon2[where(self.s.mask[self.tidx,ik]==False)]
         vlat = self.lat2[where(self.s.mask[self.tidx,ik]==False)]
         self.s_tree[ik] = cKDTree(zip(vlon,vlat))
@@ -93,6 +93,7 @@ class woa():
         t[bidx-1+ik] = np.sum(w*self.t_var[inds],axis=0) / np.sum(w,axis=0)
 
     return (t.astype(np.float32),s.astype(np.float32))
+
 class ecosmo():
 
   def __init__(self,ncfile='ecosmoII.2012-01-01.nc'):
@@ -103,6 +104,8 @@ class ecosmo():
     lonslice=slice(None)
     self.lon = sv['lon'][lonslice]
     self.lat = sv['lat'][latslice]
+    self.lonidx = np.arange(len(self.lon))
+    self.latidx = np.arange(len(self.lat))
     self.no3 = sv['no3'][:,:,latslice,lonslice]
     dz = sv['ddzz'][:,83,77] # deepest point off Norway
     dz[-1] = dz[-2] # set last layer to same height as prelast for interpolation
@@ -110,36 +113,35 @@ class ecosmo():
     self.time = sv['time'][:]
     self.tidx = 0
     self.lat2,self.lon2 = meshgrid(self.lat,self.lon)
+    self.latidx2,self.lonidx2 = meshgrid(self.latidx,self.lonidx)
 
     self.use_depth_slices=True
     self.prefetched=True 
     self.tv={}
 
-    if not(self.use_depth_slices):
-      self.d3,self.lat3,self.lon3 = meshgrid(self.d,self.lat*100.,self.lon*100.,indexing='ij')
-      vlon3 = self.lon3[where(self.s.mask[self.tidx]==False)]
-      vlat3 = self.lat3[where(self.s.mask[self.tidx]==False)]
-      vd3 = self.d3[where(self.s.mask[self.tidx]==False)]
-      self.s_tree=cKDTree(zip(vlon3,vlat3,vd3))
+    #build trees
+    self.tree={}
+    self.valmask={}
+    for ik,d in enumerate(self.d):
+      #print('  build tree for depth %0.2f'%d)
+      self.valmask[ik] = where(self.no3.mask[self.tidx,ik]==False)
+      vlon = self.lon2[self.valmask[ik]]
+      vlat = self.lat2[self.valmask[ik]]
+      self.tree[ik] = cKDTree(zip(vlon,vlat))
 
-      vlon3 = self.lon3[where(self.t.mask[self.tidx]==False)]
-      vlat3 = self.lat3[where(self.t.mask[self.tidx]==False)]
-      vd3 = self.d3[where(self.t.mask[self.tidx]==False)]
-      self.t_tree=cKDTree(zip(vlon3,vlat3,vd3))
-
-      self.s_var = self.s[self.tidx][where(self.s.mask[self.tidx]==False)].flatten()
-      self.t_var = self.t[self.tidx][where(self.t.mask[self.tidx]==False)].flatten()
-
-    else:
-      #build trees
-      self.tree={}
-      self.valmask={}
-      for ik,d in enumerate(self.d):
-        print('  build tree for depth %0.2f'%d)
-        self.valmask[ik] = where(self.no3.mask[self.tidx,ik]==False)
-        vlon = self.lon2[self.valmask[ik]]
-        vlat = self.lat2[self.valmask[ik]]
-        self.tree[ik] = cKDTree(zip(vlon,vlat))
+    print('  get masks for indexing')
+    self.masked_lonidx = self.lonidx2[self.valmask[0]]
+    self.masked_latidx = self.latidx2[self.valmask[0]]
+    tnum,knum,jnum,inum = self.no3.shape
+    self.bidx = zeros((jnum,inum),dtype='int32')
+    for j in range(jnum):
+      for i in range(inum):
+        # get the first index inside the bottom
+        mask = where(self.no3[self.tidx,:,j,i].mask)[0]
+        if len(mask)==0:
+          self.bidx[j,i]=0
+        else:
+          self.bidx[j,i] = min(mask)
 
   def prefetch_for_interpolation(self,tracers):
     if tracers==None:
@@ -153,7 +155,7 @@ class ecosmo():
     self.prefetched_tracers=tracers
  
 
-  def interpolate(self,depths,nodelon,nodelat,bidx=1,tracers=None,factors=None):
+  def interpolate_horizontally(self,depths,nodelon,nodelat,bidx=1,tracers=None,factors=None,skip=[]):
     # start
     if tracers==None:
       print('  ecosmo interpolate: give list of tracers')
@@ -185,14 +187,47 @@ class ecosmo():
         # this step seems most time-consuming
         if self.prefetched:
           for trnum,trname in enumerate(tracers):
-            val[bidx-1+ik,trnum] = factors[trname]*scaling*np.sum(w*self.tv[trname][newdidx][inds],axis=0)
+            #next
+            if trname in skip:
+              next
+            masked_data = self.tv[trname][newdidx]
+            nvalues = w*masked_data[inds]
+            val[bidx-1+ik,trnum] = factors[trname]*scaling*np.sum(nvalues)#,axis=0)
         else:
           #masked_inds = where(self.sv['no3'][self.tidx,newdidx][self.valmask[newdidx]][inds]>-9999.)
           masked_inds = self.valmask[newdidx]
           for trnum,trname in enumerate(tracers):
+            #if trname in skip:
+            #  next
             val[bidx-1+ik,trnum] = factors[trname]*scaling*np.sum(w*self.sv[trname][self.tidx,newdidx][masked_inds][inds],axis=0)
 
     return (val)
+
+  def interpolate_profile(self,depths,nodelon,nodelat,bidx=1,tracers=None,factors=None,skip=[]):
+    # start
+    if tracers==None:
+      print('  ecosmo interpolate: give list of tracers')
+      return
+
+    val = zeros((len(depths),len(tracers)))
+    if factors==None:
+      factors={key: 1.0 for key in tracers}
+
+    # find nearest profile
+    dist,ind = self.tree[0].query((nodelon,nodelat),k=1)
+    xind = self.masked_latidx[int(ind)]
+    yind = self.masked_lonidx[int(ind)]
+    ebidx = self.bidx[yind,xind]
+    #print('  ind = %d'%int(ind))
+ 
+    # interpolate from ecosmo depths to given depths
+    for trnum,trname in enumerate(tracers):
+      if trname in skip:
+        next
+      val[bidx-1:,trnum] = factors[trname]*np.interp(-asarray(depths[bidx-1:]),-self.d[:ebidx],self.sv[trname][self.tidx,:ebidx,yind,xind])
+
+    return (val)
+
 
   def interpolate_var(self,varname,depths,nodelon,nodelat,bidx=1):
     # start
@@ -216,13 +251,21 @@ class ecosmo():
     return (val)
 
 
-nws = schism_setup()
+
+import cPickle as pickle
+if False:
+  nws = schism_setup()
+  fh = open('setup.pickle','wb')
+  pickle.dump(nws,fh,protocol=-1)
+  fh.close()
+else:
+  nws = pickle.load(open('setup.pickle','rb'))
+
 #oa = woa(ncfile=sys.argv[1])
 oa = woa(ncfile='/work/gg0877/hofmeist/nwshelf/input/woa13_decav_04v2.nc')
 e  = ecosmo(ncfile='/work/gg0877/hofmeist/nwshelf/input/ecosmoII.2012-01-01.nc')
 
 import os.path
-import pickle
 
 if os.path.isfile('ts.pickle'):
   t,s = pickle.load(open('ts.pickle','rb'))
@@ -233,6 +276,7 @@ else:
   t = {}
 
   tracers=['no3','nh4','pho','sil','oxy','dia','fla','bg','microzoo','mesozoo','det','opa','dom']
+
   ecosmo_tracers=['no3','nh4','po4','sio','o2','diat','flags','cyan','zoos','zool','det','det','dom'] #'opa'?
   #ecosmo_tracers=[] 
   tracer_conc_const={'no3':5.0, \
@@ -297,16 +341,25 @@ else:
                'opa': 1.0,\
                'dom': 1.0}
 
+  ecosmo_constant_tracers=['diat','flags','cyan','zool','zoos']
+
   tr_nd = zeros((nws.znum,2+len(ecosmo_tracers)))
-  nws.create_hotstart(ntracers=2+len(ecosmo_tracers))
+ 
+  if len(sys.argv)>1:
+    hotstart_filename=sys.argv[1]
+  else:
+    hotstart_filename='/work/gg0877/hofmeist/nwshelf/input/hotstart_auto.nc'
+
+  nws.create_hotstart(ntracers=2+len(ecosmo_tracers),filename=hotstart_filename)
   e.prefetch_for_interpolation(tracers=ecosmo_tracers)
-  print('  prefetched tracers:')
-  print(e.prefetched_tracers)
-  print(e.tv.keys())
-  print(e.tv['no3'].keys())
+  #print('  prefetched tracers:')
+  #print(e.prefetched_tracers)
+  #print(e.tv.keys())
+  #print(e.tv['no3'].keys())
 
   # create t,s fields:
   for nodeid,nodelon,nodelat,d in zip(nws.inodes,nws.lon,nws.lat,nws.depths):
+    tr_nd[:,:] = 0.0
     if (nodeid%10000) == 0:
       print('  interpolate i = %d'%nodeid)
       nws.hotstart_nc.sync()
@@ -319,14 +372,24 @@ else:
     tr_nd[:,0] = t
     tr_nd[:,1] = s
     # if interpolate from ecosmoII dataset
-    if False:
-      tr_nd[:,2:] = e.interpolate(depths,nodelon,nodelat,bidx=1,tracers=ecosmo_tracers,factors=ecosmo_factors)
-    else:
-      for trnum,trname in enumerate(ecosmo_tracers):
+    # ===== horizontal 
+    #tr_nd[:,2:] = e.interpolate_horizontally(depths,nodelon,nodelat,bidx=1,tracers=ecosmo_tracers,factors=ecosmo_factors,skip=ecosmo_constant_tracers)
+    #for trname in ecosmo_constant_tracers:
+    #    trnum = ecosmo_tracers.index(trname)
+    #    tr_nd[:,2+trnum] = tracer_factor[trname]*tracer_conc_const[trname]
+    # =====
+    tr_nd[:,2:] = e.interpolate_profile(depths,nodelon,nodelat,bidx=1,tracers=ecosmo_tracers,factors=ecosmo_factors,skip=ecosmo_constant_tracers)
+    for trname in ecosmo_constant_tracers:
+        trnum = ecosmo_tracers.index(trname)
         tr_nd[:,2+trnum] = tracer_factor[trname]*tracer_conc_const[trname]
+    # =====
+    #  for trnum,trname in enumerate(ecosmo_tracers):
+    #    tr_nd[:,2+trnum] = tracer_factor[trname]*tracer_conc_const[trname]
+    # =====
 
-    nws.write_hotstart_tracers_on_nodes(nodeid,tr_nd)
+    nws.write_hotstart_tracers_on_nodes(nodeid-1,tr_nd)
 
+  nws.hotstart_nc.sync()
   nws.fill_hotstart_tracers_from_nodes()
   nws.close_hotstart()
 
