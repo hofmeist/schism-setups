@@ -266,11 +266,6 @@ else:
 oa = woa(ncfile='/work/gg0877/hofmeist/nwshelf/input/woa13_decav_04v2.nc')
 e  = ecosmo(ncfile='/work/gg0877/hofmeist/nwshelf/input/ecosmoII.2012-01-01.nc')
 
-import os.path
-
-if os.path.isfile('ts.pickle'):
-  t,s = pickle.load(open('ts.pickle','rb'))
-
 else:
   # write t,s on nodes
   s = {}
