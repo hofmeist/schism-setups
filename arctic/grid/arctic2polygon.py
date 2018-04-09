@@ -24,7 +24,7 @@ try:
 except:
   write_pickle=True
   if True:
-    m = Basemap(projection='npstere',boundinglat=50.,lon_0=0.0,resolution='h')
+    m = Basemap(projection='npstere',boundinglat=55.,lon_0=0.0,resolution='i')
   else:
     m = Basemap(projection='lcc',
                        resolution='l',area_thresh=10.0,
@@ -65,22 +65,24 @@ use_insurface=True
 surr_poly = [(-40.,70.),(-130.,60.),(120.,50.),(50.,55.),(-10.,70.)]
 surr_poly = [(-40.,70.),(-40.,85.),(88.,85.),(88,55.),(50.,55.),(-5.,68.)]
 
-bdy_points = [(-40.,85.),(88.,85.),(-5.,68.)]
+surr_poly = [(-40.,70.),(-40.,85.),(88.,85.),(67.88,76.43),(57.80,74.919),(53.539,71.758),(64.5519,68.018),(88,55.),(50.,55.),(-5.,68.)]
+
+bdy_points = [[(-40.,85.),(88.,85.)],[(-5.,68.)]]
 
 domain = sg.Polygon([ m(xx,yy) for xx,yy in surr_poly])
 #domain = sg.Polygon([(mxl,myl),(mxl,myu),(mxu,myu),(mxu,myl)])
 
-f = figure()
-m.drawcoastlines()
-domain_points = [ m(xx,yy) for xx,yy in surr_poly]
 if False:
+  f = figure()
+  m.drawcoastlines()
+  domain_points = [ m(xx,yy) for xx,yy in surr_poly]
   figure()
-  for i,p in enumerate(land[:7]):
+  for i,p in enumerate(land[:30]):
     x,y=zip(*p);x=list(x);y=list(y)
     plot(x,y,'-')
     plot(x[0],y[0],'ko'); text(x[0],y[0],str(i),size=10)
-  for x,y in domain_points:
-    plot(x,y,'ro')
+  #for x,y in domain_points:
+  #  plot(x,y,'ro')
 
   show()
 
@@ -103,30 +105,35 @@ diffproblems=[]
 
 
 water = domain
-# take out the first 7 land polygons
-landnum=7
+# take out the first land polygons
+landnum=80
 for i,p in enumerate(sland[:landnum]):
-  if i in [1,2,4]: continue
+  #if i in [25,]: continue
   if domain.intersects(p):
+    if domain.covers(p):
+      print i,'skipped'
+      continue
     water = water.difference(p)
     if not(water.geom_type == 'Polygon'):
       areas = asarray([g.area for g in water.geoms])
       idx = areas.argmax()
       water = water.geoms[idx]
 
-# take out lake Eissel
-#water = water.difference(eissel)
-#water = water.difference(p2)
-#water = water.difference(problem)
-
 # split the common polygon into land boundaries
 landbdys=[]
-for p in sland[:landnum]:
-  if water.intersects(p):
+open_boundary = water.boundary
+for i,p in enumerate(sland[:landnum]):
+  if water.intersects(p) and not(water.contains(p)):
     line = water.intersection(p)
     points=[]
-    print p.geom_type
-    for g in line.geoms:
+    print i,p.geom_type
+    open_boundary = open_boundary.difference(line)
+    #if line.geom_type == 'Polygon':
+    # points.append((g.boundary.xy[0][0],g.boundary.xy[1][0])) 
+    if False:
+      print 'we got a polygon'
+    else: 
+     for g in line.geoms:
       if g.geom_type == 'LineString' or g.geom_type == 'Point':
         points.append((g.xy[0][0],g.xy[1][0]))
       else:
@@ -134,8 +141,8 @@ for p in sland[:landnum]:
         points.append((g.boundary.xy[0][0],g.boundary.xy[1][0]))
     landbdys.append(points[::-1][1:])
 
-splines=landbdys
-for l,p in zip(land[landnum:],sland[landnum:]):
+splines=list(landbdys)
+for l,p in zip(land[0:],sland[0:]):
   if water.contains(p):
     for problem in problems:
       if problem.intersects(p):
@@ -292,26 +299,21 @@ items=PointsItems()
 surface=[]
 boundary=[]
 s=None
-landnum=1
-#only one continental land polygon
+landnum=len(landbdys)
+
+# add openbdy splines
+for g in open_boundary.geoms:
+  l = items.add('spline')
+  xx,yy = g.xy
+  for x,y in zip(xx,yy):
+    l.append(points.add(x,y,'bres'))
+  openbdy.append(l.id)
+  boundary.append(l.id)
+
 for i,spline in enumerate(splines):
   s=items.add('spline',last=s)
   for p in spline:
     s.append(points.add(p[0],p[1],'cres'))
-
-  if i==0:
-     l = items.add('spline')
-     l.append(s[-1])
-     # add point of open boundary
-     lo,la = zip(*bdy_points)
-     xb,yb = m(lo[::-1],la[::-1])
-     for xbb,ybb in zip(xb,yb):
-       l.append(points.add(xbb,ybb,'bres'))
-     # e.g.: l.append(points.add(nb[0][0],nb[0][1],'bres'))
-     l.append(s[0])
-     l.closed=False
-     boundary.append(l.id)
-     openbdy.append(l.id)
 
   if i>=landnum:
     # assume island
