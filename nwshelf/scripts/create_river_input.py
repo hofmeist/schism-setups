@@ -24,18 +24,18 @@ if plot_it:
 
 s = schism_setup()
 
-tracers=['no3','nh4','pho','sil','oxy','dia','fla','bg','microzoo','mesozoo','det','opa','dom']
+tracers=['no3s','nh4s','phos','sils','oxy','dia','fla','bg','microzoo','mesozoo','det','opa','dom']
 tracer_conc={}
 tracer_ncname={'no3':'no3','nh4':'nh4','pho':'po4','sil':'sio'}
-tracer_const={'det':0.0,'opa':0.0,'dia':0.0,'bg':0.0,'fla':0.0,'microzoo':0.0,'mesozoo':0.0,'dom':0.0}
+tracer_const={'no3s':0.0,'nh4s':0.0,'phos':0.0,'sils':0.0,'oxy':0.0,'fla':0.0,'det':0.0,'opa':0.0,'dia':0.0,'bg':0.0,'microzoo':0.0,'mesozoo':0.0,'dom':0.0}
 redf1=6.625
 redf6=12.01
 redf3=6.625
 redf2=106.0
-tracer_factor={'no3': redf1*redf6,\
-               'nh4': redf1*redf6,\
-               'pho': redf2*redf6,\
-               'sil': redf3*redf6,\
+tracer_factor={'no3s': redf1*redf6,\
+               'nh4s': redf1*redf6,\
+               'phos': redf2*redf6,\
+               'sils': redf3*redf6,\
                'oxy': 1.0,\
                'dia': redf1*redf6,\
                'fla': redf1*redf6,\
