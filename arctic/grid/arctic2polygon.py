@@ -24,10 +24,10 @@ try:
 except:
   write_pickle=True
   if True:
-    m = Basemap(projection='npstere',boundinglat=55.,lon_0=0.0,resolution='i')
+    m = Basemap(projection='npstere',boundinglat=55.,lon_0=0.0,resolution='c')
   else:
     m = Basemap(projection='lcc',
-                       resolution='l',area_thresh=10.0,
+                       resolution='c',area_thresh=10.0,
                         llcrnrlon=xl,
                         llcrnrlat=yl,
                         urcrnrlon=xu,
@@ -86,31 +86,15 @@ if False:
 
   show()
 
-eissel_poly = [(5.39,53.1),(4.953,52.898),(4.84,52.07),(6.77,52.6)]
-eissel = sg.Polygon([ m(xx,yy) for xx,yy in eissel_poly])
-
 problems=[]
 diffproblems=[]
-# Shetland
-#problems.append(sg.Polygon([(1798050,1605860),(1798200,1604500),(1800100,1605540),(1799640,1606520)]))
-
-# Scotland
-#problems.append(sg.Polygon([(1542200.,1147880),(1554980,1148680),(1553110,1161190),(1539810,1162520)]))
-
-# Swine channel
-#diffproblems.append(sg.Polygon([(2732320,872762),(2732820,871486),(2733060,871394),(2732540,872762)]))
-
-# widely open Swine channel
-#diffproblems.append(sg.Polygon([(2732880,871471),(2733790,867425),(2736680,867556)]))
-
 
 water = domain
 # take out the first land polygons
 landnum=80
 for i,p in enumerate(sland[:landnum]):
-  #if i in [25,]: continue
   if domain.intersects(p):
-    if domain.covers(p):
+    if domain.contains(p):
       print i,'skipped'
       continue
     water = water.difference(p)
@@ -124,22 +108,32 @@ landbdys=[]
 open_boundary = water.boundary
 for i,p in enumerate(sland[:landnum]):
   if water.intersects(p) and not(water.contains(p)):
-    line = water.intersection(p)
+    line = water.intersection(p.buffer(1.e-5))
     points=[]
     print i,p.geom_type
     open_boundary = open_boundary.difference(line)
-    #if line.geom_type == 'Polygon':
-    # points.append((g.boundary.xy[0][0],g.boundary.xy[1][0])) 
-    if False:
-      print 'we got a polygon'
+    print(line.geom_type)
+    if line.geom_type == 'Polygon':
+     #x,y = line.boundary.xy
+     for xx,yy in zip(*line.boundary.xy):
+       points.append((xx,yy))
+     #points.append((g.boundary.xy[0][0],g.boundary.xy[1][0])) 
+    #if False:
+    #  print 'we got a polygon'
     else: 
      for g in line.geoms:
       if g.geom_type == 'LineString' or g.geom_type == 'Point':
         points.append((g.xy[0][0],g.xy[1][0]))
+      elif g.geom_type == 'Polygon':
+        for xx,yy in zip(*g.boundary.xy):
+          points.append((xx,yy))
       else:
         print(g.geom_type)
         points.append((g.boundary.xy[0][0],g.boundary.xy[1][0]))
-    landbdys.append(points[::-1][1:])
+    # add last point:
+    if g.geom_type == 'LineString':
+      points.append((g.xy[0][1],g.xy[1][1]))
+    landbdys.append(points[::-1])
 
 splines=list(landbdys)
 for l,p in zip(land[0:],sland[0:]):
@@ -156,19 +150,6 @@ for l,p in zip(land[0:],sland[0:]):
         l = zip(xx,yy)
     splines.append(l)
 
-if False:
-  f = open('problem_areas.txt','w')
-  f.write('# problems, to be joined with island splines\n')
-  for problem in problems:
-    xx,yy = problem.boundary.xy
-    f.write('%s\n'%str(m(xx,yy,inverse=True)))
-  f.write('# problems, to be removed (difference) from island splines\n')
-  for diffproblem in diffproblems:
-    xx,yy = diffproblem.boundary.xy
-    f.write('%s\n'%str(m(xx,yy,inverse=True)))
-  f.write('# lake eissel\n')
-  f.write('%s\n'%str(eissel_poly))
-  f.close()
 
 if True:
   xw,yw = water.boundary.xy
@@ -181,41 +162,47 @@ if True:
   f.subplots_adjust(left=0.0,bottom=0.0,right=1.0,top=1.0)
   m.drawcoastlines()
   m.plot(xw,yw)
+  if True:
+    for gg in open_boundary.geoms:
+      xw,yw = gg.xy
+      m.plot(xw,yw,color='orange')
   savefig('map.png',dpi=dpi)
   f = open('oxy_dxy_nxy.pickle','wb')
   dx = (m.xmax-m.xmin)/(width*dpi)
   dy = (m.ymax-m.ymin)/(width*ratio*dpi)
   pickle.dump((m.xmin,m.ymin,dx,dy,int(width*dpi),int(width*ratio*dpi)),f)
   f.close()
-  show()
+  #show()
 
-if True:
-  figure()
-  for i,p in enumerate(splines):
-    x,y=zip(*p);x=list(x);y=list(y)
-    plot(x,y,'-')
-    plot(x[0],y[0],'ko'); text(x[0],y[0],str(i),size=10)
-  #plot(x[90:100],y[90:100],'o',color='k',ms=6.0)
-  show()
 
 class Points():
   i=1
   num=0
   xyres={}
+  xy={}
+  id_by_xy={}
   def __initialize__(self):
     self.i=1
     self.num=0
     self.xyres={}
+    self.xy={}
+    self.id_by_xy={}
 
   def add(self,x,y,res=1000.):
-    if not(type(res)=='str'):
-      resstr=str(res)
+    pid = self.get_id(x,y)
+    if pid != -1:
+      return pid
     else:
-      resstr=res
-    self.xyres[self.i]=(x,y,resstr)
-    self.i+=1
-    self.num+=1
-    return self.i-1
+      if not(type(res)=='str'):
+        resstr=str(res)
+      else:
+        resstr=res
+      self.xyres[self.i]=(x,y,resstr)
+      self.xy[self.i]=(x,y)
+      self.id_by_xy[(x,y)]=self.i
+      self.i+=1
+      self.num+=1
+      return self.i-1
 
   def dump(self,f):
     for id in self.xyres:
@@ -228,11 +215,19 @@ class Points():
       reso=res
     self.xyres[id]=(xo,yo,reso)
 
+  def get_id(self,x,y):
+    try:
+      return self.id_by_xy[(x,y)]
+    except:
+      return -1
+    
+
 class PointsItem(list):
   type=None
   id=-1
   closed=False
   last=None
+  reversed=False
   def __init__(self,id,type,closed=False,last=None):
     self.container=[]
     self.id=id
@@ -245,6 +240,44 @@ class PointsItem(list):
     elif type=='lineloop':
       self.type='lineloop'
       self.closed=True
+
+  def check_and_fix_sequence(self,items):
+    oldl=list(self)
+    starts = {}
+    ends = {}
+    for itemid in self:
+      if items[itemid].type == 'lineloop':
+        starts[itemid] = items[items[itemid][0]][0]
+        ends[itemid] = items[items[itemid][-1]][-1]
+      else:
+        starts[itemid] = items[itemid][0]
+        ends[itemid] = items[itemid][-1]
+    print starts
+    print ends
+    newl=[oldl[0]]
+    while len(oldl)>0:
+      removed = False
+      last = items[newl[-1]]
+      if last.reversed==True:
+        matchidx = starts[last.id]
+      else:
+        matchidx = ends[last.id]
+      try:
+        nextid = starts.values().index(ends[newl[:1]])
+        newl.append(nextid)
+        nextid.reversed=False
+        oldl.remove(nextid)
+        removed=True
+      except:
+        try:
+          nextid = ends.values().index(ends[newl[:1]])
+          newl.append(nextid)
+          nextid.reversed=True
+          oldl.remove(nextid)
+        except:
+          print 'cannot find match',matchidx,last.id,last.type
+          break
+      
 
   def dump(self,f):
     if self.type=='spline':
@@ -310,23 +343,102 @@ for g in open_boundary.geoms:
   openbdy.append(l.id)
   boundary.append(l.id)
 
-for i,spline in enumerate(splines):
-  s=items.add('spline',last=s)
-  for p in spline:
-    s.append(points.add(p[0],p[1],'cres'))
+if True:
+  figure()
+  for s in splines:
+    x,y=zip(*s)
+    plot(x,y,'-',color='orange')
+  for g in open_boundary.geoms:
+    x,y = g.xy
+    plot(x,y,'g-')
+  #show()
 
-  if i>=landnum:
-    # assume island
-    s.closed=True
-    surface.append(s)
-    islandbdy.append(s.id)
-  else:
-    boundary.append(s.id)
-    landbdy.append(s.id)
+if False:
+# treatment as splines:
+  for i,spline in enumerate(splines):
+    s=items.add('spline',last=s)
+    for p in spline:
+      s.append(points.add(p[0],p[1],'cres'))
+
+    if i>=landnum:
+      # assume island
+      s.closed=True
+      surface.append(s)
+      islandbdy.append(s.id)
+    else:
+      boundary.append(s.id)
+      landbdy.append(s.id)
+else:
+#treatment as lines
+  for i,spline in enumerate(splines):
+    s=items.add('lineloop',last=s)
+    p1,p2=None,None
+    for p in spline:
+      p2 = points.add(p[0],p[1],'cres')
+      if p1==None:
+        p1=p2
+      else:
+        l = items.add('line')
+        l.append(p1)
+        l.append(p2)
+        s.append(l.id)
+        p1=p2
+
+    if i>=landnum:
+      # assume island
+      s.closed=True
+      surface.append(s)
+      islandbdy.append(s.id)
+    else:
+      boundary.append(s.id)
+      landbdy.append(s.id)
+  
 
 s=items.add('lineloop')
 s.extend(boundary)
+
+
+if True:
+  figure()
+  if False:
+    for i,p in enumerate(splines):
+      x,y=zip(*p);x=list(x);y=list(y)
+      plot(x,y,'-')
+      plot(x[0],y[0],'ko'); text(x[0],y[0],str(i),size=10)
+    #plot(x[90:100],y[90:100],'o',color='k',ms=6.0)
+
+  for id in openbdy:
+    x=[]
+    y=[]
+    for pid in items[id]:
+      xx,yy = points.xy[pid]
+      x.append(xx)
+      y.append(yy)
+    plot(x,y,'b-')
+    plot(x[0],y[0],'ko'); text(x[0],y[0],str(id),size=10,color='b')
+  show()
+    
+  for id in landbdy:
+    x=[]
+    y=[]
+    for iid in items[id]:
+      if items[id].type=='lineloop':
+        for lid in iid:
+          xx,yy=points.xy[lid[0]]
+          x.append(xx)
+          y.append(yy)
+      else:  
+        xx,yy = points.xy[iid]
+        x.append(xx)
+        y.append(yy)
+    plot(x,y,'-',color='orange')
+    plot(x[0],y[0],'ko'); text(x[0],y[0],str(id),size=10,color='b')
+  show()
+
+#s.check_and_fix_sequence(items)
+
 surface.append(s)
+
 
 #dump data into .poly file:
 f=open('coast.geo','w')
