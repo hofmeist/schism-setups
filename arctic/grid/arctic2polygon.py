@@ -61,11 +61,10 @@ use_insurface=True
 
 # define surrounding domain polygon
 #surr_poly = [(xl,yl),(xl,yu),(xu,yu),(xu,yl)]
+#surr_poly = [(-40.,70.),(-130.,60.),(120.,50.),(50.,55.),(-10.,70.)]
+#surr_poly = [(-40.,70.),(-40.,85.),(88.,85.),(88,55.),(50.,55.),(-5.,68.)]
 
-surr_poly = [(-40.,70.),(-130.,60.),(120.,50.),(50.,55.),(-10.,70.)]
-surr_poly = [(-40.,70.),(-40.,85.),(88.,85.),(88,55.),(50.,55.),(-5.,68.)]
-
-surr_poly = [(-40.,70.),(-40.,85.),(88.,85.),(67.88,76.43),(57.80,74.919),(53.539,71.758),(64.5519,68.018),(88,55.),(50.,55.),(-5.,68.)]
+surr_poly = [(-23.5426, 71.3629),(-42.95,73.88),(27.49,83.54),(44.48303011437251, 80.60464417507895),(47.347944570886405, 80.00892777559511),(53.28073665931397, 79.68848057050573),(67.88,76.43),(57.80,74.919),(53.539,71.758),(63.,69.),(88,55.),(50.,55.),(-5.,68.)]
 
 bdy_points = [[(-40.,85.),(88.,85.)],[(-5.,68.)]]
 
@@ -83,11 +82,27 @@ if False:
     plot(x[0],y[0],'ko'); text(x[0],y[0],str(i),size=10)
   #for x,y in domain_points:
   #  plot(x,y,'ro')
-
   show()
 
 problems=[]
+nz_join = sg.Polygon([m(xx,yy) for yy,xx in [(73.20,54.57),(74.28,56.18),(74.06,57.08),(73.06,55.46)]])
 diffproblems=[]
+
+# join Novaya Zemlya
+north= sg.Point(m(60.,75.))
+south=sg.Point(m(54,72))
+for i,p in enumerate(sland[:80]):
+  if p.contains(north):
+    print('found Northern Island %d'%i)
+    northidx=i
+  if p.contains(south):
+    print('found Southern Island %d'%i)
+    southidx=i
+sland[northidx]=sland[northidx].union(nz_join)
+sland[northidx]=sland[northidx].union(sland[southidx])
+sland.pop(southidx)
+land[northidx] = zip(*sland[northidx].boundary.xy)
+land.pop(southidx)
 
 water = domain
 # take out the first land polygons
@@ -138,6 +153,7 @@ for i,p in enumerate(sland[:landnum]):
 splines=list(landbdys)
 for l,p in zip(land[0:],sland[0:]):
   if water.contains(p):
+  #if True:
     for problem in problems:
       if problem.intersects(p):
         p = p.union(problem)
@@ -343,7 +359,7 @@ for g in open_boundary.geoms:
   openbdy.append(l.id)
   boundary.append(l.id)
 
-if True:
+if False:
   figure()
   for s in splines:
     x,y=zip(*s)
@@ -392,7 +408,7 @@ else:
     else:
       boundary.append(s.id)
       landbdy.append(s.id)
-  
+
 
 s=items.add('lineloop')
 s.extend(boundary)
@@ -403,36 +419,51 @@ if True:
   if False:
     for i,p in enumerate(splines):
       x,y=zip(*p);x=list(x);y=list(y)
-      plot(x,y,'-')
+      plot(x,y,'k-')
       plot(x[0],y[0],'ko'); text(x[0],y[0],str(i),size=10)
     #plot(x[90:100],y[90:100],'o',color='k',ms=6.0)
+  if False:
+    for id in landbdy:
+      x=[]
+      y=[]
+      for pid in items[id]:
+        xx,yy = points.xy[pid]
+        x.append(xx)
+        y.append(yy)
+      plot(x,y,'k-')
+      plot(x[0],y[0],'ko'); text(x[0],y[0],str(id),size=10,color='k')
+    
+
 
   for id in openbdy:
     x=[]
     y=[]
-    for pid in items[id]:
+    for pid in items.getbyid(id):
       xx,yy = points.xy[pid]
       x.append(xx)
       y.append(yy)
     plot(x,y,'b-')
-    plot(x[0],y[0],'ko'); text(x[0],y[0],str(id),size=10,color='b')
-  show()
+    plot(x[0],y[0],'bo'); text(x[0],y[0],str(id),size=10,color='b')
     
   for id in landbdy:
     x=[]
     y=[]
-    for iid in items[id]:
-      if items[id].type=='lineloop':
-        for lid in iid:
-          xx,yy=points.xy[lid[0]]
-          x.append(xx)
-          y.append(yy)
-      else:  
+    item = items.getbyid(id)
+    if item.type=='lineloop':
+      xx,yy=points.xy[items.getbyid(item[0])[0]]
+      x.append(xx)
+      y.append(yy)
+      for iid in item:
+        subitem = items.getbyid(iid)
+        xx,yy=points.xy[subitem[1]]
+        x.append(xx)
+        y.append(yy)
+    else:  
         xx,yy = points.xy[iid]
         x.append(xx)
         y.append(yy)
     plot(x,y,'-',color='orange')
-    plot(x[0],y[0],'ko'); text(x[0],y[0],str(id),size=10,color='b')
+    plot(x[0],y[0],'o',color='orange'); text(x[0],y[0],str(id),size=10,color='orange')
   show()
 
 #s.check_and_fix_sequence(items)
