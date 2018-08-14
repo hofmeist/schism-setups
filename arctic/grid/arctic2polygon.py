@@ -148,12 +148,12 @@ for i,p in enumerate(sland[:landnum]):
     # add last point:
     if g.geom_type == 'LineString':
       points.append((g.xy[0][1],g.xy[1][1]))
-    landbdys.append(points[::-1])
+    landbdys.append(points[::-1][:-1]) #RH fix last point
 
 splines=list(landbdys)
 for l,p in zip(land[0:],sland[0:]):
   if water.contains(p):
-  #if True:
+  #if False:
     for problem in problems:
       if problem.intersects(p):
         p = p.union(problem)
@@ -262,12 +262,13 @@ class PointsItem(list):
     starts = {}
     ends = {}
     for itemid in self:
-      if items[itemid].type == 'lineloop':
-        starts[itemid] = items[items[itemid][0]][0]
-        ends[itemid] = items[items[itemid][-1]][-1]
+      subitem = items.getbyid(itemid)
+      if subitem.type == 'lineloop':
+        starts[itemid] = items.getbyid(subitem[0])[0]
+        ends[itemid] = items.getbyid(subitem[-1])[1]
       else:
-        starts[itemid] = items[itemid][0]
-        ends[itemid] = items[itemid][-1]
+        starts[itemid] = subitem[0]
+        ends[itemid] = subitem[-1]
     print starts
     print ends
     newl=[oldl[0]]
@@ -410,7 +411,7 @@ else:
       landbdy.append(s.id)
 
 
-s=items.add('lineloop')
+s=items.add('lineloop',last=s)
 s.extend(boundary)
 
 
