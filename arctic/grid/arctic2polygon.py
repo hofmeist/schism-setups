@@ -123,13 +123,15 @@ landbdys=[]
 open_boundary = water.boundary
 for i,p in enumerate(sland[:landnum]):
   if water.intersects(p) and not(water.contains(p)):
-    line = water.intersection(p.buffer(1.e-5))
+    #line = water.intersection(p.buffer(1.e-5))
+    line = water.intersection(p)#.buffer(1.e-5))
     points=[]
     print i,p.geom_type
     open_boundary = open_boundary.difference(line)
     print(line.geom_type)
     if line.geom_type == 'Polygon':
      #x,y = line.boundary.xy
+     xvec,yvec = line.boundary.xy
      for xx,yy in zip(*line.boundary.xy):
        points.append((xx,yy))
      #points.append((g.boundary.xy[0][0],g.boundary.xy[1][0])) 
@@ -148,7 +150,8 @@ for i,p in enumerate(sland[:landnum]):
     # add last point:
     if g.geom_type == 'LineString':
       points.append((g.xy[0][1],g.xy[1][1]))
-    landbdys.append(points[::-1][:-1]) #RH fix last point
+    #landbdys.append(points[::-1][:-1])
+    landbdys.append(points)
 
 splines=list(landbdys)
 for l,p in zip(land[0:],sland[0:]):
@@ -256,6 +259,9 @@ class PointsItem(list):
     elif type=='lineloop':
       self.type='lineloop'
       self.closed=True
+    elif type=='linelist':
+      self.type='linelist'
+      self.closed=False
 
   def check_and_fix_sequence(self,items):
     oldl=list(self)
@@ -263,40 +269,38 @@ class PointsItem(list):
     ends = {}
     for itemid in self:
       subitem = items.getbyid(itemid)
-      if subitem.type == 'lineloop':
+      if subitem.type == 'linelist':
         starts[itemid] = items.getbyid(subitem[0])[0]
         ends[itemid] = items.getbyid(subitem[-1])[1]
       else:
         starts[itemid] = subitem[0]
         ends[itemid] = subitem[-1]
-    print starts
-    print ends
-    newl=[oldl[0]]
+    #print starts
+    #print ends
+    success = True
+    newl = list([oldl.pop(0)])
+    matchidx = ends[newl[-1]]
     while len(oldl)>0:
-      removed = False
-      last = items[newl[-1]]
-      if last.reversed==True:
-        matchidx = starts[last.id]
-      else:
-        matchidx = ends[last.id]
       try:
-        nextid = starts.values().index(ends[newl[:1]])
-        newl.append(nextid)
-        nextid.reversed=False
-        oldl.remove(nextid)
-        removed=True
+        nextid = starts.keys()[starts.values().index(matchidx)]
+        nextone = oldl.pop(oldl.index(nextid))
+        newl.append(nextone)
+        matchidx = ends[nextone]
       except:
         try:
-          nextid = ends.values().index(ends[newl[:1]])
-          newl.append(nextid)
-          nextid.reversed=True
-          oldl.remove(nextid)
+          nextid = ends.keys()[ends.values().index(matchidx)]
+          # now reverse orientation
+          nextone = oldl.pop(oldl.index(nextid))
+          newl.append(-nextone)
+          matchidx = starts[nextone]
         except:
-          print 'cannot find match',matchidx,last.id,last.type
+          print 'cannot find match, cancel reordering',matchidx
+          success=False
           break
+    if success: self[:] = newl
       
 
-  def dump(self,f):
+  def dump(self,f,items):
     if self.type=='spline':
       f.write('BSpline(%d)={'%self.id)
       points = self
@@ -305,15 +309,30 @@ class PointsItem(list):
       for item in points[:-1]:
         f.write('%d,'%item)
       f.write('%d };\n'%points[-1])
-      f.write('Line Loop(%d)={%d};\n'%(self.id,self.id))
+      #f.write('Line Loop(%d)={%d};\n'%(self.id,self.id))
     elif self.type=='line':
       f.write('Line(%d) = '%self.id)
       f.write('{ %d, %d };\n'%(self[0],self[1]))
-    elif self.type=='lineloop':
-      f.write('Line Loop(%d) = {'%self.id)
+    elif self.type=='linelist':
+      f.write('// this list of lines is not closed\n')
+      f.write('//Line Loop(%d) = {'%self.id)
       for item in self[:-1]:
         f.write('%d, '%item)
       f.write('%d };\n'%self[-1])
+    elif self.type=='lineloop':
+      f.write('Line Loop(%d) = {'%self.id)
+      for item in self[:-1]:
+        if items.getbyid(item).type=='linelist':
+          for ii in items.getbyid(item):
+            f.write('%d, '%ii)
+        else:
+          f.write('%d, '%item)
+      if items.getbyid(self[-1]).type=='linelist':
+        for ii in items.getbyid(self[-1])[:-1]:
+          f.write('%d, '%ii)
+        f.write('%d };\n'%items.getbyid(self[-1])[-1])
+      else:
+        f.write('%d };\n'%self[-1])
 
 class PointsItems(list):
   num=0
@@ -388,7 +407,7 @@ if False:
 else:
 #treatment as lines
   for i,spline in enumerate(splines):
-    s=items.add('lineloop',last=s)
+    s=items.add('linelist',last=s)
     p1,p2=None,None
     for p in spline:
       p2 = points.add(p[0],p[1],'cres')
@@ -404,6 +423,7 @@ else:
     if i>=landnum:
       # assume island
       s.closed=True
+      s.type='lineloop'
       surface.append(s)
       islandbdy.append(s.id)
     else:
@@ -450,7 +470,7 @@ if True:
     x=[]
     y=[]
     item = items.getbyid(id)
-    if item.type=='lineloop':
+    if item.type=='linelist':
       xx,yy=points.xy[items.getbyid(item[0])[0]]
       x.append(xx)
       y.append(yy)
@@ -467,9 +487,11 @@ if True:
     plot(x[0],y[0],'o',color='orange'); text(x[0],y[0],str(id),size=10,color='orange')
   show()
 
-#s.check_and_fix_sequence(items)
+s.check_and_fix_sequence(items)
 
 surface.append(s)
+
+# todo: remove loops in linelists 
 
 
 #dump data into .poly file:
@@ -478,8 +500,8 @@ f.write("""
 Mesh.CharacteristicLengthFromPoints = 1;
 Mesh.CharacteristicLengthExtendFromBoundary = 0;
 """)
-f.write('bres = %0.2f;\n'%4000.)
-f.write('cres = %0.2f;\n'%4000.)
+f.write('bres = %0.2f;\n'%10000.)
+f.write('cres = %0.2f;\n'%10000.)
 
 # set resolution at boundaries
 for itemid in openbdy:
@@ -492,7 +514,7 @@ for itemid in openbdy:
 points.dump(f)
 
 for item in items:
-  item.dump(f)
+  item.dump(f,items)
 
 surfaceid = items.num+1
 f.write('Plane Surface(%d) = {'%surfaceid)
@@ -513,8 +535,17 @@ f.write('%d };\n'%islandbdy[-1])
 
 f.write('Physical Line("landbdy") = {')
 for item in landbdy[:-1]:
-  f.write('%d, '%item)
-f.write('%d };\n'%landbdy[-1])
+  if items.getbyid(item).type=='linelist':
+    for ii in items.getbyid(item):
+      f.write('%d, '%ii)
+  else:
+    f.write('%d, '%item)
+if items.getbyid(landbdy[-1]).type=='linelist':
+  for ii in items.getbyid(landbdy[-1]):
+    f.write('%d, '%ii)
+  f.write('%d };\n'%items.getbyid(landbdy[-1])[-1])
+else:
+  f.write('%d };\n'%landbdy[-1])
 
 f.write('Physical Line("openbdy") = {')
 for item in openbdy[:-1]:
@@ -528,11 +559,11 @@ coastlist = str(coast)[1:-1]
 
 f.write("""
 Field[1] = MathEval;
-Field[1].F = "4000.";
+Field[1].F = "20000.";
 
-Field[2] = Restrict;
-Field[2].IField = 1;
-Field[2].EdgesList = {%s};
+//Field[2] = Restrict;
+//Field[2].IField = 1;
+//Field[2].EdgesList = {%s};
 
 Background Field = 1;
 """%(coastlist))
