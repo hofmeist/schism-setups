@@ -25,7 +25,7 @@ class gr3():
     x3,y3 = self.nodesxy[nodelist[2]]
     return ((x1-x3)*(y2-y3)-(x2-x3)*(y1-y3))/2.0
 
-  def import_mesh(self,mesh,depth=10.):
+  def import_mesh(self,mesh,depth=10.,remove_hanging_nodes=False):
     self.nodesxy=mesh.nodes
     for id in self.nodesxy:
       self.depths[id] = depth
@@ -52,42 +52,50 @@ class gr3():
       self.num_island_nodes = 0
       self.island_nodes=[]
 
-    # remove island boundaries with length=2
-    island_nodes = self.island_nodes
-    self.island_nodes=[]
-    self.num_island_nodes=0
-    for nlist in island_nodes:
-      if len(nlist)>2:
-        self.island_nodes.append(nlist)
-        self.num_island_nodes+=len(nlist)
-      else:
-        for nidx in nlist:
-          try:
-            del self.nodesxy[nidx]
-            del self.depths[nidx]
-            print "remove hanging node %d"%nidx
-          except:
-            print "could not find node %d"%nidx
+    if True:
+      # remove island boundaries with length=2
+      island_nodes = self.island_nodes
+      self.island_nodes=[]
+      self.num_island_nodes=0
+      for nlist in island_nodes:
+        if len(nlist)>2:
+          self.island_nodes.append(nlist)
+          self.num_island_nodes+=len(nlist)
+        else:
+          # do not remove hanging nodes here
+          if False:
+            for nidx in nlist:
+              try:
+                del self.nodesxy[nidx]
+                del self.depths[nidx]
+                print "remove hanging node %d"%nidx
+              except:
+                print "could not find node %d"%nidx
+
           
     # remove hanging nodes
-    #nodesxy=dict(self.nodesxy)
-    #for idx in nodesxy:
-    #  found=False
-    #  for elidx in self.elements:
-    #    if idx in self.elements[elidx]:
-    #      found=True
-    #      break
-    #  if not(found):
-    #    print "remove hanging node %d"%idx
-    #    try:
-    #      del self.nodesxy[idx]
-    #    except:
-    #      pass
+    if remove_hanging_nodes:
+      nodesxy=dict(self.nodesxy)
+      for idx in nodesxy:
+        found=False
+        for elidx in self.elements:
+          if idx in self.elements[elidx]:
+            found=True
+            break
+        if not(found):
+          print "remove hanging node %d"%idx
+          try:
+            del self.nodesxy[idx]
+            del self.depths[idx]
+          except:
+            pass
 
   def renumber_nodes(self):
     newids = {}
     for newid,oldid in enumerate(self.nodesxy):
       newids[oldid]=newid+1
+    self.newids=newids
+    self.oldxy=dict(self.nodesxy)
     
     oldxy=dict(self.nodesxy)
     self.nodesxy={}
