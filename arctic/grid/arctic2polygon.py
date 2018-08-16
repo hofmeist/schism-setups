@@ -24,7 +24,7 @@ try:
 except:
   write_pickle=True
   if True:
-    m = Basemap(projection='npstere',boundinglat=55.,lon_0=0.0,resolution='c')
+    m = Basemap(projection='npstere',boundinglat=55.,lon_0=0.0,resolution='i')
   else:
     m = Basemap(projection='lcc',
                        resolution='c',area_thresh=10.0,
@@ -263,8 +263,7 @@ class PointsItem(list):
       self.type='linelist'
       self.closed=False
 
-  def check_and_fix_sequence(self,items):
-    oldl=list(self)
+  def get_start_and_end_points(self,items):
     starts = {}
     ends = {}
     for itemid in self:
@@ -275,8 +274,30 @@ class PointsItem(list):
       else:
         starts[itemid] = subitem[0]
         ends[itemid] = subitem[-1]
-    #print starts
-    #print ends
+    return starts,ends
+
+  def check_and_fix_sequence(self,items):
+    oldl=list(self)
+    starts,ends = self.get_start_and_end_points(items)
+    print starts
+    print ends
+
+    # fix loops at the ends of polygons:
+    for itemid in self:
+      subitem = items.getbyid(itemid)
+      if subitem.type == 'linelist':
+        lines = [items.getbyid(litem) for litem in subitem]
+        substarts,subends = zip(*lines)
+        for ii,endpoint in enumerate(subends):
+          if endpoint in starts.values():
+            print('  found early end of list %d, take out left over points'%itemid)
+            for toberemoved in subitem[ii+1:]:
+              items.pop(items.index(items.getbyid(toberemoved)))
+            subitem[:] = subitem[:ii+1]
+    starts,ends = self.get_start_and_end_points(items)
+    print starts
+    print ends
+
     success = True
     newl = list([oldl.pop(0)])
     matchidx = ends[newl[-1]]
