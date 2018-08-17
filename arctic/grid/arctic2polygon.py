@@ -534,6 +534,24 @@ for itemid in openbdy:
 
 points.dump(f)
 
+def write_linelist(f,item,notfirst=False):
+  for ii in items.getbyid(item):
+    if notfirst:
+      f.write(', ')
+    else:
+      notfirst=True
+    f.write('%d'%ii)
+  return notfirst
+
+def write_item(f,item,notfirst=False):
+  if notfirst:
+    f.write(', ')
+  else:
+    notfirst=True
+  f.write('%d'%item)
+  return notfirst
+  
+
 for item in items:
   item.dump(f,items)
 
@@ -549,24 +567,39 @@ if use_insurface:
     f.write('Point {%d} In Surface {%d};\n'%(ip,surfaceid))
 
 # write physical groups
-f.write('Physical Line("islandbdy") = {')
-for item in islandbdy[:-1]:
-  f.write('%d, '%item)
-f.write('%d };\n'%islandbdy[-1])
-
-f.write('Physical Line("landbdy") = {')
-for item in landbdy[:-1]:
-  if items.getbyid(item).type=='linelist':
-    for ii in items.getbyid(item):
-      f.write('%d, '%ii)
+f.write('Physical Line("islandbdy") = { ')
+notfirst = False
+for item in islandbdy:
+  if items.getbyid(item).type in ['linelist','lineloop']:
+    notfirst = write_linelist(f,item,notfirst)
   else:
-    f.write('%d, '%item)
-if items.getbyid(landbdy[-1]).type=='linelist':
-  for ii in items.getbyid(landbdy[-1]):
-    f.write('%d, '%ii)
-  f.write('%d };\n'%items.getbyid(landbdy[-1])[-1])
-else:
-  f.write('%d };\n'%landbdy[-1])
+    notfirst = write_item(f,item,notfirst)
+f.write(' };\n')
+
+# write single islands again
+for ii,item in enumerate(islandbdy):
+  if items.getbyid(item).type in ['linelist','lineloop']:
+    f.write('Physical Line("islandbdy%d") = { '%ii)
+    notfirst=False
+    notfirst = write_linelist(f,item,notfirst)
+    f.write(' };\n')
+
+f.write('Physical Line("landbdy") = { ')
+notfirst = False
+for item in landbdy:
+  if items.getbyid(item).type in ['linelist','lineloop']:
+    notfirst = write_linelist(f,item,notfirst)
+  else:
+    notfirst = write_item(f,item,notfirst)
+f.write(' };\n')
+
+# write single landbdys again
+for ii,item in enumerate(landbdy):
+  if items.getbyid(item).type in ['linelist','lineloop']:
+    f.write('Physical Line("landbdy%d") = { '%ii)
+    notfirst=False
+    notfirst = write_linelist(f,item,notfirst)
+    f.write(' };\n')
 
 f.write('Physical Line("openbdy") = {')
 for item in openbdy[:-1]:
