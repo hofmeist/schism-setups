@@ -467,33 +467,33 @@
   nspool = MY_NSPOOL 
   ihfskip = MY_IHFSKIP 
 
-  elev.61 = 1 !0: off; 1: on - elev. [m]
-  pres.61 = 1 !air pressure [Pa]
-  airt.61 = 1 !air temperature [C]
-  shum.61 = 0 !Specific humidity [-]
-  srad.61 = 1 !solar (shortwave) radiation [W/m/m]
-  flsu.61 = 0 !sensible flux (positive upward) [W/m/m] 
-  fllu.61 = 0 !latent heat flux (positive upward) [W/m/m]
-  radu.61 = 1 !upward longwave radiation (positive upward) [W/m/m]
-  radd.61 = 1 !downward longwave radiation (positive downward) [W/m/m]
-  flux.61 = 0 !total flux=-flsu-fllu-(radu-radd) [W/m/m]
-  evap.61 = 0 !evaporation rate [kg/m/m/s]
-  prcp.61 = 0 !precipitation rate [kg/m/m/s]
-  bdrc.61 = 0 !Bottom drag coefficient [-]
-  wind.62 = 0 !wind speed [m/s]
-  wist.62 = 0 !wind stress [m^2/s/s]
-  dahv.62 = 1 !depth-averaged vel. [m/s]
-  vert.63 = 0 !vertical velocity [m/s]
-  temp.63 = 1 !water temperature [C]
-  salt.63 = 1 !water salinity [PSU]
-  conc.63 = 0 !water density [kg/m^3]
-  tdff.63 = 1 !eddy diffusivity [m^2/s]
-  vdff.63 = 0 !eddy viscosity [m^2/s]
-  kine.63 = 0 !turbulent kinetic energy
-  mixl.63 = 0 !turbulent mixing length [m]
-  zcor.63 = 1 !z-coordinates [m]
-  qnon.63 = 0 !non-hydrostatic pressure
-  hvel.64 = 0 !horizontal vel. [m/s]
+  elev = 1 !0: off; 1: on - elev. [m]
+  pres = 1 !air pressure [Pa]
+  airt = 1 !air temperature [C]
+  shum = 0 !Specific humidity [-]
+  srad = 1 !solar (shortwave) radiation [W/m/m]
+  flsu = 0 !sensible flux (positive upward) [W/m/m] 
+  fllu = 0 !latent heat flux (positive upward) [W/m/m]
+  radu = 1 !upward longwave radiation (positive upward) [W/m/m]
+  radd = 1 !downward longwave radiation (positive downward) [W/m/m]
+  flux = 0 !total flux=-flsu-fllu-(radu-radd) [W/m/m]
+  evap = 0 !evaporation rate [kg/m/m/s]
+  prcp = 0 !precipitation rate [kg/m/m/s]
+  bdrc = 0 !Bottom drag coefficient [-]
+  wind = 0 !wind speed [m/s]
+  wist = 0 !wind stress [m^2/s/s]
+  dahv = 1 !depth-averaged vel. [m/s]
+  vert = 1 !vertical velocity [m/s]
+  temp = 1 !water temperature [C]
+  salt = 1 !water salinity [PSU]
+  conc = 0 !water density [kg/m^3]
+  tdff = 1 !eddy diffusivity [m^2/s]
+  vdff = 0 !eddy viscosity [m^2/s]
+  kine = 0 !turbulent kinetic energy
+  mixl = 0 !turbulent mixing length [m]
+  zcor = 1 !z-coordinates [m]
+  qnon = 0 !non-hydrostatic pressure
+  hvel = 1 !horizontal vel. [m/s]
 
 !-----------------------------------------------------------------------
 ! Outputs from WWM (USE_WWM must be on in Makefile)
@@ -626,27 +626,35 @@
 ! Non-standard outputs section. Some of these need corresponding cpp flags
 ! to be on in order to be active.
 !-----------------------------------------------------------------------
-  hvel.67 = 0 !horizontal vel. defined at side [m/s]
-  vert.69 = 0 !vertical vel. at centroids [m/s]
-  temp.70 = 0 !T at prism centers [C]
-  salt.70 = 0 !S at prism centers [PSU]
-  bthk.66 = 0 ! total bed thickness (m) {module: SED}
-  bage.66 = 0 ! total bed age over all layers (sec) {module: SED}
-  z0st.66 = 0 ! Sediment transport roughness length (m) {module: SED}
-  z0eq.66 = 0 !Total roughness length (m) {module: SED2D}
-  z0cr.66 = 0 !current-ripples roughness length (m) {module: SED or SED2D}
-  z0sw.66 = 0 !sand-waves roughness length (m) {module: SED or SED2D}
-  z0wr.66 = 0 !wave-ripples roughness length (m) {module: SED or SED2D}
-  bpgr.65 = 0 ! Barotropic pressure gradient force (m.s-2) at side centers (only if im2d = 1) {DEBUG}
-  wafo.67 = 0 ! Wave force (m.s-2) computed by wwm at side centers and whole levels {module: WWM &DEBUG}
-  bdoc.66 = 0 !ICM bed sediment flux arrays: BENDOC
-  bnh4.66 = 0 !ICM bed sediment flux arrays: SED_BENNH4
-  bno3.66 = 0 !ICM bed sediment flux arrays: SED_BENNO3
-  bpo4.66 = 0 !ICM bed sediment flux arrays: BENPO4
-  bcod.66 = 0 !ICM bed sediment flux arrays: SED_BENCOD
-  sbdo.66 = 0 !ICM bed sediment flux arrays: sed_BENDO 
-  sbsa.66 = 0 !ICM bed sediment flux arrays: BENSA
-  mrsh.66 = 0 !marsh flags (USE_MARSH on)
+  hvel_side = 0 !horizontal vel vector defined at side [m/s]
+  vert_elem = 0 !vertical vel. at centroids [m/s]
+  temp_elem = 0 !T at prism centers [C]
+  salt_elem = 0 !S at prism centers [PSU]
+  bthk_elem = 0 ! total bed thickness (m) {module: SED}
+  bage_elem = 0 ! total bed age over all layers (sec) {module: SED}
+  z0st_elem = 0 ! Sediment transport roughness length (m) {module: SED}
+  SED2D_z0eq_elem = 0 !Total roughness length (m) {module: SED2D}
+  SED2D_z0cr_elem = 0 !current-ripples roughness length (m) {module: SED or SED2D}
+  SED2D_z0sw_elem = 0 !sand-waves roughness length (m) {module: SED or SED2D}
+  SED2D_z0wr_elem = 0 !wave-ripples roughness length (m) {module: SED or SED2D}
+  bpgr_side = 0 ! Barotropic pressure gradient force vector (m.s-2) at side centers (only if im2d = 1) {DEBUG}
+  wave_force_side = 0 ! Wave force vector (m.s-2) computed by wwm at side centers and whole levels {module: WWM &DEBUG}
+  ICM_SED_BENDOC_elem = 0 !ICM bed sediment flux arrays: BENDOC
+  ICM_SED_BENNH4_elem = 0 !ICM bed sediment flux arrays: SED_BENNH4
+  ICM_SED_BENNO3_elem = 0 !ICM bed sediment flux arrays: SED_BENNO3
+  ICM_SED_BENPO4_elem = 0 !ICM bed sediment flux arrays: BENPO4
+  ICM_SED_BENCOD_elem = 0 !ICM bed sediment flux arrays: SED_BENCOD
+  ICM_SED_BENDO_elem = 0 !ICM bed sediment flux arrays: sed_BENDO
+  ICM_SED_BENSA_elem = 0 !ICM bed sediment flux arrays: BENSA
+  ICM_lfsav = 0 !ICM SAV leaf biomass [gC/m^3] (k=1 is surface)
+  ICM_stsav = 0 !ICM SAV stem biomass [gC/m^3]
+  ICM_rtsav = 0 !ICM SAV root biomass [gC/m^3]
+  ICM_tlfsav = 0 !ICM SAV total leaf biomass [gC/m^2]
+  ICM_tstsav = 0 !ICM SAV total stem biomass [gC/m^2]
+  ICM_trtsav = 0 !ICM SAV total root biomass [gC/m^2]
+  ICM_hcansav = 0 !ICM SAV canopy height [m]
+
+  mrsh_elem = 0 !marsh flags (USE_MARSH on)
 
 !-----------------------------------------------------------------------
 ! Station output option. If iout_sta/=0, need output skip (nspool_sta) and
@@ -742,3 +750,18 @@
 ! Reference water density for Boussinesq approximation
 !-----------------------------------------------------------------------
   rho0 = 1000.d0 !kg/m^3
+
+-----------------------------------------------------------------------
+  ICE_tracer_1 = 0 !ice volume [m]
+  ICE_tracer_2 = 0 !ice concentration [-]
+  ICE_tracer_3 = 0 !snow volume [m]
+  ICE_velocity = 0 !ice advective velcoity [m/s]
+  ICE_strain_rate = 0 !strain rate [1/sec]
+  nstep_ice = 1  
+
+  shorewafo = 0
+
+  nrampwafo = 1       !ramp-up option for the wave forces (1: on; 0: off)
+  drampwafo = 1.      !needed if nrampwafo=1; ramp-up period in days
+  turbinj = 0.15      !% of depth-induced wave breaking energy injected in turbulence (default: 0.15 (15%), as proposed by Feddersen, 2012)
+

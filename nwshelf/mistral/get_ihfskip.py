@@ -3,9 +3,9 @@ from datetime import datetime,timedelta
 
 year,month = [int(el) for el in sys.argv[1].split('-')]
 if len(sys.argv)>2:
-  nspool = int(sys.argv[2])
+  timestep = int(sys.argv[2])
 else:
-  nspool = 360
+  timestep = 240
 if len(sys.argv)>3:
   oyear,omonth = [int(el) for el in sys.argv[3].split('-')]
 else:
@@ -20,4 +20,4 @@ else:
   nmonth=month+1
 
 dt = datetime(nyear,nmonth,1,0,0,0)-datetime(oyear,omonth,1,0,0,0)
-print('%d' % (int(dt.days)*nspool))
+print('%d' % (int(int(dt.days)*86400/timestep)))

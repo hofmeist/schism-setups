@@ -23,7 +23,7 @@ iis="1"
 iis=$(python $HOME/schism/setups/nwshelf/mistral/get_ifiles.py $yyyymm 2012-01)
 
 for ii in $iis ; do
-    $HOME/schism/svn-code/trunk/debugbuild/bin/combine_output10 -b $ii -e $ii &
+    $HOME/schism/svn-code/trunk/build/bin/combine_output11 -b $ii -e $ii &
   wait
 done
 

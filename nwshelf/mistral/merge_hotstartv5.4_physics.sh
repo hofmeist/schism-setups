@@ -35,3 +35,7 @@ $HOME/schism/svn-code/trunk/build/bin/combine_hotstart7 -i $iteration
 # rename to avoid it=*
 mv hotstart_it*.nc hotstart.nc
 
+swd=/work/gg0877/hofmeist/nwshelf/$id/$mstr/
+mkdir -p $swd
+# copy hotstart files to work
+cp hotstart.nc $swd
