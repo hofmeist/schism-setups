@@ -151,6 +151,8 @@ for tidx,t in enumerate(dates):
       else:
         clim(0,vs.max())
       cbtitle = titlestr
+    if uselim:
+      clim(vmin,vmax)
     proj.drawcoastlines()
     proj.fillcontinents((0.9,0.9,0.8))
     cax = axes([0.85,0.05,0.02,0.4])
