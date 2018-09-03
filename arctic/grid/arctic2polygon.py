@@ -191,6 +191,10 @@ if True:
   dy = (m.ymax-m.ymin)/(width*ratio*dpi)
   pickle.dump((m.xmin,m.ymin,dx,dy,int(width*dpi),int(width*ratio*dpi)),f)
   f.close()
+
+  sx,sy = meshgrid(linspace(m.xmin,m.xmin+int(width*dpi)*dx,int(width*dpi)),linspace(m.ymin,m.ymin+int(width*dpi*ratio)*dy,int(width*dpi*ratio)))
+  slon,slat = m(sx,sy,inverse=True)
+  pickle.dump((slon,slat),open('structured_lon_lat.pickle','wb'))
   #show()
 
 
