@@ -4,6 +4,12 @@ import os
 import netCDF4
 from netcdftime import utime
 
+try:
+  import pytides
+  use_pytides=True
+except:
+  use_pytides=False
+
 def get_stations(fname='stations.dat'):
   coords = {}
   name = {}
@@ -57,7 +63,12 @@ def read_ncdf(name,path='/work/gg0877/KST/tide_gaughes/ncdf',origin='2012-01-01 
   return time,elev
 
 if __name__=='__main__':
-  time,elevs = read_staout_1('/work/gg0877/hofmeist/nwshelf/nwshelf068/2012-01/staout_1')
+  import sys
+  if len(sys.argv)>1:
+    staoutfile=sys.argv[1]
+  else:
+    staoutfile='/work/gg0877/hofmeist/nwshelf/nwshelf068/2012-01/staout_1'
+  time,elevs = read_staout_1(staoutfile)
   idx,coords = get_stations(os.environ['HOME']+'/schism/setups/nwshelf/stations.dat')
   days = time/86400.0
 
@@ -69,10 +80,24 @@ if __name__=='__main__':
     except:
       nctime,ncelev = read_ncdf(name,path='/work/gg0877/KST/tide_gaughes/uhslc_hawaii')
     ncdays = nctime/86400.
+    
+    if use_pytides:
+      print('%s'%name)
+      import pytides.constituent as pcon
+      cons = [pcon._M2,pcon._M4,pcon._S2]
+      ostart,ostop = abs(ncdays-days[0]).argmin(),abs(ncdays-days[-1]).argmin()
+      obs_tide=pytides.tide.Tide.decompose(ncelev[ostart:ostop]-ncelev[ostart-ostop].mean(),list([datetime.datetime(2012,1,1,0,0,0)+datetime.timedelta(day) for day in ncdays[ostart:ostop]]),constituents=cons)
+      for c in obs_tide.model:
+      #  if c['constituent'].name in ['M2','M4','S2']:
+          print(' obs %s: %0.2f m'%(c['constituent'].name,c[1]))
+      mod_tide=pytides.tide.Tide.decompose(elevs[idx[name]]-elevs[idx[name]].mean(),list([datetime.datetime(2012,1,1,0,0,0)+datetime.timedelta(day) for day in days]),constituents=cons)
+      for c in mod_tide.model:
+      #  if c['constituent'].name in ['M2','M4','S2']:
+          print(' model %s: %0.2f m'%(c['constituent'].name,c[1]))
 
     fig = figure(figsize=(20,6))
     plot(ncdays,ncelev-ncelev.mean(),'b-')
-    plot(days,elevs[idx[name]],'k-')
+    plot(days,elevs[idx[name]]-elevs[idx[name]].mean(),'k-')
     xlim(days.min(),days.max())
     xlabel('days')
     ylabel('ssh [m]')
@@ -106,4 +131,8 @@ if __name__=='__main__':
   f.close()
 
   os.system('cd %s; pdflatex all_stations.tex;cp all_stations.pdf ..'%texdir)
-  os.rmdir(texdir)   
+  try:
+    os.rmdir(texdir)   
+  except:
+    import shutil
+    shutil.rmtree(texdir)
