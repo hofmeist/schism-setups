@@ -50,16 +50,18 @@ ln -sf $outpath/outputs outputs
 # wait some time to have the files on the nodes
 
 # set runtime and get prevyear
+timestep=240
 nspool=360
 prevmonth=$(python ~/schism/setups/nwshelf/mistral/get_prevmonth.py $currmonth)
 rnday=$(python ~/schism/setups/nwshelf/mistral/get_rnday.py $currmonth $initmonth)
 #ihfskip=360 # this is for daily files
-ihfskip=$(python ~/schism/setups/nwshelf/mistral/get_ihfskip.py $currmonth $nspool $initmonth)
+ihfskip=$(python ~/schism/setups/nwshelf/mistral/get_ihfskip.py $currmonth $timestep $initmonth)
 cp param.default param.in
 sed -i -- "s/MY_RNDAY/$rnday/g" param.in
 sed -i -- "s/MY_IHFSKIP/$ihfskip/g" param.in
 sed -i -- "s/MY_NSPOOL/$nspool/g" param.in
 sed -i -- "s/MY_HOTOUT_WRITE/$ihfskip/g" param.in
+sed -i -- "s/MY_DT/$timestep/g" param.in
 
 # run the model
 # --distribution=block:cyclic bind tasks to physical cores

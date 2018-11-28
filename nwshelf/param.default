@@ -159,7 +159,7 @@
 ! If indvel=1, no hvis is needed. 
 ! (2) Shapiro filter (see below)
 !-----------------------------------------------------------------------
-  ihorcon = 2
+  ihorcon = 0
   hvis_coef0 = 0.025 !const. diffusion # if ihorcon/=0; <=0.025 for ihorcon=2, <=0.125 for ihorcon=1
 !  cdh = 0.01 !needed only if ihorcon/=0; land friction coefficient - not active yet
 
@@ -318,7 +318,7 @@
   rnday = MY_RNDAY !total run time in days
   nramp = MY_NRAMP_ !ramp-up option (1: on; 0: off)
   dramp = 1. !needed if nramp=1; ramp-up period in days
-  dt = 240.0
+  dt = MY_DT
 
 !-----------------------------------------------------------------------
 ! Solver option. JCG is used presently.
