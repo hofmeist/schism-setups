@@ -1,0 +1,44 @@
+#!/bin/bash
+
+datadir=/work/gg0877/KST/MiMeMo/merra2/schism-sflux
+years=(2012 2013 2014)
+months=(01 02 03 04 05 06 07 08 09 10 11 12)
+#months=(01 02)
+
+rm -rf ./sflux
+
+mkdir -p sflux
+
+i=0
+
+for year in ${years[@]}; do
+  for month in ${months[@]}; do
+    i=$((i+1))
+    num=`printf %03d $i`
+    ln -sf ${datadir}/merra2.air.${year}${month}.nc sflux/sflux_air_1.${num}.nc
+    ln -sf ${datadir}/merra2.rad.${year}${month}.nc sflux/sflux_rad_1.${num}.nc
+    ln -sf ${datadir}/merra2.prec.${year}${month}.nc sflux/sflux_prc_1.${num}.nc
+  done
+done
+
+    i=$((i+1))
+    num=`printf %03d $i`
+    ln -sf ${datadir}/merra2.air.$((year+1))01.nc sflux/sflux_air_1.${num}.nc
+    ln -sf ${datadir}/merra2.rad.$((year+1))01.nc sflux/sflux_rad_1.${num}.nc
+    ln -sf ${datadir}/merra2.prec.$((year+1))01.nc sflux/sflux_prc_1.${num}.nc
+
+
+# write namelist file
+cat > sflux/sflux_inputs.txt << EOL
+&sflux_inputs
+start_year = ${years[0]}, ! start year 
+start_month = ${months[0]}, ! start month 
+start_day = 01, ! start day 
+start_hour = 0.0, ! start hour 
+utc_start = 0.0, ! offset from UTC in hours, with positive numbers for western hemishpere 
+/
+EOL
+
+
+
+
