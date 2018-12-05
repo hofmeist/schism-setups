@@ -12,14 +12,14 @@ else:
     start_year,start_month = [int(nn) for nn in sys.argv[2].split('-')]
     end_year,end_month = [int(nn) for nn in sys.argv[3].split('-')]
   else:
-    start_year=2014
+    start_year=2012
     start_month=1
-    end_year=2014
+    end_year=2012
     end_month=12
 
 def log_directive(id,yyyymm,logname='log'):
-  logstr='--output=/scratch/g/g260078/schism-results/nwshelf%s/%s_%s.o'%(id,logname,yyyymm)
-  logstr+=' --error=/scratch/g/g260078/schism-results/nwshelf%s/%s_%s.e'%(id,logname,yyyymm)
+  logstr='--output=/scratch/g/g260078/schism-results/%s/%s_%s.o'%(id,logname,yyyymm)
+  logstr+=' --error=/scratch/g/g260078/schism-results/%s/%s_%s.e'%(id,logname,yyyymm)
   return logstr
 
 years=[2012,2013,2014,2015]
@@ -40,19 +40,20 @@ for year in years:
 
 rundep=''
 debug=False
+runid='arctic'+id
 if debug: out="1 1"
 # create output directory for log-files
-os.system('mkdir -p /scratch/g/g260078/schism-results/nwshelf%s'%id)
+os.system('mkdir -p /scratch/g/g260078/schism-results/%s'%runid)
 
 for year in years:
   for month in yearmonths[year]:
     yyyymm='%04d-%02d'%(year,month)
     print('hotstart period %s'%yyyymm)
 
-    logrun=log_directive(id,yyyymm,logname='log')
-    loghot=log_directive(id,yyyymm,logname='log_hmerge')
-    logmerge=log_directive(id,yyyymm,logname='log_merge')
-    logecomerge=log_directive(id,yyyymm,logname='log_ecomerge')
+    logrun=log_directive(runid,yyyymm,logname='log')
+    loghot=log_directive(runid,yyyymm,logname='log_hmerge')
+    logmerge=log_directive(runid,yyyymm,logname='log_merge')
+    logecomerge=log_directive(runid,yyyymm,logname='log_ecomerge')
 
     # run the model
     cmd = 'sbatch %s %s mistral/run_hotstart.sh %s %s'%(rundep,logrun,id,yyyymm)
@@ -63,7 +64,7 @@ for year in years:
     pid = out.split()[-1]
 
     # merge hotstart files
-    cmd = 'sbatch --dependency=afterok:%s %s mistral/merge_hotstart.sh %s %s'%(pid,loghot,id,yyyymm)
+    cmd = 'sbatch --dependency=afterok:%s %s mistral/merge_hotstart.sh %s %s'%(pid,loghot,runid,yyyymm)
     if debug:
       print(cmd)
     else:
@@ -73,7 +74,7 @@ for year in years:
     rundep = '--dependency=afterok:%s'%hmerge_pid
     
     # merge output
-    cmd = 'sbatch --dependency=afterok:%s %s mistral/merge_output.sh %s %s'%(pid,logmerge,id,yyyymm)
+    cmd = 'sbatch --dependency=afterok:%s %s mistral/merge_output.sh %s %s'%(pid,logmerge,runid,yyyymm)
     if debug:
       print(cmd)
     else:

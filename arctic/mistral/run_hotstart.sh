@@ -4,9 +4,9 @@
 #SBATCH --comment="SCHISM compiled with intel16 and intelmpi"
 #SBATCH --partition=compute2    # Specify partition name
 ### --ntasks=192
-#SBATCH --ntasks=144
+#SBATCH --ntasks=36
 #SBATCH --ntasks-per-node=36
-#SBATCH --time=02:00:00        # Set a limit on the total run time
+#SBATCH --time=01:00:00        # Set a limit on the total run time
 #SBATCH --wait-all-nodes=1     # start job, when all nodes are available
 #SBATCH --mail-type=FAIL       # Notify user by email in case of job failure
 #SBATCH --mail-user=richard.hofmeister@hzg.de  # Set your e−mail address
@@ -35,8 +35,8 @@ ln -sf $outpath/outputs outputs
 # wait some time to have the files on the nodes
 
 # set runtime and get prevyear
-timestep=240
-nspool=360
+timestep=240.
+nspool=15
 prevmonth=$(python ~/schism/setups/nwshelf/mistral/get_prevmonth.py $currmonth)
 rnday=$(python ~/schism/setups/nwshelf/mistral/get_rnday.py $currmonth $initmonth)
 #ihfskip=360 # this is for daily files
@@ -44,7 +44,7 @@ ihfskip=$(python ~/schism/setups/nwshelf/mistral/get_ihfskip.py $currmonth $time
 
 # run for 1 day only
 rnday=1
-ihfskip=15
+ihfskip=360
 
 cp param.default param.in
 sed -i -- "s/MY_RNDAY/$rnday/g" param.in
@@ -57,7 +57,7 @@ sed -i -- "s/MY_DT/$timestep/g" param.in
 # --distribution=block:cyclic bind tasks to physical cores
 rm -f hotstart.nc
 if [ "$currmonth" == "$initmonth" ] ; then
-  ln -sf /work/gg0877/hofmeist/arctic/input/hotstart_january.nc hotstart.nc
+  ln -sf /work/gg0877/hofmeist/arctic/input/hotstart_january_woa_tweak.nc hotstart.nc
   # use ramps here
   sed -i -- 's/MY_NRAMP_SS/1/g' param.in
   sed -i -- 's/MY_NRAMPWIND/1/g' param.in
@@ -67,7 +67,7 @@ if [ "$currmonth" == "$initmonth" ] ; then
 #  sed -i -- 's/MY_ICELEV/1/g' param.in
 #  sed -i -- 's/MY_NRAMPBC/0/g' param.in
 #  sed -i -- 's/MY_NRAMP_/0/g' param.in
-  sed -i -- 's/MY_IHOT/1/g' param.in
+  sed -i -- 's/MY_IHOT/0/g' param.in
 else
   ln -sf /scratch/g/g260078/schism-results/$id/$prevmonth/outputs/hotstart.nc hotstart.nc
   for i in {1..9} ; do
