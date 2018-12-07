@@ -4,7 +4,7 @@
 #SBATCH --comment="SCHISM compiled with intel16 and intelmpi"
 #SBATCH --partition=compute2    # Specify partition name
 ### --ntasks=192
-#SBATCH --ntasks=36
+#SBATCH --ntasks=72
 #SBATCH --ntasks-per-node=36
 #SBATCH --time=01:00:00        # Set a limit on the total run time
 #SBATCH --wait-all-nodes=1     # start job, when all nodes are available
@@ -14,6 +14,13 @@
 #SBATCH --output=log.o    # File name for standard output
 #SBATCH --error=log.e     # File name for standard error output
 
+# for n-tasks=36 and hourly output: 24h in 0.25 h
+# ntasks=  36: 24h in 794s
+# ntasks=  72: 24h in 413s
+# ntasks= 144: 24h in 238s
+# ntasks= 252: 24h in 145s
+# ntasks= 540: 24h in 90s
+# ntasks=1080: 24h in 69s
 
 ## use Intel MPI
 module load intel/17.0.1
@@ -36,7 +43,7 @@ ln -sf $outpath/outputs outputs
 
 # set runtime and get prevyear
 timestep=240.
-nspool=15
+nspool=360
 prevmonth=$(python ~/schism/setups/nwshelf/mistral/get_prevmonth.py $currmonth)
 rnday=$(python ~/schism/setups/nwshelf/mistral/get_rnday.py $currmonth $initmonth)
 #ihfskip=360 # this is for daily files
@@ -57,7 +64,8 @@ sed -i -- "s/MY_DT/$timestep/g" param.in
 # --distribution=block:cyclic bind tasks to physical cores
 rm -f hotstart.nc
 if [ "$currmonth" == "$initmonth" ] ; then
-  ln -sf /work/gg0877/hofmeist/arctic/input/hotstart_january_woa_tweak.nc hotstart.nc
+  #ln -sf /work/gg0877/hofmeist/arctic/input/hotstart_january_woa_tweak.nc hotstart.nc
+  ln -sf /work/gg0877/hofmeist/arctic/input/hotstart_base.nc hotstart.nc
   # use ramps here
   sed -i -- 's/MY_NRAMP_SS/1/g' param.in
   sed -i -- 's/MY_NRAMPWIND/1/g' param.in
@@ -67,7 +75,7 @@ if [ "$currmonth" == "$initmonth" ] ; then
 #  sed -i -- 's/MY_ICELEV/1/g' param.in
 #  sed -i -- 's/MY_NRAMPBC/0/g' param.in
 #  sed -i -- 's/MY_NRAMP_/0/g' param.in
-  sed -i -- 's/MY_IHOT/0/g' param.in
+  sed -i -- 's/MY_IHOT/1/g' param.in
 else
   ln -sf /scratch/g/g260078/schism-results/$id/$prevmonth/outputs/hotstart.nc hotstart.nc
   for i in {1..9} ; do
