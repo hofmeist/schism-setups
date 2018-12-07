@@ -26,7 +26,7 @@ class hamtide(object):
     self.T['K2'] = 11.967
     self.T['P1'] = 24.066
     self.T['Q1'] = 26.868
-    self.T['N2'] = 12.906
+    self.T['2N'] = 12.906
 
     self.kp = {} # kappa prime - equilibrium argument (Greenwich), year 2012
     self.kp['M2'] = 194.35
@@ -37,7 +37,7 @@ class hamtide(object):
     self.kp['K2'] = 216.47
     self.kp['P1'] = 350.48
     self.kp['Q1'] = 19.25
-    self.kp['N2'] = -9999. # unknown 2N2
+    self.kp['2N'] = -9999. # unknown 2N2
 
     path='/work/gg0877/KST/Tides/hamtide'
     self.ampl={}
@@ -118,11 +118,11 @@ if __name__ == '__main__':
     2 0.113033 1.454441e-04  1.00123 239.89180
     """)
 
-    tides = ['M2','S2']
+    tides = ['M2','S2','K1','O1','Q1','P1','N2','K2']
     bf.write('%d nbfr\n'%len(tides))
     for tide in tides:
       bf.write('%s\n'%tide)
-      bf.write('1 %0.6f 1.0 %0.6f\n'%(1.0/h.T[tide],h.kp[tide]))
+      bf.write('1 %0.6e 1.0 %0.6f\n'%(2*pi/(h.T[tide]*3600.),h.kp[tide]))
 
     bf.write('%d nope\n'%len(a.bdy_segments))
 
