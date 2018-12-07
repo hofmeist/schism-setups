@@ -359,7 +359,7 @@ class schism_setup(object):
     return ridx
 
 
-  def create_hotstart(self,ntracers=2,filename='hotstart.nc',tr_nd=0.0,time=0.0,iths=0,ifile=0,elev=0.0,u=0.0,v=0.0):
+  def create_hotstart(self,ntracers=2,filename='hotstart.nc',tr_nd=0.0,time=0.0,iths=0,ifile=0,elev=0.0,u=0.0,v=0.0,use_ice=False,ice_ntr=3,ice_free_flag=1):
     """
     write hotstart.nc with empty tracer concentrations on nodes
     """
@@ -374,38 +374,66 @@ class schism_setup(object):
     nc.createDimension('one',1)
     nc.createDimension('three',3)
 
-    v = nc.createVariable('time','f8',('one',))
-    v[:] = time
-    v = nc.createVariable('iths','i',('one',))
-    v[:] = iths 
-    v = nc.createVariable('ifile','i',('one',))
-    v[:] = ifile
-    v = nc.createVariable('idry_e','i',('elem',))
-    v[:] = 0
-    v = nc.createVariable('idry_s','i',('side',))
-    v[:] = 0
-    v = nc.createVariable('idry','i',('node',))
-    v[:] = 0
-    v = nc.createVariable('eta2','f8',('node',))
-    v[:] = elev
-    v = nc.createVariable('we','f8',('elem','nVert'))
-    v[:] = 0.0
-    v = nc.createVariable('su2','f8',('side','nVert'))
-    v[:] = u
-    v = nc.createVariable('sv2','f8',('side','nVert'))
-    v[:] = v
-    v = nc.createVariable('q2','f8',('node','nVert'))
-    v[:] = 0.0
-    v = nc.createVariable('xl','f8',('node','nVert'))
-    v[:] = 0.0
-    v = nc.createVariable('dfv','f8',('node','nVert'))
-    v[:] = 0.0
-    v = nc.createVariable('dfh','f8',('node','nVert'))
-    v[:] = 0.0
-    v = nc.createVariable('dfq1','f8',('node','nVert'))
-    v[:] = 0.0
-    v = nc.createVariable('dfq2','f8',('node','nVert'))
-    v[:] = 0.0
+    vv = nc.createVariable('time','f8',('one',))
+    vv[:] = time
+    vv = nc.createVariable('iths','i',('one',))
+    vv[:] = iths 
+    vv = nc.createVariable('ifile','i',('one',))
+    vv[:] = ifile
+    vv = nc.createVariable('idry_e','i',('elem',))
+    vv[:] = 0
+    vv = nc.createVariable('idry_s','i',('side',))
+    vv[:] = 0
+    vv = nc.createVariable('idry','i',('node',))
+    vv[:] = 0
+    vv = nc.createVariable('eta2','f8',('node',))
+    vv[:] = elev
+    vv = nc.createVariable('we','f8',('elem','nVert'))
+    vv[:] = 0.0
+    vv = nc.createVariable('su2','f8',('side','nVert'))
+    vv[:] = u
+    vv = nc.createVariable('sv2','f8',('side','nVert'))
+    vv[:] = v
+    vv = nc.createVariable('q2','f8',('node','nVert'))
+    vv[:] = 0.0
+    vv = nc.createVariable('xl','f8',('node','nVert'))
+    vv[:] = 0.0
+    vv = nc.createVariable('dfv','f8',('node','nVert'))
+    vv[:] = 0.0
+    vv = nc.createVariable('dfh','f8',('node','nVert'))
+    vv[:] = 0.0
+    vv = nc.createVariable('dfq1','f8',('node','nVert'))
+    vv[:] = 0.0
+    vv = nc.createVariable('dfq2','f8',('node','nVert'))
+    vv[:] = 0.0
+
+    if use_ice:
+      nc.createDimension('ice_ntr',ice_ntr)
+      nc.createDimension('two',2)
+
+      vv = nc.createVariable('ice_free_flag','i',('one',))
+      vv[:] = ice_free_flag
+      vv = nc.createVariable('ice_velocity_x','f8',('node',))
+      vv[:] = 0.0
+      vv = nc.createVariable('ice_velocity_y','f8',('node',))
+      vv[:] = 0.0
+      vv = nc.createVariable('ice_water_flux','f8',('node',))
+      vv[:] = 0.0
+      vv = nc.createVariable('ice_heat_flux','f8',('node',))
+      vv[:] = 0.0
+      vv = nc.createVariable('ice_surface_T','f8',('node',))
+      vv[:] = 0.0
+      vv = nc.createVariable('ice_ocean_stress','f8',('node','two'))
+      vv[:] = 0.0
+      vv = nc.createVariable('ice_sigma11','f8',('elem',))
+      vv[:] = 0.0
+      vv = nc.createVariable('ice_sigma12','f8',('elem',))
+      vv[:] = 0.0
+      vv = nc.createVariable('ice_sigma22','f8',('elem',))
+      vv[:] = 0.0
+      vv = nc.createVariable('ice_tracers','f8',('node','ice_ntr'))
+      vv[:] = 0.0
+
     nc.sync()
 
     # write tracer concentrations on nodes
