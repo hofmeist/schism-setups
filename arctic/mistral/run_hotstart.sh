@@ -4,9 +4,9 @@
 #SBATCH --comment="SCHISM compiled with intel16 and intelmpi"
 #SBATCH --partition=compute2    # Specify partition name
 ### --ntasks=192
-#SBATCH --ntasks=72
+#SBATCH --ntasks=252
 #SBATCH --ntasks-per-node=36
-#SBATCH --time=01:00:00        # Set a limit on the total run time
+#SBATCH --time=04:00:00        # Set a limit on the total run time
 #SBATCH --wait-all-nodes=1     # start job, when all nodes are available
 #SBATCH --mail-type=FAIL       # Notify user by email in case of job failure
 #SBATCH --mail-user=richard.hofmeister@hzg.de  # Set your e−mail address
@@ -42,7 +42,7 @@ ln -sf $outpath/outputs outputs
 # wait some time to have the files on the nodes
 
 # set runtime and get prevyear
-timestep=240.
+timestep=240
 nspool=360
 prevmonth=$(python ~/schism/setups/nwshelf/mistral/get_prevmonth.py $currmonth)
 rnday=$(python ~/schism/setups/nwshelf/mistral/get_rnday.py $currmonth $initmonth)
@@ -50,8 +50,8 @@ rnday=$(python ~/schism/setups/nwshelf/mistral/get_rnday.py $currmonth $initmont
 ihfskip=$(python ~/schism/setups/nwshelf/mistral/get_ihfskip.py $currmonth $timestep $initmonth)
 
 # run for 1 day only
-rnday=1
-ihfskip=360
+#rnday=1
+#ihfskip=360
 
 cp param.default param.in
 sed -i -- "s/MY_RNDAY/$rnday/g" param.in
@@ -94,9 +94,11 @@ fi
 cp param.in $outpath
 cp bctides.in $outpath
 cp vgrid.in $outpath
-cp fabm.nml $outpath
+cp fabm.nml $outpath 2> /dev/null
+cp ice.nml $outpath 2> /dev/null
 
-srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/svn-code/trunk/build/bin/pschism
+#srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/svn-code/trunk/icebuild/bin/pschism
+srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/svn-code/trunk/pebuild/bin/pschism
 
 # move log files
 mv fort.* mirror.out $outpath
