@@ -7,7 +7,7 @@ from scipy.spatial import cKDTree
 
 class woa():
 
-  def __init__(self,ncfile='woa13_devac_04v2.nc'):
+  def __init__(self,ncfile='woa13_devac_04v2.nc',tidx=0):
     nc = netCDF4.Dataset(ncfile)
     sv = nc.variables
     latslice=slice(173,262)
@@ -18,7 +18,7 @@ class woa():
     self.lat = sv['lat'][latslice]
     self.d = -sv['depth'][:]
     self.time = sv['time'][:]
-    self.tidx = 0
+    self.tidx = tidx
     self.s = sv['s_mn'][:,:,latslice,lonslice]
     self.t = sv['t_mn'][:,:,latslice,lonslice]
     self.lon2,self.lat2 = meshgrid(self.lon,self.lat)
@@ -57,7 +57,7 @@ class woa():
         self.svar[ik] = self.s[self.tidx,ik][where(self.s.mask[self.tidx,ik]==False)].flatten()
         self.tvar[ik] = self.t[self.tidx,ik][where(self.t.mask[self.tidx,ik]==False)].flatten()
 
-  def interpolate(self,depths,nodelon,nodelat,bidx=1):
+  def interpolate(self,depths,nodelon,nodelat,bidx=1,tidx=0):
     # start
     t = zeros((len(depths),))
     s = zeros((len(depths),))
