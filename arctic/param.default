@@ -333,7 +333,7 @@
 !-----------------------------------------------------------------------
 ! Solver option. JCG is used presently.
 !-----------------------------------------------------------------------
-  slvr_output_spool = 1 !output spool for solver info
+  slvr_output_spool = 50 !output spool for solver info
   mxitn = 1500 !max. iteration allowed
   tolerance = 1.e-12 !error tolerance
 

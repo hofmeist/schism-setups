@@ -68,8 +68,8 @@ for year in years:
     if debug:
       print(cmd)
     else:
-      print(cmd)
-      #out = commands.getoutput(cmd)
+      #print(cmd)
+      out = commands.getoutput(cmd)
     hmerge_pid = out.split()[-1]
     rundep = '--dependency=afterok:%s'%hmerge_pid
     
@@ -78,8 +78,8 @@ for year in years:
     if debug:
       print(cmd)
     else:
-      print(cmd)
-      #out = commands.getoutput(cmd)
+      #print(cmd)
+      out = commands.getoutput(cmd)
     omerge_pid = out.split()[-1]
 
 #    cmd = 'sbatch --dependency=afterok:%s %s mistral/merge_ecosmo.sh %s %s'%(pid,logecomerge,id,yyyymm)
