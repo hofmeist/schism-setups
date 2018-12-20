@@ -167,8 +167,10 @@ for tidx,t in enumerate(dates):
       clim(vmin,vmax)
     proj.drawcoastlines()
     proj.fillcontinents((0.9,0.9,0.8))
-    cax = axes([0.85,0.05,0.02,0.4])
-    cb=colorbar(cax=cax)
+    cax = axes([0.03,0.2,0.25,0.03])
+    cb=colorbar(cax=cax,orientation='horizontal')
+    for ll in cax.get_xmajorticklabels():
+      ll.set_rotation(60.)
     cb.set_label(u'%s %s'%(cbtitle,unitsstr))
     tstring = t.strftime('%Y%m%d-%H%M')
     savefig('jpgs/%s/%s_surface_%s.jpg'%(varname,varname,tstring),dpi=200)
