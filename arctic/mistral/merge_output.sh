@@ -24,6 +24,7 @@ iis=$(python $HOME/schism/setups/nwshelf/mistral/get_ifiles.py $yyyymm 2012-01)
 
 for ii in $iis ; do
     $HOME/schism/svn-code/trunk/build/bin/combine_output11 -b $ii -e $ii &
+    #$HOME/schism/svn-code/trunk/build/bin/combine_output11 -b $ii -e 31 &
 done
 wait
 
@@ -34,8 +35,8 @@ swd=/work/gg0877/hofmeist/arctic/$sname
 scratchdir=/scratch/g/g260078/schism-results/$sname
 mkdir -p $swd
 
-cp -ua $scratchdir/outputs/staout* $swd &
-cp -ua $scratchdir/*.* $swd &
+cp $scratchdir/outputs/staout* $swd &
+cp -L  $scratchdir/{param.in,fabm.nml,ice.nml,gotmturb.nml} $swd &
 for ii in $iis ; do
   cp $scratchdir/outputs/schout_${iis}.nc $swd &
 done

@@ -1,4 +1,4 @@
-import commands
+import subprocess as sub
 import sys
 import os
 
@@ -9,22 +9,25 @@ def log_directive(id,logname='log'):
   return logstr
 
 procs=[36,72,144,252,540,1080,1620,2160]
-procs=[36,72,144,252,540,1080]
-procs=[1620,2160]
+#procs=[36,72,144,252,540,1080]
+#procs=[1620,2160]
+procs=[144,252,540,1080,1620,2160]
+procs=[36,72]#,144,252,540,1080,1620,2160]
 
 rundep=''
-debug=True
+debug=False
 if debug: out="99 99"
 
 # link hotstart.nc before to some spinned-up time
 cmd='rm -f hotstart.nc && ln -sf /work/gg0877/hofmeist/arctic/arctic006/2012-02/hotstart.nc hotstart.nc'
+cmd='rm -f hotstart.nc && ln -sf /work/gg0877/hofmeist/arctic/arcticice002/2012-02/hotstart.nc hotstart.nc'
 if debug:
   print(cmd)
 else:
   os.system(cmd)
 
 for proc in procs:
-    runid='pe%04d'%proc
+    runid='icepe%04d'%proc
     print('scaling test %d proc'%proc)
     # create output directory for log-files
     cmd='mkdir -p /work/gg0877/hofmeist/arctic/scaling/%s'%runid
@@ -40,7 +43,7 @@ for proc in procs:
     if debug:
       print(cmd)
     else:
-      out = commands.getoutput(cmd)
+      out = sub.check_output(cmd.split(),universal_newlines=True)
     pid = out.split()[-1]
     rundep = '--dependency=afterok:%s'%pid
 
