@@ -11,11 +11,12 @@ from datetime import datetime
 class hycom(object):
 
   def __init__(self,ncfile='hycom.nc'):
-    self.saltname='ECO_no3'
-    self.tempname='ECO_pho'
+    self.saltname='salinity'
+    self.tempname='temperature'
     self.lonname='longitude'
     self.latname='latitude'
     self.depthname='depth'
+    self.sshname='ssh'
     self.timename='time'
 
     nc = netCDF4.Dataset(ncfile)
@@ -55,12 +56,12 @@ class hycom(object):
         vlon3 = self.lon3[where(self.s.mask[tidx]==False)]
         vlat3 = self.lat3[where(self.s.mask[tidx]==False)]
         vd3 = self.d3[where(self.s.mask[tidx]==False)]
-        self.s_tree[tidx]=cKDTree(zip(vlon3,vlat3,vd3))
+        self.s_tree[tidx]=cKDTree(list(zip(vlon3,vlat3,vd3)))
 
         vlon3 = self.lon3[where(self.t.mask[tidx]==False)]
         vlat3 = self.lat3[where(self.t.mask[tidx]==False)]
         vd3 = self.d3[where(self.t.mask[tidx]==False)]
-        self.t_tree[tidx]=cKDTree(zip(vlon3,vlat3,vd3))
+        self.t_tree[tidx]=cKDTree(list(zip(vlon3,vlat3,vd3)))
 
         self.s_var[tidx] = self.s[tidx][where(self.s.mask[tidx]==False)].flatten()
         self.t_var[tidx] = self.t[tidx][where(self.t.mask[tidx]==False)].flatten()
@@ -70,7 +71,7 @@ class hycom(object):
       self.water = where(self.mask==False)
       vlon2 = self.lon2[self.water]
       vlat2 = self.lat2[self.water]
-      self.tree = cKDTree(zip(vlon2,vlat2))
+      self.tree = cKDTree(list(zip(vlon2,vlat2)))
 
 
   def interpolate(self,depths,nodelon,nodelat,tidx=1,bidx=1):
@@ -88,26 +89,29 @@ class hycom(object):
     else:
       dist,inds = self.tree.query((nodelon,nodelat),k=4)
       w = 1/dist
-      varprof = ma.masked_equal(zeros((len(self.d),)),-1.0)
-      for k,d in enumerate(self.d):
-        #varprof[k] = np.sum(w*self.ncv[self.tempname][0,k][self.water][inds],axis=0)/np.sum(w,axis=0)
-        varprof[k] = np.nanmean(self.ncv[self.tempname][tidx,k][self.water][inds],axis=0)
+      profiles={}
+      result={}
+      for var in ['salinity','temperature']:
+        profiles[var] = ma.masked_equal(zeros((len(self.d),)),-1.0)
+        varprof=profiles[var]
+        for k,d in enumerate(self.d):
+          #varprof[k] = np.sum(w*self.ncv[self.tempname][0,k][self.water][inds],axis=0)/np.sum(w,axis=0)
+          varprof[k] = np.nanmean(self.ncv[var][tidx,k][self.water][inds],axis=0)
         if isnan(varprof[k]):
           varprof.mask[k]=True
 
-      # check if all values are masked
-      if type(varprof.mask)==np.bool_:
-        t = interp(depths,-self.d,varprof)
-      else:
-        t = interp(depths,-self.d[where(~varprof.mask)],varprof[where(~varprof.mask)])
+        # check if all values are masked
+        if type(varprof.mask)==np.bool_:
+          result[var] = interp(depths,-self.d,varprof)
+        else:
+          result[var] = interp(depths,-self.d[where(~varprof.mask)],varprof[where(~varprof.mask)])
       # plot for debugging
-      if False:
-        plot(-self.d,varprof,'r-')
-        plot(depths,t,'yo')
+      if True:
+        plot(-self.d,profiles['salinity'],'r-')
+        plot(depths,result['salinity'],'yo')
         show()
 
-      s = t
-    return (t,s)
+    return (result['temperature'],result['salinity'])
 
 
 if __name__ == '__main__':
@@ -121,4 +125,8 @@ if __name__ == '__main__':
 
   depths=-1.0*asarray([-3000.,-2000.,-1000,-500,-200.,-100,-50,-25,-12,-6])
   t,s = h.interpolate(depths,40,75.0,tidx=0,bidx=1)
+  print('At 40degE/75degN, temperature:')
+  print(t)
+  print('salinity:')
+  print(s)
 
