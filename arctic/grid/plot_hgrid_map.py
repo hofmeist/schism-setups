@@ -55,11 +55,11 @@ lats=[]
 v = []
 d = []
 
-for num,coords in el.iteritems():
+for num,coords in el.items():
   lons.append(coords[0])
   lats.append(coords[1])
 
-for num,ijk in verts.iteritems():
+for num,ijk in verts.items():
   i,j,k = verts[num]
   xs = (el[i][0],el[j][0],el[k][0])
   ys = (el[i][1],el[j][1],el[k][1])
@@ -98,27 +98,29 @@ xx,yy = proj(lons,lats)
 
 cmap = cm.ocean_r
 
-f = figure(figsize=(18,10))
-tripcolor(xx,yy,asarray(verts.values())-1,depth.values(),shading='flat',cmap=cmap)
-clim(5.,maxdepth)
-colorbar()
+if False:
+  f = figure(figsize=(18,10))
+  tripcolor(xx,yy,asarray(list(verts.values()))-1,list(depth.values()),shading='flat',cmap=cmap)
+  clim(5.,maxdepth)
+  colorbar()
 
-proj.drawcoastlines()
-proj.fillcontinents((0.9,0.9,0.8))
-savefig('%s_bathymetry.png'%(filename.split('.')[0]),dpi=600)
-show()
-
+  proj.drawcoastlines()
+  proj.fillcontinents((0.9,0.9,0.8))
+  #savefig('%s_bathymetry.png'%(filename.split('.')[0]),dpi=600)
+  #show()
+  close()
 
 # show the grid again
 
 figure(figsize=(16,10))
 
-triplot(xx,yy,asarray(verts.values())-1,'k-',lw=0.1)
+triplot(xx,yy,asarray(list(verts.values()))-1,'k-',lw=0.1)
 proj.drawcoastlines()
 proj.fillcontinents((0.9,0.9,0.8))
 
-#savefig('%s_grid.pdf'%(filename.split('.')[0]))
-show()
+#savefig('%s_grid.svg'%(filename.split('.')[0]),format='svg')
+savefig('%s_grid.png'%(filename.split('.')[0]),dpi=1200)
+#show()
 
 
     
