@@ -2,7 +2,7 @@ import matplotlib
 matplotlib.use('Agg')
 import sys
 sys.path.append('/pf/g/g260078/pythoninstall/pythonlib')
-from plotting import cm_Parula
+#from plotting import cm_Parula
 
 from pylab import *
 import netCDF4
@@ -11,7 +11,7 @@ import os
 import argparse
 from netcdftime import utime
 import numpy as np
-import cPickle as pickle
+import pickle as pickle
 
 def replace_superscripts(s):
   r = unicode(s.replace('^3',u'\u00b3'))
@@ -117,7 +117,7 @@ levels=arange(znum)
 if False: #os.path.isfile('xy_tree.pickle'):
     (tree,)=np.load('xy_tree.pickle')
 else:
-    tree = cKDTree(zip(x,y))
+    tree = cKDTree(list(zip(x,y)))
     try:
       f=open('xy_tree.pickle','wb')
       pickle.dump((tree,),f)
@@ -132,7 +132,7 @@ if fnamestr=='lon40':
   lonmax=40.0
   ylimmin=-600
   ntransect=200
-  plotgrid=True
+  plotgrid=False
 else:
   latmin=74.0
   latmax=74.0
@@ -157,7 +157,7 @@ if tidx >= 0:
 else:
   tidx_offset=0
 
-dist,inds = tree.query(zip(xtrans,ytrans),k=10)
+dist,inds = tree.query(list(zip(xtrans,ytrans)),k=10)
 weight = 1.0/dist**2
 
 

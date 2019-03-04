@@ -1,7 +1,7 @@
 from pylab import *
 from matplotlib.ticker import ScalarFormatter
 
-proc=[36,72,144,252,540,1080,1620]
+proc=[36,72,144,252,540,1080,1620]#,2160]
 #proc=[36,72,144,252,540,1080]
 basedir='/work/gg0877/hofmeist/arctic/scaling'
 

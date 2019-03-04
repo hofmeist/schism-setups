@@ -21,6 +21,7 @@ parser.add_argument('-vrange', help='values range [-vrange vmin,vmax]')
 parser.add_argument('-title', help='title of colorbar')
 parser.add_argument('-units', help='unit string')
 parser.add_argument('-scalefactor', help='linear scaling factor')
+parser.add_argument('-ice', help='add ice layer')
 args = parser.parse_args()
 
 if args.tidx is not None:
@@ -52,6 +53,17 @@ if args.scalefactor is not None:
   fac = float(args.scalefactor)
 else:
   fac=1.0
+
+if args.ice is not None:
+  if args.ice!='':
+    icevar=args.ice
+  else:
+    icevar='ICE_tracer_1'
+  use_ice=True
+  icestr='_ice'
+else:
+  use_ice=False
+  icestr=''
 
 nc = netCDF4.Dataset(args.ncfile)
 ncv = nc.variables
@@ -96,6 +108,9 @@ var = ncv[varname]
 #time = array([0.0])
 cmap = cm.jet
 #cmap.set_under(color='w')
+
+if use_ice:
+  ivar = ncv[icevar]
 
 def mask_triangles(masknodes,nv):
   idx = where(masknodes)[0]
@@ -147,7 +162,7 @@ for tidx,t in enumerate(dates):
     if varname=='elev':
       cmap=cm.RdYlGn
       cmap.set_under('gray')
-    tripcolor(x,y,nv,vs,cmap=cmap,rasterized=True)
+    pc = tripcolor(x,y,nv,vs,cmap=cmap,rasterized=True)
     if varname=='salt':
       clim(5,35)
       cbtitle='surface salinity'
@@ -165,15 +180,28 @@ for tidx,t in enumerate(dates):
       cbtitle = titlestr
     if uselim:
       clim(vmin,vmax)
+
+    if use_ice:
+      vice = ivar[tidx+tidx_offset].squeeze()
+      emask = vice[nv].mean(axis=1)
+      ipc = tripcolor(x,y,nv,vice,mask=emask<0.02,cmap=cm.BuPu,rasterized=True)
+
     proj.drawcoastlines()
     proj.fillcontinents((0.9,0.9,0.8))
-    cax = axes([0.03,0.2,0.25,0.03])
-    cb=colorbar(cax=cax,orientation='horizontal')
+
+    if use_ice:
+      icax = axes([0.03,0.85,0.25,0.02])
+      icb = colorbar(ipc,cax=icax,orientation='horizontal',label='ice thickness [m]')
+      for ll in icax.get_xmajorticklabels():
+        ll.set_rotation(60.)
+
+    cax = axes([0.03,0.2,0.25,0.02])
+    cb=colorbar(pc,cax=cax,orientation='horizontal')
     for ll in cax.get_xmajorticklabels():
       ll.set_rotation(60.)
     cb.set_label(u'%s %s'%(cbtitle,unitsstr))
     tstring = t.strftime('%Y%m%d-%H%M')
-    savefig('jpgs/%s/%s_surface_%s.jpg'%(varname,varname,tstring),dpi=200)
+    savefig('jpgs/%s/%s_surface_%s.jpg'%(varname,varname+icestr,tstring),dpi=200)
     close()
 
   if plot_bottom:
@@ -194,8 +222,11 @@ for tidx,t in enumerate(dates):
       cbtitle=titlestr
     proj.drawcoastlines()
     proj.fillcontinents((0.9,0.9,0.8))
-    cax = axes([0.85,0.05,0.02,0.4])
-    cb=colorbar(cax=cax)
+
+    cax = axes([0.03,0.2,0.25,0.02])
+    cb=colorbar(pc,cax=cax,orientation='horizontal')
+    for ll in cax.get_xmajorticklabels():
+      ll.set_rotation(60.)
     cb.set_label(u'%s %s'%(cbtitle,unitsstr))
     tstring = t.strftime('%Y%m%d-%H%M')
     savefig('jpgs/%s/%s_bottom_%s.jpg'%(varname,varname,tstring),dpi=200)
