@@ -504,6 +504,7 @@
   zcor = 1 !z-coordinates [m]
   qnon = 0 !non-hydrostatic pressure
   hvel = 1 !horizontal vel. [m/s]
+  hvel_mean = 1 ! time averaged horizontal velocities
 
 !-----------------------------------------------------------------------
 ! Outputs from WWM (USE_WWM must be on in Makefile)
@@ -764,14 +765,14 @@
 !-----------------------------------------------------------------------
 ! Ice module outputs (if USE_ICE is on)
 !-----------------------------------------------------------------------
-  ICE_tracer_1 = 0 !ice volume [m]
-  ICE_tracer_2 = 0 !ice concentration [-]
-  ICE_tracer_3 = 0 !snow volume [m]
-  ICE_velocity = 0 !ice advective velcoity vector [m/s]
-  ICE_strain_rate = 0 !strain rate @ elem [1/sec]
-  ICE_net_heat_flux = 0 !net heat flux to ocean (>0 warm up SST) [W/m/m]
-  ICE_fresh_water = 0 !net fresh water flux to ocean (>0 freshens up SSS) [kg/s/m/m]
-  ICE_top_T = 0 !ice temperature [C] at air-ice interface
+  ICE_tracer_1 = 1 !ice volume [m]
+  ICE_tracer_2 = 1 !ice concentration [-]
+  ICE_tracer_3 = 1 !snow volume [m]
+  ICE_velocity = 1 !ice advective velcoity vector [m/s]
+  ICE_strain_rate = 1 !strain rate @ elem [1/sec]
+  ICE_net_heat_flux = 1 !net heat flux to ocean (>0 warm up SST) [W/m/m]
+  ICE_fresh_water = 1 !net fresh water flux to ocean (>0 freshens up SSS) [kg/s/m/m]
+  ICE_top_T = 1 !ice temperature [C] at air-ice interface
 
   nstep_ice = 1  
 
