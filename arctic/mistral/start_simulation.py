@@ -7,10 +7,15 @@ if len(sys.argv)<2:
   sys.exit(1)
 else:
   id = sys.argv[1]
-  if len(sys.argv)==4:
+  if len(sys.argv)>=4:
     # expect first and last month
     start_year,start_month = [int(nn) for nn in sys.argv[2].split('-')]
     end_year,end_month = [int(nn) for nn in sys.argv[3].split('-')]
+    if len(sys.argv)==5:
+      startafter=sys.argv[4]
+      rundep = '--dependency=afterok:%s'%startafter
+    else:
+      rundep = ''
   else:
     start_year=2012
     start_month=1
@@ -38,7 +43,6 @@ for year in years:
     em = 12
   yearmonths[year] = range(sm,em+1)
 
-rundep=''
 debug=False
 runid='arctic'+id
 if debug: out="1 1"

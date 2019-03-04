@@ -26,7 +26,7 @@
 module load intel/17.0.1
 module load intelmpi/5.1.3.223
 export I_MPI_PMI_LIBRARY=/use/lib64/libmpi.so
-module load python/2.7-ve0
+module load python
 
 id="arctic$1"
 currmonth=$2
@@ -49,10 +49,6 @@ rnday=$(python ~/schism/setups/nwshelf/mistral/get_rnday.py $currmonth $initmont
 #ihfskip=360 # this is for daily files
 ihfskip=$(python ~/schism/setups/nwshelf/mistral/get_ihfskip.py $currmonth $timestep $initmonth)
 
-# run for 1 day only
-#rnday=1
-#ihfskip=360
-
 cp param.default param.in
 sed -i -- "s/MY_RNDAY/$rnday/g" param.in
 sed -i -- "s/MY_IHFSKIP/$ihfskip/g" param.in
@@ -71,8 +67,8 @@ if [ "$currmonth" == "$initmonth" ] ; then
   sed -i -- 's/MY_NRAMPWIND/1/g' param.in
   sed -i -- 's/MY_NRAMPBC/1/g' param.in
   sed -i -- 's/MY_NRAMP_/1/g' param.in
-  sed -i -- 's/MY_ICELEV/0/g' param.in
-#  sed -i -- 's/MY_ICELEV/1/g' param.in
+#  sed -i -- 's/MY_ICELEV/0/g' param.in
+  sed -i -- 's/MY_ICELEV/1/g' param.in
 #  sed -i -- 's/MY_NRAMPBC/0/g' param.in
 #  sed -i -- 's/MY_NRAMP_/0/g' param.in
   sed -i -- 's/MY_IHOT/1/g' param.in
@@ -97,8 +93,9 @@ cp vgrid.in $outpath
 cp fabm.nml $outpath 2> /dev/null
 cp ice.nml $outpath 2> /dev/null
 
-#srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/svn-code/trunk/icebuild/bin/pschism
-srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/svn-code/trunk/pebuild/bin/pschism
+ulimit -c 0
+#srun -l --propagate=STACK,CORE --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/svn-code/trunk/icebuild/bin/pschism
+srun -l --propagate=STACK,CORE --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/svn-code/trunk/pebuild/bin/pschism
 
 # move log files
 mv fort.* mirror.out $outpath

@@ -6,7 +6,7 @@
 ### --ntasks=192
 #SBATCH --ntasks=252
 #SBATCH --ntasks-per-node=36
-#SBATCH --time=00:30:00        # Set a limit on the total run time
+#SBATCH --time=00:50:00        # Set a limit on the total run time
 #SBATCH --wait-all-nodes=1     # start job, when all nodes are available
 #SBATCH --mail-type=FAIL       # Notify user by email in case of job failure
 #SBATCH --mail-user=richard.hofmeister@hzg.de  # Set your e−mail address
@@ -71,8 +71,10 @@ cp vgrid.in $outpath
 cp fabm.nml $outpath 2> /dev/null
 cp ice.nml $outpath 2> /dev/null
 
-#srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/svn-code/trunk/icebuild/bin/pschism
-srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/svn-code/trunk/pebuild/bin/pschism
+ulimit -c 0
+srun -l --propagate=STACK,CORE --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/svn-code/trunk/icebuild/bin/pschism
+#srun -l --propagate=STACK --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/svn-code/trunk/pebuild/bin/pschism
+
 
 # move log files
 mv fort.* mirror.out $outpath
