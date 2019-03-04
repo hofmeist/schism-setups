@@ -1,20 +1,23 @@
-from pylab import *
 import sys,os
 sys.path.append(os.environ['HOME']+'/schism/setups/scripts')
 from schism import schism_output
 
-if len(sys.argv)<3:
-  print('usage find_station_in_output.py schout_name.nc lon,lat')
+def get_nearest_node(filename,lon,lat):
+  s = schism_output(filename)
+  s.init_node_tree()
+  idx = s.find_nearest_node(lon.lat)
+  s.nc.close()
+  return idx
 
-filename = sys.argv[1]
-lon,lat = [float(n) for n in sys.argv[2].split(',')]
+if __name__ == '__main__':
 
-s = schism_output(filename)
+  if len(sys.argv)<3:
+    print('usage find_station_in_output.py schout_name.nc lon,lat')
 
-s.init_node_tree()
+  filename = sys.argv[1]
+  lon,lat = [float(n) for n in sys.argv[2].split(',')]
 
-idx = s.find_nearest_node(lon,lat)
+  idx = iget_nearest_node(filename,lon,lat)
 
-print(' Index for lon=%0.2f,lat=%0.2f is %d'%(lon,lat,idx))
+  print(' Index for lon=%0.2f,lat=%0.2f is %d'%(lon,lat,idx))
 
-s.nc.close()

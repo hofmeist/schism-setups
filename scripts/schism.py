@@ -96,7 +96,7 @@ class schism_setup(object):
         self.element_sides[i] = isides
       # count sides
       self.nsides = 0
-      element_ids = self.element_sides.keys()
+      element_ids = list(self.element_sides.keys())
       element_ids.sort()
       for i in element_ids:
         for ii,iside in enumerate(self.element_sides[i]):
@@ -252,12 +252,16 @@ class schism_setup(object):
       x3,y3 = (self.xdict[nodelist[2]],self.ydict[nodelist[2]])
       return ((x1-x3)*(y2-y3)-(x2-x3)*(y1-y3))/2.0
 
-  def dump_gr3(self,filename,const=0.0,comment='gr3 by create_ic.py'):
+  def dump_gr3(self,filename,const=0.0,values=None,comment='gr3 by create_ic.py'):
       f = open(filename,'w')
       f.write('%s\n'%comment)
       f.write('%d %d\n'%(self.nelements,self.nnodes))
-      for i,x,y in zip(self.inodes,self.x,self.y):
-        f.write('%d %0.2f %0.2f %0.5f\n'%(i,x,y,const))
+      if values==None:
+        for i,x,y in zip(self.inodes,self.x,self.y):
+          f.write('%d %0.2f %0.2f %0.5f\n'%(i,x,y,const))
+      else:
+        for i,x,y,val in zip(self.inodes,self.x,self.y,values):
+          f.write('%d %0.2f %0.2f %0.5f\n'%(i,x,y,val))
       f.close()
 
   def dump_tvd_prop(self):
@@ -271,9 +275,9 @@ class schism_setup(object):
     #print('  build node tree')
     from scipy.spatial import cKDTree
     if latlon:
-      self.node_tree_latlon = cKDTree(zip(self.lon,self.lat))
+      self.node_tree_latlon = cKDTree(list(zip(self.lon,self.lat)))
     else:
-      self.node_tree_xy = cKDTree(zip(self.x,self.y))
+      self.node_tree_xy = cKDTree(list(zip(self.x,self.y)))
 
   def init_element_tree(self,latlon=True):
     """
@@ -297,7 +301,7 @@ class schism_setup(object):
         self.element_lat[el] = sum([self.latdict[idx] for idx in self.nvdict[el]])/len(self.nvdict[el])
         if calc_depths:
           self.element_depth[el] = sum([self.depthsdict[idx] for idx in self.nvdict[el]])/len(self.nvdict[el])
-      self.element_tree_latlon = cKDTree(zip(self.element_lon.values(),self.element_lat.values()))
+      self.element_tree_latlon = cKDTree(list(zip(self.element_lon.values(),self.element_lat.values())))
       self.element_tree_ids = self.element_lon.keys()
     else:
       self.element_x={}
@@ -307,7 +311,7 @@ class schism_setup(object):
         self.element_y[el] = sum([self.ydict[idx] for idx in self.nvdict[el]])/len(self.nvdict[el])
         if calc_depths:
           self.element_depth[el] = sum([self.depthsdict[idx] for idx in self.nvdict[el]])/len(self.nvdict[el])
-      self.element_tree_xy = cKDTree(zip(self.element_x.values(),self.element_y.values()))
+      self.element_tree_xy = cKDTree(list(zip(self.element_x.values(),self.element_y.values())))
       self.element_tree_ids = self.element_x.keys()
 
 
@@ -556,9 +560,9 @@ class schism_output():
       """
       from scipy.spatial import cKDTree
       if latlon:
-        self.node_tree_latlon = cKDTree(zip(self.lon,self.lat))
+        self.node_tree_latlon = cKDTree(list(zip(self.lon,self.lat)))
       else:
-        self.node_tree_xy = cKDTree(zip(self.x,self.y))
+        self.node_tree_xy = cKDTree(list(zip(self.x,self.y)))
 
     def find_nearest_node(self,x,y,latlon=True):
       """
