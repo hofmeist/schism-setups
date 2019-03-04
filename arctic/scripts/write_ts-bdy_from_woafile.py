@@ -37,7 +37,7 @@ if __name__ == '__main__':
     sprev=[]
 
     # one year
-    years=[2012,2013,2014,2015]
+    years=[2012,2013,2014,2015,2016,2017,2018]
     times = [0.0]
     months = [0] # set 1 Jan to data from 15 Jan
     ut = netcdftime.utime('seconds since %d-01-01 00:00:00'%years[0])

@@ -19,7 +19,10 @@ class hycom(object):
     self.sshname='ssh'
     self.timename='time'
 
-    nc = netCDF4.Dataset(ncfile)
+    try:
+      nc = netCDF4.MFDataset(ncfile)
+    except:
+      nc = netCDF4.Dataset(ncfile)
     sv = nc.variables
     self.ncv = sv
     xslice=slice(173,262) # 45.-67.
@@ -73,6 +76,29 @@ class hycom(object):
       vlat2 = self.lat2[self.water]
       self.tree = cKDTree(list(zip(vlon2,vlat2)))
 
+  def interpolate_alltimes(self,depths,nodelon,nodelat):
+      dist,inds = self.tree.query((nodelon,nodelat),k=4)
+      w = 1/dist
+      profiles={}
+      result={}
+      for var in ['salinity','temperature']:
+        profiles[var] = ma.masked_equal(zeros((len(self.dates),len(self.d),)),-1.0)
+        varprof=profiles[var]
+        varprof[:] = np.mean(self.ncv[var][:][:,:,self.water[0][inds],self.water[1][inds]],axis=2)
+        varprof.mask[:,where(isnan(varprof[0,:]))[0]]=True
+
+        result[var]=[]
+        for tidx,date in enumerate(self.dates):
+          # check if all values are masked
+          if type(varprof.mask)==np.bool_:
+            result[var].append(interp(depths,-self.d,varprof[tidx]))
+          else:
+            result[var].append(interp(depths,-self.d[where(~varprof.mask[tidx])],varprof[tidx][where(~varprof.mask[tidx])]))
+
+      result['ssh'] = np.mean(self.ncv['ssh'][:,self.water[0][inds],self.water[1][inds]],axis=1)
+
+      return result
+    
 
   def interpolate(self,depths,nodelon,nodelat,tidx=1,bidx=1):
 
@@ -94,24 +120,27 @@ class hycom(object):
       for var in ['salinity','temperature']:
         profiles[var] = ma.masked_equal(zeros((len(self.d),)),-1.0)
         varprof=profiles[var]
-        for k,d in enumerate(self.d):
-          #varprof[k] = np.sum(w*self.ncv[self.tempname][0,k][self.water][inds],axis=0)/np.sum(w,axis=0)
-          varprof[k] = np.nanmean(self.ncv[var][tidx,k][self.water][inds],axis=0)
-        if isnan(varprof[k]):
-          varprof.mask[k]=True
+        varprof[:] = np.mean(self.ncv[var][tidx][:,self.water[0][inds],self.water[1][inds]],axis=1)
+        #for k,d in enumerate(self.d):
+        #  #varprof[k] = np.sum(w*self.ncv[self.tempname][0,k][self.water][inds],axis=0)/np.sum(w,axis=0)
+        #  varprof[k] = np.mean(self.ncv[var][tidx,k][self.water][inds],axis=0)
+        #if isnan(varprof[k]):
+        #  varprof.mask[k]=True
 
         # check if all values are masked
         if type(varprof.mask)==np.bool_:
           result[var] = interp(depths,-self.d,varprof)
         else:
           result[var] = interp(depths,-self.d[where(~varprof.mask)],varprof[where(~varprof.mask)])
+
+      result['ssh'] = np.mean(self.ncv['ssh'][tidx][self.water[0][inds],self.water[1][inds]])
       # plot for debugging
-      if True:
+      if False:
         plot(-self.d,profiles['salinity'],'r-')
         plot(depths,result['salinity'],'yo')
         show()
 
-    return (result['temperature'],result['salinity'])
+    return result
 
 
 if __name__ == '__main__':
@@ -124,9 +153,17 @@ if __name__ == '__main__':
   h = hycom(ncfile=ncfile)
 
   depths=-1.0*asarray([-3000.,-2000.,-1000,-500,-200.,-100,-50,-25,-12,-6])
-  t,s = h.interpolate(depths,40,75.0,tidx=0,bidx=1)
+  res = h.interpolate(depths,40,75.0,tidx=0,bidx=1)
   print('At 40degE/75degN, temperature:')
-  print(t)
+  print(res['temperature'])
   print('salinity:')
-  print(s)
+  print(res['salinity'])
+
+  if True:
+    res = h.interpolate_alltimes(depths,40,75.0)
+    print('timesteps: %d'%len(res['temperature']))
+    print('At 40degE/75degN, temperature:')
+    print(res['temperature'][0])
+    print('salinity:')
+    print(res['salinity'][0])
 

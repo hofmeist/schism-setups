@@ -30,35 +30,42 @@ if __name__ == '__main__':
   h = hycom(ncfile=ncfile)
 
   if UseSetup:
+    from tqdm import tqdm
     times=[]
     temp=[]
     salt=[]
+    elev=[]
     s2d=[]
     t2d=[]
 
     ut = netcdftime.utime('seconds since 2012-01-01 00:00:00')
     all_times = ut.date2num(h.dates)
 
-    for tidx,time in enumerate(all_times):
+    for tidx in tqdm(range(len(all_times))):
+      time = all_times[tidx]
       s2d=[]
       t2d=[]
+      e1d=[]
       for i,inode in enumerate(nws.bdy_nodes):
-        if (i%100) == 0:
-          print('  interpolate i = %d'%i)
+        #if (i%100) == 0:
+        #  print('  interpolate i = %d'%i)
         bdylon = nws.londict[inode]
         bdylat = nws.latdict[inode]
         depths = -nws.vgrid[inode].filled(-1)*max(nws.depthsdict[inode],6.0)
-        t,s = h.interpolate(depths,bdylon,bdylat,tidx=tidx,bidx=1)
-        s2d.append(s)
-        t2d.append(s)
+        res = h.interpolate(depths,bdylon,bdylat,tidx=tidx,bidx=1)
+        s2d.append(res['salinity'])
+        t2d.append(res['temperature'])
+        e1d.append(res['ssh'])
       temp.append(asarray(t2d))
       salt.append(asarray(s2d))
+      elev.append(asarray(e1d))
       times.append(time)
 
     nws.write_bdy_netcdf('SAL_3D.th.nc',asarray(times),asarray(salt).reshape(len(times),nws.num_bdy_nodes,nws.znum,1))
     nws.write_bdy_netcdf('TEM_3D.th.nc',asarray(times),asarray(temp).reshape(len(times),nws.num_bdy_nodes,nws.znum,1))
-      
+    nws.write_bdy_netcdf('elev2D.th.nc',asarray(times),asarray(elev))
+
   else:
     depths=-1.0*asarray([-3000.,-2000.,-1000,-500,-200.,-100,-50,-25,-12,-6])
-    t,s = h.interpolate(depths,40,75.0,tidx=0,bidx=1)
+    res = h.interpolate(depths,40,75.0,tidx=0,bidx=1)
 
