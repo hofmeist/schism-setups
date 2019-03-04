@@ -26,6 +26,10 @@ def create_workdir(path,origpath='/pf/g/g260078/schism/setups/arctic'):
   """
   create working directory and link necessary forcing
   """
+  import shutil
+  import os
+  if os.path.exists(path) and os.path.isdir(path):
+    shutil.rmtree(path)
   os.makedirs(path)
   os.makedirs(os.path.join(path,'outputs'))
   linklist=['sflux','elev.ic','tvd.prop','hgrid.gr3','hgrid.ll','watertype.gr3','diffmin.gr3','diffmax.gr3','windrot_geo2proj.gr3','elev2D.th.nc','SAL_3D.th.nc','TEM_3D.th.nc','vgrid.in']
