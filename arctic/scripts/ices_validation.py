@@ -90,6 +90,7 @@ for idx,dt,tidx in zip(surface['idxs'],dts,tidxs):
     
 surface['model_salt']=ma.masked_less(salt_ices,0.0).filled(numpy.nan)
 surface['model_temp']=ma.masked_less(temp_ices,0.0).filled(numpy.nan)
+surface['jd'] = days+day0
 
 surfacedf = pd.DataFrame(surface)
 
