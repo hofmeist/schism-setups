@@ -1,8 +1,7 @@
-import sys
-sys.path.append('/pf/g/g260078/schism/setups/scripts')
+import sys,os
+sys.path.append('%s/schism/setups/scripts'%os.environ['HOME'])
 from schism import *
 from pylab import interp
-import os
 
 s = schism_setup(hgrid_file='hgrid.gr3')
 
