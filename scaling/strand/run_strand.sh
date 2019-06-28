@@ -2,8 +2,9 @@
 
 #SBATCH --job-name=scalingschism     # Specify job name
 #SBATCH --ntasks=96
-#SBATCH --ntasks-per-node=24
+#SBATCH --ntasks-per-node=48
 #SBATCH --account=KST
+#SBATCH --partition=pCluster
 #SBATCH --time=00:12:00        # Set a limit on the total run time
 #SBATCH --wait-all-nodes=1     # start job, when all nodes are available
 #SBATCH --mail-type=FAIL       # Notify user by email in case of job failure
