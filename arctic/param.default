@@ -672,7 +672,7 @@
 ! a station.in. If ics=2, the cordinates in station.in must be in lon., lat,
 ! and z (positive upward; not used for 2D variables). 
 !-----------------------------------------------------------------------
-  iout_sta = 0
+  iout_sta = 1
   nspool_sta = 5 !needed if iout_sta/=0
 
 !-----------------------------------------------------------------------

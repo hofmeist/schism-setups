@@ -131,6 +131,18 @@ if True:
       ll.set_rotation(60.)
     cb.set_label(u'%s %s'%(cbtitle,unitsstr))
 
+    sax = axes([0.03,0.65,0.3,0.3])
+    tmin = min(min(df[var][thisyear]),min(df['model_%s'%var][thisyear]))
+    tmax = max(max(df[var][thisyear]),max(df['model_%s'%var][thisyear]))
+    tdiff = tmax-tmin
+    plot(df[var][thisyear],df['model_%s'%var][thisyear],'k.',alpha=0.2)
+    plot([tmin,tmax],[tmin,tmax],'k-',lw=0.5)
+    xlim(tmin,tmax)
+    ylim(tmin,tmax)
+    sax.set_aspect('equal')
+    text(0.5*tdiff+tmin,tmin+0.03*tdiff,'observations',size=10.)
+    text(tmin+0.03*tdiff,0.5*tdiff+tmin,'model',rotation=90.,ha='left',va='bottom')
+
     savefig('jpgs/ices_validation/%s_%d.jpg'%(var,year),dpi=300)
     close()
 

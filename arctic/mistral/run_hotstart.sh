@@ -28,18 +28,11 @@ module load intelmpi/5.1.3.223
 export I_MPI_PMI_LIBRARY=/use/lib64/libmpi.so
 module load python
 
-id="arctic$1"
+workdir=$1
 currmonth=$2
 initmonth='2012-01'
 
-outpath=/scratch/g/g260078/schism-results/$id/$currmonth
-mkdir -p $outpath
-rm -rf $outpath/*
-mkdir -p $outpath/outputs
-rm -f outputs
-ln -sf $outpath/outputs outputs
-
-# wait some time to have the files on the nodes
+cd $workdir/$currmonth
 
 # set runtime and get prevyear
 timestep=240
@@ -67,13 +60,13 @@ if [ "$currmonth" == "$initmonth" ] ; then
   sed -i -- 's/MY_NRAMPWIND/1/g' param.in
   sed -i -- 's/MY_NRAMPBC/1/g' param.in
   sed -i -- 's/MY_NRAMP_/1/g' param.in
-#  sed -i -- 's/MY_ICELEV/0/g' param.in
-  sed -i -- 's/MY_ICELEV/1/g' param.in
+  sed -i -- 's/MY_ICELEV/0/g' param.in
+#  sed -i -- 's/MY_ICELEV/1/g' param.in
 #  sed -i -- 's/MY_NRAMPBC/0/g' param.in
 #  sed -i -- 's/MY_NRAMP_/0/g' param.in
   sed -i -- 's/MY_IHOT/1/g' param.in
 else
-  ln -sf /scratch/g/g260078/schism-results/$id/$prevmonth/outputs/hotstart.nc hotstart.nc
+  ln -sf $workdir/$prevmonth/outputs/hotstart.nc hotstart.nc
   for i in {1..9} ; do
     touch outputs/staout_${i}
   done
@@ -87,18 +80,14 @@ else
 fi
 
 # copy parameter namelists
-cp param.in $outpath
-cp bctides.in $outpath
-cp vgrid.in $outpath
-cp fabm.nml $outpath 2> /dev/null
-cp ice.nml $outpath 2> /dev/null
+#cp param.in $outpath
+#cp bctides.in $outpath
+#cp vgrid.in $outpath
+#cp fabm.nml $outpath 2> /dev/null
+#cp ice.nml $outpath 2> /dev/null
 
 ulimit -c 0
-#srun -l --propagate=STACK,CORE --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/svn-code/trunk/icebuild/bin/pschism
-srun -l --propagate=STACK,CORE --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/svn-code/trunk/pebuild/bin/pschism
-
-# move log files
-mv fort.* mirror.out $outpath
+srun -l --propagate=STACK,CORE --cpu_bind=verbose,cores --distribution=block:cyclic ~/schism/svn-code/trunk/penoicebuild/bin/pschism
 
 # wait until all nodes/file-actions are settled
 wait
