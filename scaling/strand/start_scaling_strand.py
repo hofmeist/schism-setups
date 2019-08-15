@@ -2,10 +2,11 @@ import commands
 import os
 import sys
 
-proc_pr_node = 24
+proc_pr_node = 48 
 numnodes = [2,16,20]
 numnodes = [4,8,16,20]
-numnodes = [42]
+#numnodes = [6,10,16,20]
+numnodes = [60,80,120]
 
 depstring = ''
 for numnode in numnodes:

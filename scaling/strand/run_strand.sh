@@ -5,10 +5,10 @@
 #SBATCH --ntasks-per-node=48
 #SBATCH --account=KST
 #SBATCH --partition=pCluster
-#SBATCH --time=00:12:00        # Set a limit on the total run time
+#SBATCH --time=00:32:00        # Set a limit on the total run time
 #SBATCH --wait-all-nodes=1     # start job, when all nodes are available
 #SBATCH --mail-type=FAIL       # Notify user by email in case of job failure
-#SBATCH --mail-user=richard.hofmeister@hzg.de  # Set your e−mail address
+#SBATCH --mail-user=richard.hofmeister@hzg.de  # Set your email address
 #SBATCH --output=run_parallel.o%j    # File name for standard output
 #SBATCH --error=run_parallel.e%j     # File name for standard error output
 
@@ -16,6 +16,13 @@
 ## use Intel MPI
 module load compilers/intel
 module load intelmpi
+
+#module load compilers/intel/2019.3.199
+#module load intelmpi/2019.3.199
+
+#module load compilers/intel/2018.1.163
+#module load intelmpi/2018.1.163
+
 /project/opt/intel/bin/compilervars.sh intel64
 
 
@@ -37,7 +44,11 @@ cp vgrid.in $outpath
 
 # run the model
 #mpirun ~/schism/build/bin/pschism
+
 srun --mpi=pmi2 --export=LD_LIBRARY_PATH  ~/schism/build/bin/pschism
+#srun --mpi=pmi2 --export=LD_LIBRARY_PATH  ~/schism/build2018/bin/pschism
+mpirun  ~/schism/build/bin/pschism
+
 
 # move log files
 mv log*.e log*.o fort.* mirror.out $outpath
