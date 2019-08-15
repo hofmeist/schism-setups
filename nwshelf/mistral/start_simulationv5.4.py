@@ -1,4 +1,5 @@
-import commands
+#import commands
+import subprocess as sub
 import sys
 import os
 
@@ -59,7 +60,8 @@ for year in years:
     if debug:
       print(cmd)
     else:
-      out = commands.getoutput(cmd)
+      #out = commands.getoutput(cmd)
+      out = sub.check_output(cmd.split(),universal_newlines=True)
     pid = out.split()[-1]
 
     # merge hotstart files
@@ -76,7 +78,8 @@ for year in years:
     if debug:
       print(cmd)
     else:
-      out = commands.getoutput(cmd)
+      #out = commands.getoutput(cmd)
+      out = sub.check_output(cmd.split(),universal_newlines=True)
     omerge_pid = out.split()[-1]
 
     # plot output
@@ -84,7 +87,8 @@ for year in years:
     if debug:
       print(cmd)
     else:
-      out = commands.getoutput(cmd)
+      #out = commands.getoutput(cmd)
+      out = sub.check_output(cmd.split(),universal_newlines=True)
     plot_pid = out.split()[-1]
 
 #    cmd = 'sbatch --dependency=afterok:%s %s mistral/merge_ecosmo.sh %s %s'%(pid,logecomerge,id,yyyymm)
@@ -92,6 +96,7 @@ for year in years:
 #      print(cmd)
 #    else:
 #      out = commands.getoutput(cmd)
+#      out = sub.check_output(cmd.split(),universal_newlines=True)
 #    omerge_pid = out.split()[-1]
 
     # do plotting

@@ -10,6 +10,13 @@ try:
 except:
   use_pytides=False
 
+try:
+  import ttide as tt
+  use_ttide=True
+  use_pytides=False
+except:
+  use_ttide=False
+
 def get_stations(fname='stations.dat'):
   coords = {}
   name = {}
@@ -71,6 +78,10 @@ if __name__=='__main__':
   time,elevs = read_staout_1(staoutfile)
   idx,coords = get_stations(os.environ['HOME']+'/schism/setups/nwshelf/stations.dat')
   days = time/86400.0
+  hours = time/3600.
+  nmodeldt = 1.0
+  nhours = arange(hours[0],hours[-1]+0.5,nmodeldt)
+  modeldt = time[1]-time[0]/3600.0
 
   #name = 'stMary'
   stations=['lerwick','wick','tregde','lowestoft','stMary','bergen','aberdeen','newlyn','malin_head','castletownsend','brest','cuxhaven','gothenburg','maloy','stockholm']
@@ -80,6 +91,7 @@ if __name__=='__main__':
     except:
       nctime,ncelev = read_ncdf(name,path='/work/gg0877/KST/tide_gaughes/uhslc_hawaii')
     ncdays = nctime/86400.
+    obsdt = (ncdays[1]-ncdays[0])*24.
     
     if use_pytides:
       print('%s'%name)
@@ -94,6 +106,24 @@ if __name__=='__main__':
       for c in mod_tide.model:
       #  if c['constituent'].name in ['M2','M4','S2']:
           print(' model %s: %0.2f m'%(c['constituent'].name,c[1]))
+    if use_ttide:
+      print('%s'%name)
+      ostart,ostop = abs(ncdays-days[0]).argmin(),abs(ncdays-days[-1]).argmin()
+      try:
+        obs_tide = tt.t_tide(ncelev[ostart:ostop],dt=obsdt,out_style=None)
+        e = interp(nhours,hours,elevs[idx[name]])
+        mod_tide = tt.t_tide(e,dt=nmodeldt,out_style=None)
+        m2idx = list(mod_tide['nameu']).index(b'M2  ')
+        m4idx = list(mod_tide['nameu']).index(b'M4  ')
+        s2idx = list(mod_tide['nameu']).index(b'S2  ')
+        modtext='modelled M2: %0.3f, S2: %0.3f'%(mod_tide['tidecon'][m2idx][0],mod_tide['tidecon'][s2idx][0])
+        obstext='observed M2: %0.3f, S2: %0.3f'%(obs_tide['tidecon'][m2idx][0],obs_tide['tidecon'][s2idx][0])
+        print(modtext)
+        print(obstext)
+      except:
+        modtext='';obstext=''
+    else:
+      modtext='';obstext=''
 
     fig = figure(figsize=(20,6))
     plot(ncdays,ncelev-ncelev.mean(),'b-')
@@ -101,7 +131,7 @@ if __name__=='__main__':
     xlim(days.min(),days.max())
     xlabel('days')
     ylabel('ssh [m]')
-    title(name)
+    title(name+'\n%s\n%s'%(modtext,obstext))
     savefig(name+'_ssh.pdf')
     close()
 
