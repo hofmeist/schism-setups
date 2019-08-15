@@ -95,6 +95,16 @@
   drampbc = 7. !not used if nrampbc=0
 
 !-----------------------------------------------------------------------
+! Baroclinicity calculation in off/nearshore. The 'below-bottom' gradient
+! is zeroed out if h>=h2_bcc (i.e. like Z) or uses const extrap
+! (i.e. like terrain-following) if h<=h1_bcc(<h2_bcc) (and linear
+! transition in between based on local depth)
+!-----------------------------------------------------------------------
+  h1_bcc = 50. ![m]
+  h2_bcc = 100. ![m]; >h1_bcc
+
+
+!-----------------------------------------------------------------------
 ! Hannah-Wright-like ratio & depth used to account for under-resolution 
 ! in a b-clinic model. Used only if ibcc=0. 
 ! The b-clinic force at prism centers is calculated with a reconstruction 
@@ -751,12 +761,18 @@
 !-----------------------------------------------------------------------
   rho0 = 1000.d0 !kg/m^3
 
------------------------------------------------------------------------
+!-----------------------------------------------------------------------
+! Ice module outputs (if USE_ICE is on)
+!-----------------------------------------------------------------------
   ICE_tracer_1 = 0 !ice volume [m]
   ICE_tracer_2 = 0 !ice concentration [-]
   ICE_tracer_3 = 0 !snow volume [m]
-  ICE_velocity = 0 !ice advective velcoity [m/s]
-  ICE_strain_rate = 0 !strain rate [1/sec]
+  ICE_velocity = 0 !ice advective velcoity vector [m/s]
+  ICE_strain_rate = 0 !strain rate @ elem [1/sec]
+  ICE_net_heat_flux = 0 !net heat flux to ocean (>0 warm up SST) [W/m/m]
+  ICE_fresh_water = 0 !net fresh water flux to ocean (>0 freshens up SSS) [kg/s/m/m]
+  ICE_top_T = 0 !ice temperature [C] at air-ice interface
+
   nstep_ice = 1  
 
   shorewafo = 0
