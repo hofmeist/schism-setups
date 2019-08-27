@@ -39,7 +39,7 @@ for year in years:
   yearmonths[year] = range(sm,em+1)
 
 rundep=''
-debug=True
+debug=False
 if debug: out="1 1"
 outdir=os.path.join('/gpfs/work',os.environ['USER'])
 # create output directory for log-files

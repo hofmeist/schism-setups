@@ -23,9 +23,8 @@ cd $resdir/outputs
 days=$(python ~/schism/setups/nwshelf/mistral/get_rnday.py $mstr 2012-01)
 iteration=$(python -c "print('%d'%int( ($days*86400./240.) ))")
 
-module load python
 # combine hotstart
-$HOME/schism/trunk/build/bin/combine_hotstart7 -i $iteration
+$HOME/schism/build/bin/combine_hotstart7 -i $iteration
 
 # rename to avoid it=*
 mv hotstart_it*.nc hotstart.nc

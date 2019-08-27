@@ -2,7 +2,7 @@
 
 #SBATCH --job-name=nwschism     # Specify job name
 #SBATCH --partition=pCluster    # Specify partition name
-#SBATCH --ntasks=1080
+#SBATCH --ntasks=960
 #SBATCH --ntasks-per-node=48
 #SBATCH --time=04:00:00        # Set a limit on the total run time
 #SBATCH --wait-all-nodes=1     # start job, when all nodes are available
@@ -35,12 +35,12 @@ prevmonth=$(python ~/schism/setups/nwshelf/mistral/get_prevmonth.py $currmonth)
 rnday=$(python ~/schism/setups/nwshelf/mistral/get_rnday.py $currmonth $initmonth)
 #ihfskip=360 # this is for daily files
 ihfskip=$(python ~/schism/setups/nwshelf/mistral/get_ihfskip.py $currmonth $timestep $initmonth)
-cp param.default param.in
-sed -i -- "s/MY_RNDAY/$rnday/g" param.in
-sed -i -- "s/MY_IHFSKIP/$ihfskip/g" param.in
-sed -i -- "s/MY_NSPOOL/$nspool/g" param.in
-sed -i -- "s/MY_HOTOUT_WRITE/$ihfskip/g" param.in
-sed -i -- "s/MY_DT/$timestep/g" param.in
+cp param.nml.default param.nml
+sed -i -- "s/MY_RNDAY/$rnday/g" param.nml
+sed -i -- "s/MY_IHFSKIP/$ihfskip/g" param.nml
+sed -i -- "s/MY_NSPOOL/$nspool/g" param.nml
+sed -i -- "s/MY_HOTOUT_WRITE/$ihfskip/g" param.nml
+sed -i -- "s/MY_DT/$timestep/g" param.nml
 
 # run the model
 # --distribution=block:cyclic bind tasks to physical cores
@@ -48,37 +48,36 @@ rm -f hotstart.nc
 if [ "$currmonth" == "$initmonth" ] ; then
   ln -sf /gpfs/work/$USER/nwshelf/input/hotstart_january.nc hotstart.nc
   # use ramps here
-  sed -i -- 's/MY_NRAMP_SS/1/g' param.in
-  sed -i -- 's/MY_NRAMPWIND/1/g' param.in
-  sed -i -- 's/MY_NRAMPBC/1/g' param.in
-  sed -i -- 's/MY_NRAMP_/1/g' param.in
-  sed -i -- 's/MY_ICELEV/0/g' param.in
-#  sed -i -- 's/MY_ICELEV/1/g' param.in
-#  sed -i -- 's/MY_NRAMPBC/0/g' param.in
-#  sed -i -- 's/MY_NRAMP_/0/g' param.in
-  sed -i -- 's/MY_IHOT/1/g' param.in
+  sed -i -- 's/MY_NRAMP_SS/1/g' param.nml
+  sed -i -- 's/MY_NRAMPWIND/1/g' param.nml
+  sed -i -- 's/MY_NRAMPBC/1/g' param.nml
+  sed -i -- 's/MY_NRAMP_/1/g' param.nml
+  sed -i -- 's/MY_ICELEV/0/g' param.nml
+#  sed -i -- 's/MY_ICELEV/1/g' param.nml
+#  sed -i -- 's/MY_NRAMPBC/0/g' param.nml
+#  sed -i -- 's/MY_NRAMP_/0/g' param.nml
+  sed -i -- 's/MY_IHOT/1/g' param.nml
 else
   ln -sf /gpfs/work/$USER/schism-results/$id/$prevmonth/outputs/hotstart.nc hotstart.nc
   for i in {1..9} ; do
-    touch outputs/staout_${i}
+    cp /gpfs/work/$USER/schism-results/$id/$prevmonth/outputs/staout_${i} outputs/staout_${i}
   done
   # disable ramps here
-  sed -i -- 's/MY_NRAMP_SS/0/g' param.in
-  sed -i -- 's/MY_NRAMPWIND/0/g' param.in
-  sed -i -- 's/MY_NRAMPBC/0/g' param.in
-  sed -i -- 's/MY_NRAMP_/0/g' param.in
-  sed -i -- 's/MY_ICELEV/0/g' param.in
-  sed -i -- 's/MY_IHOT/2/g' param.in
+  sed -i -- 's/MY_NRAMP_SS/0/g' param.nml
+  sed -i -- 's/MY_NRAMPWIND/0/g' param.nml
+  sed -i -- 's/MY_NRAMPBC/0/g' param.nml
+  sed -i -- 's/MY_NRAMP_/0/g' param.nml
+  sed -i -- 's/MY_ICELEV/0/g' param.nml
+  sed -i -- 's/MY_IHOT/2/g' param.nml
 fi
 
 # copy parameter namelists
-cp param.in $outpath
 cp param.nml $outpath
 cp bctides.in $outpath
 cp vgrid.in $outpath
-cp fabm.nml $outpath
+[[ -e fabm.nml ]] && cp fabm.nml $outpath
 
-mpirun  ~/schism/trunk/build/bin/pschism
+mpirun  ~/schism/build/bin/pschism
 
 mv fort.* mirror.out $outpath
 
