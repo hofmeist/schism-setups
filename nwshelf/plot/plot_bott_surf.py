@@ -5,7 +5,10 @@ matplotlib.use('Agg')
 from mpl_toolkits.basemap import Basemap
 from pylab import *
 import pickle,os
-from netcdftime import utime
+try:
+  from netcdftime import utime
+except:
+  from cftime import utime
 import argparse
 
 def replace_superscripts(s):

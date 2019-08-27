@@ -9,7 +9,10 @@ import netCDF4
 from scipy.spatial import cKDTree 
 import os
 import argparse
-from netcdftime import utime
+try:
+  from netcdftime import utime
+except:
+  from cftime import utime
 import numpy as np
 import cPickle as pickle
 
