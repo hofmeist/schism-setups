@@ -28,7 +28,7 @@ module load intelmpi
 
 id="$1"
 
-outpath=/gpfs/work/hofmeist/schism-results/$id
+outpath=/gpfs/work/$USER/schism-results/$id
 mkdir -p $outpath
 rm -rf $outpath/*
 mkdir -p $outpath/outputs
@@ -39,14 +39,9 @@ cp param.nml $outpath
 cp bctides.in $outpath
 cp vgrid.in $outpath
 
-# wait some time to have the files on the nodes
-#sleep 5
 
 # run the model
-#mpirun ~/schism/build/bin/pschism
-
-srun --mpi=pmi2 --export=LD_LIBRARY_PATH  ~/schism/build/bin/pschism
-#srun --mpi=pmi2 --export=LD_LIBRARY_PATH  ~/schism/build2018/bin/pschism
+#srun --mpi=pmi2 --export=LD_LIBRARY_PATH  ~/schism/build/bin/pschism
 mpirun  ~/schism/build/bin/pschism
 
 

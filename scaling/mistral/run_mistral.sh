@@ -27,7 +27,7 @@ export I_MPI_PMI_LIBRARY=/use/lib64/libmpi.so
 
 id="$1"
 
-outpath=/scratch/g/g260078/schism-results/$id
+outpath=/scratch/g/$USER/schism-results/$id
 mkdir -p $outpath
 rm -rf $outpath/*
 mkdir -p $outpath/outputs
