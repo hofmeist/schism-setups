@@ -22,7 +22,7 @@ else:
     end_year=2012
     end_month=12
 
-def create_workdir(path,origpath='/pf/g/g260078/schism/setups/arctic'):
+def create_workdir(path,origpath='/pf/g/$USER/schism/setups/arctic'):
   """
   create working directory and link necessary forcing
   """
@@ -70,7 +70,7 @@ for year in years:
 debug=False
 runid='arctic'+id
 if debug: out="1 1"
-workdir='/scratch/g/g260078/schism-results/%s'%runid
+workdir='/scratch/g/$USER/schism-results/%s'%runid
 os.system('mkdir -p %s'%workdir)
 
 for year in years:

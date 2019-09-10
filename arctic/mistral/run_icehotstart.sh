@@ -55,8 +55,8 @@ sed -i -- "s/MY_DT/$timestep/g" param.in
 # --distribution=block:cyclic bind tasks to physical cores
 rm -f hotstart.nc
 if [ "$currmonth" == "$initmonth" ] ; then
-  #ln -sf /work/gg0877/hofmeist/arctic/input/hotstart_january_woa_tweak.nc hotstart.nc
-  ln -sf /work/gg0877/hofmeist/arctic/input/hotstart_base.nc hotstart.nc
+  #ln -sf /work/gg0877/KST/MiMeMo/3dsetup/input/hotstart_january_woa_tweak.nc hotstart.nc
+  ln -sf /work/gg0877/KST/MiMeMo/3dsetup/input/hotstart_base.nc hotstart.nc
   # use ramps here
   sed -i -- 's/MY_NRAMP_SS/1/g' param.in
   sed -i -- 's/MY_NRAMPWIND/1/g' param.in

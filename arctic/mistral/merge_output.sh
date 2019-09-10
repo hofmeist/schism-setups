@@ -31,8 +31,8 @@ wait
 # move results
 echo "  move results..."
 sname=$id/$yyyymm
-swd=/work/gg0877/hofmeist/arctic/$sname
-scratchdir=/scratch/g/g260078/schism-results/$sname
+swd=/work/gg0877/$USER/arctic/$sname
+scratchdir=/scratch/g/$USER/schism-results/$sname
 mkdir -p $swd
 
 cp $scratchdir/outputs/staout* $swd &
