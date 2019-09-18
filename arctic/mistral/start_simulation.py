@@ -22,7 +22,7 @@ else:
     end_year=2012
     end_month=12
 
-def create_workdir(path,origpath='/pf/g/$USER/schism/setups/arctic'):
+def create_workdir(path,origpath='/pf/g/%s/schism/setups/arctic'%os.environ['USER']):
   """
   create working directory and link necessary forcing
   """
@@ -70,7 +70,7 @@ for year in years:
 debug=False
 runid='arctic'+id
 if debug: out="1 1"
-workdir='/scratch/g/$USER/schism-results/%s'%runid
+workdir='/scratch/g/%s/schism-results/%s'%(os.environ['USER'],runid)
 os.system('mkdir -p %s'%workdir)
 
 for year in years:
@@ -87,7 +87,8 @@ for year in years:
     create_workdir(currdir)
 
     # run the model
-    cmd = 'sbatch %s %s mistral/run_hotstart.sh %s %s'%(rundep,logrun,workdir,yyyymm)
+    #cmd = 'sbatch %s %s mistral/run_hotstart.sh %s %s'%(rundep,logrun,workdir,yyyymm)
+    cmd = 'sbatch %s %s mistral/run_icehotstart.sh %s %s'%(rundep,logrun,workdir,yyyymm)
     if debug:
       print(cmd.split())
     else:
