@@ -87,8 +87,7 @@ for year in years:
     create_workdir(currdir)
 
     # run the model
-    #cmd = 'sbatch %s %s mistral/run_hotstart.sh %s %s'%(rundep,logrun,workdir,yyyymm)
-    cmd = 'sbatch %s %s mistral/run_icehotstart.sh %s %s'%(rundep,logrun,workdir,yyyymm)
+    cmd = 'sbatch %s %s mistral/run_hotstart.sh %s %s'%(rundep,logrun,workdir,yyyymm)
     if debug:
       print(cmd.split())
     else:
